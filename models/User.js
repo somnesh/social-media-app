@@ -11,7 +11,9 @@ const jwt = require("jsonwebtoken");
 // password
 // profile_picture_url
 // profile_bio
+// timestamps
 
+// collection schema
 const UserSchema = new mongoose.Schema(
   {
     name: {
@@ -21,7 +23,7 @@ const UserSchema = new mongoose.Schema(
       maxlength: 50,
     },
     date_of_birth: {
-      type: Date,
+      type: String,
       required: [true, "Please provide date of birth"],
     },
     username: {
@@ -67,19 +69,22 @@ const UserSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
+// before inserting all data into the database, hashing the password for privacy and security
 UserSchema.pre("save", async function () {
   const salt = await bcrypt.genSalt(10);
   this.password = await bcrypt.hash(this.password, salt);
 });
 
+// creating a Json WebToken
 UserSchema.methods.createJWT = function () {
-  //   return jwt.sign(
-  //     { userId: this._id, name: this.name },
-  //     process.env.JWT_SECRET,
-  //     { expiresIn: process.env.JWT_LIFESPAN }
-  //   );
+  return jwt.sign(
+    { userId: this._id, name: this.name },
+    process.env.JWT_SECRET,
+    { expiresIn: process.env.JWT_LIFESPAN }
+  );
 };
 
+// this function compares hashed password from the database with the user given password while login
 UserSchema.methods.comparePassword = async function (candidatePassword) {
   const isMatch = await bcrypt.compare(candidatePassword, this.password);
   return isMatch;
