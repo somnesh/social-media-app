@@ -14,6 +14,7 @@ After that you need to setup 2 files, `.env` and `.gitignore`. The `.env` file s
 and the `.gitignore` file should contain the following,
 1. `/node_modules`
 2. `.env`
+   
 After setting all this up, you can start the server by running the following command
 ```terminal
 npm start
