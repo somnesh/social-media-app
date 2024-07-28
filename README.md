@@ -12,7 +12,7 @@ Run the following code after cloning or downloading the project.
 npm install
 ```
 
-After that you need to setup `.env` file. The `.env` file should contain 3 things for at least now,
+After that, you need to setup `.env` file. The `.env` file should contain 3 things for at least now,
 
 1. `MONGO_URI`
 2. `JWT_SECRET`
