@@ -1,27 +1,35 @@
 ## Prerequisite
+
 - `Node.js` should be installed before proceed further.
 - A `MongoDB Atlas` account
+- (Optional) For API testing `Postman`
+
 ## Installation
+
 Run the following code after cloning or downloading the project.
-```terminal
+
+```bash
 npm install
 ```
-After that you need to setup 2 files, `.env` and `.gitignore`. The `.env` file should contain 3 things for atleast now, 
+
+After that you need to setup `.env` file. The `.env` file should contain 3 things for at least now,
+
 1. `MONGO_URI`
 2. `JWT_SECRET`
 3. `JWT_LIFESPAN`
-   
-and the `.gitignore` file should contain the following,
-1. `/node_modules`
-2. `.env`
-   
+
 After setting all this up, you can start the server by running the following command
-```terminal
+
+```bash
 npm start
 ```
+
 If you can see a log in the terminal that says
-```terminal
+
+```bash
 Server is listening on port 3000...
 ```
+
 you are good to go, if not then troubleshoot.
-Good luck.
+
+Good luck 🍀.
