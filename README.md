@@ -6,7 +6,7 @@ A social media app inspired by Twitter. It is a full stack web application that 
 
 - [Features](#features)
 - [Technologies Used](#technologies-used)
-- [Prerequisite](#Prerequisite)
+- [Prerequisite](#prerequisite)
 - [Installation](#installation)
 <!-- - [Usage](#usage)
 - [Project Structure](#project-structure)
@@ -24,13 +24,13 @@ A social media app inspired by Twitter. It is a full stack web application that 
 
 **Frontend**:
 
-- Core: HTML, CSS, JavaScript
-- Library: React.js
+- **Core:** HTML, CSS, JavaScript
+- **Library:** React.js
 
 **Backend**:
 
-- Core: Node.js
-- Framework: Express.js
+- **Core:** Node.js
+- **Framework:** Express.js
 
 **Database**
 
@@ -47,10 +47,10 @@ A social media app inspired by Twitter. It is a full stack web application that 
 
 ## Installation
 
-### Follow the step by step procedure for your local development setup:
+### Follow the step-by-step procedure for your local development setup:
 
 **Clone the repository:**
-First clone the repository, for any help or step by step procedure how to clone a repository please check out this article:
+First, clone the repository, for any help or step-by-step procedure on how to clone a repository please check out this article:
 https://docs.github.com/en/repositories/creating-and-managing-repositories/cloning-a-repository
 
 **Intermediate Steps:**
@@ -62,7 +62,7 @@ cd your-local-path/social-media-app
 ```
 
 **Main Setup:**
-There are 2 individual setup required:
+There are 2 individual setups required:
 
 1. [Frontend](#client-setup)
 2. [Backend](#server-setup)
@@ -87,34 +87,39 @@ This will install all the necessary packages. After all packages are downloaded 
 npm run dev
 ```
 
-If everything is good then you should see
+If everything is good then you should see:
+
 ![Vite server running screenshot](images/vite.png)
 
 ### Server Setup:
 
-In the server setup before you do anything, you need to setup `.env` file. The `.env` file should contain 3 things for at least now,
+Before you do anything in the server setup, you need to set up the `.env` file. The `.env` file should contain 3 things for at least now,
 
 1. `MONGO_URI`
 2. `JWT_SECRET`
 3. `JWT_LIFESPAN`
 
 The `MONGO_URI` is your `MongoDB atlas` database connection string.
-The `JWT_SECRET` contains a Encryption key, you need to create a Encryption key 256bit. You can use this website for the key generation: https://acte.ltd/utils/randomkeygen.
+The `JWT_SECRET` contains an Encryption key, you need to create an Encryption key 256bit. You can use this website for the key generation: https://acte.ltd/utils/randomkeygen.
 You can set `JWT_LIFESPAN` as long as you want but `30d` is recommended.
 
-After setting all this up, run the following command,
+After setting all this up, again make sure to change the directory in your terminal,
+
+```bash
+cd server
+```
+After changing the directory, run the following command,
 
 ```bash
 npm install
 ```
-
-Then you can start the server by running the following command,
+This will install all the necessary packages. Then you can start the server by running the following command,
 
 ```bash
 npm start
 ```
 
-If you can see a log in the terminal that says
+If you can see a log in the terminal that says,
 
 ```bash
 Server is listening on port 3000...
