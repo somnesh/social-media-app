@@ -1,5 +1,6 @@
 require("dotenv").config();
 require("express-async-errors");
+const cors = require("cors");
 
 const express = require("express");
 const app = express();
@@ -19,6 +20,9 @@ const postRoute = require("./routes/post");
 // middleware
 app.use(express.static("./public"));
 app.use(express.json());
+
+// cors middleware
+app.use(cors());
 
 // routes
 app.use("/api/v1/auth", authRoute);
