@@ -1,6 +1,6 @@
 # Social Media App (similar to Twitter)
 
-A social media app inspired by Twitter. It is a full stack web application that uses various web technologies for it's implementation.
+A social media app inspired by Twitter. It is a full-stack web application that uses various web technologies for its implementation.
 
 ## Table of Contents
 
@@ -14,11 +14,11 @@ A social media app inspired by Twitter. It is a full stack web application that 
 
 ## Features
 
-- User can create an account and existing users can login to their account.
-- User can create post, it can be only text or with a photo.
+- Users can create an account and existing users can login to their account.
+- The user can create a post, it can be only text or with a photo.
 - User can edit their posts after publishing.
-- User can like and comment to other posts posted by other users.
-- Users can check their own profile and other peoples profile as well.
+- Users can like and comment on other posts posted by other users.
+- Users can check their profile and other people's profile as well.
 
 ## Technologies Used
 
