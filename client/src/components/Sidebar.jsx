@@ -1,6 +1,6 @@
 export function Sidebar(params) {
   return (
-    <section className="dark:bg-slate-900 basis-1/4">
+    <section className="dark:bg-[18191a] basis-1/4">
       <div className="flex items-center gap-1 p-2">
         <span className="material-symbols-outlined">home</span>
         <span>Home</span>
