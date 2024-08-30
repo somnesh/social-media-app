@@ -2,7 +2,7 @@ import { Post } from "./Post";
 
 export function Feed() {
   return (
-    <section className="basis-1/2">
+    <section className="basis-1/2 mx-16">
       <div className="create-new-post bg-white dark:bg-[#242526] px-4 py-2">
         <div className="flex items-center">
           <div className="basis-1/6 ">
