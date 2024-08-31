@@ -1,18 +1,11 @@
 import {
-  Cloud,
-  CreditCard,
-  Github,
-  Keyboard,
-  LifeBuoy,
   LogOut,
-  Mail,
-  MessageSquare,
-  Plus,
-  PlusCircle,
   Settings,
   User,
-  UserPlus,
-  Users,
+  SunMoon,
+  Moon,
+  Sun,
+  MessageSquareWarning
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -40,52 +33,51 @@ export function ProfileMenu() {
         </span>
       </DropdownMenuTrigger>
 
-      <DropdownMenuContent className="w-48 ">
-        <DropdownMenuLabel>My Account</DropdownMenuLabel>
-        <DropdownMenuSeparator />
+      <DropdownMenuContent className="w-48 dark:bg-[#242526]  dark:text-white dark:border-none">
         <DropdownMenuGroup>
-          <DropdownMenuItem>
+          <DropdownMenuItem className="dark:focus:bg-[#414141] dark:focus:text-white cursor-pointer">
             <User className="mr-2 h-4 w-4" />
             <span>Profile</span>
             <DropdownMenuShortcut>⇧⌘P</DropdownMenuShortcut>
           </DropdownMenuItem>
 
-          <DropdownMenuItem>
+          <DropdownMenuItem className="cursor-pointer dark:focus:bg-[#414141] dark:text-white">
             <Settings className="mr-2 h-4 w-4" />
             <span>Settings</span>
             <DropdownMenuShortcut>⌘S</DropdownMenuShortcut>
           </DropdownMenuItem>
         </DropdownMenuGroup>
 
-        <DropdownMenuSeparator />
+        {/* <DropdownMenuSeparator className="dark:border-none"/> */}
 
         <DropdownMenuGroup>
-          <DropdownMenuSub>
-            <DropdownMenuSubTrigger>
-              <UserPlus className="mr-2 h-4 w-4" />
+          <DropdownMenuSub className="dark:hover:text-black dark:focus:bg-[#414141]">
+            <DropdownMenuSubTrigger className="cursor-pointer dark:focus:bg-[#414141]">
+              <SunMoon className="mr-2 h-4 w-4" />
               <span>Themes</span>
             </DropdownMenuSubTrigger>
             <DropdownMenuPortal>
-              <DropdownMenuSubContent>
-                <DropdownMenuItem>
-                  <Mail className="mr-2 h-4 w-4" />
+              <DropdownMenuSubContent className="dark:bg-[#242526] dark:text-white dark:border-none">
+                <DropdownMenuItem className="cursor-pointer dark:focus:bg-[#414141] dark:text-white">
+                  <Moon className="mr-2 h-4 w-4" />
                   <span>Dark Mode</span>
                 </DropdownMenuItem>
-                <DropdownMenuItem>
-                  <MessageSquare className="mr-2 h-4 w-4" />
+                <DropdownMenuItem className="cursor-pointer dark:focus:bg-[#414141] dark:text-white">
+                  <Sun className="mr-2 h-4 w-4" />
                   <span>Light Mode</span>
                 </DropdownMenuItem>
               </DropdownMenuSubContent>
             </DropdownMenuPortal>
           </DropdownMenuSub>
-          <DropdownMenuItem>
-            <Users className="mr-2 h-4 w-4" />
+          <DropdownMenuItem className="cursor-pointer dark:focus:bg-[#414141] dark:text-white">
+            <MessageSquareWarning className="mr-2 h-4 w-4" />
             <span>Feedback</span>
           </DropdownMenuItem>
         </DropdownMenuGroup>
 
-        <DropdownMenuSeparator />
-        <DropdownMenuItem>
+        {/* <DropdownMenuSeparator /> */}
+
+        <DropdownMenuItem className="cursor-pointer dark:focus:bg-[#414141] dark:text-white">
           <LogOut className="mr-2 h-4 w-4" />
           <span>Log out</span>
           <DropdownMenuShortcut>⇧⌘Q</DropdownMenuShortcut>

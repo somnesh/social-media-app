@@ -1,24 +1,26 @@
+import { Bookmark, Gem, Home, UserPlus, Users } from "lucide-react";
+
 export function Sidebar(params) {
   return (
     <section className="dark:bg-[18191a] basis-1/4">
       <div className="flex items-center gap-1 p-2">
-        <span className="material-symbols-outlined">home</span>
+        <Home/>
         <span>Home</span>
       </div>
       <div className="flex items-center gap-1 p-2">
-        <span className="material-symbols-outlined">group</span>
+        <Users/>
         <span>Friends</span>
       </div>
       <div className="flex items-center gap-1 p-2">
-        <span className="material-symbols-outlined">group_add</span>
+        <UserPlus/>
         <span>Friend Requests</span>
       </div>
       <div className="flex items-center gap-1 p-2">
-        <span className="material-symbols-outlined">bookmark</span>
+        <Bookmark/>
         <span>Saved</span>
       </div>
       <div className="flex items-center gap-1 p-2">
-        <span className="material-symbols-outlined">diamond</span>
+        <Gem/>
         <span>Premium</span>
       </div>
     </section>
