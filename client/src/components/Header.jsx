@@ -5,7 +5,7 @@ export function Header() {
   const buttonClick = () => {};
 
   return (
-    <header className="flex py-2 px-4 bg-white dark:bg-[#242526] items-center">
+    <header className="flex py-1 pl-3 pr-2 bg-white dark:bg-[#242526] items-center sticky top-0 transition-colors duration-500">
       <section className="basis-1/4">
         <SearchBar />
       </section>
@@ -18,14 +18,7 @@ export function Header() {
       </section>
 
       <section className="flex basis-1/4 justify-end items-center gap-2">
-        <h2>
-          <ProfileMenu />
-        </h2>
-        <img
-          className="rounded-full"
-          src="https://via.placeholder.com/40"
-          alt="photo"
-        />
+        <ProfileMenu />
       </section>
     </header>
   );
