@@ -2,10 +2,8 @@ import { ProfileMenu } from "./ProfileMenu";
 import { SearchBar } from "./SearchBar";
 
 export function Header() {
-  const buttonClick = () => {};
-
   return (
-    <header className="flex py-1 pl-3 pr-2 bg-white dark:bg-[#242526] items-center sticky top-0 transition-colors duration-500">
+    <header className="flex py-1 pl-3 pr-2 bg-white dark:bg-[#242526] items-center sticky top-0 transition-colors duration-500 shadow-md">
       <section className="basis-1/4">
         <SearchBar />
       </section>
