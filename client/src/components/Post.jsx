@@ -1,4 +1,4 @@
-import { Heart, MessageCircle, Repeat2 } from "lucide-react";
+import { Globe, Heart, MessageCircle, Repeat2 } from "lucide-react";
 
 export function Post() {
   return (
@@ -12,7 +12,14 @@ export function Post() {
           />
         </div>
         <div className="">
-          <span>name+time+vis</span>
+          <h2 className="font-medium">Atanu Malik</h2>
+          <div className="flex gap-1 items-center">
+            <span>
+              <Globe size={16} strokeWidth={1.25} />
+            </span>
+
+            <span>2hrs</span>
+          </div>
         </div>
       </div>
       <div className="flex flex-col py-2">
