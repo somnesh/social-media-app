@@ -17,7 +17,10 @@ export function Post() {
       </div>
       <div className="flex flex-col py-2">
         <div className="pb-2">caption</div>
-        <img src="https://via.placeholder.com/640" alt="photo" />
+        <img
+          src="https://yt3.googleusercontent.com/g3j3iOUOPhNxBCNAArBqiYGzHzCBIzr_Al8mdvtBJeZMGFDblnU5rlVUt6GY01AUwm7Cp70J=s900-c-k-c0x00ffffff-no-rj"
+          alt="photo"
+        />
       </div>
       <div className="flex py-1 border-y dark:dark:border-y-[#3a3b3c]">
         <div className="flex basis-1/3 justify-center transition delay-75 ease-in gap-1 p-2 hover:bg-[#f9188110] hover:text-[#f91880] cursor-pointer rounded-md">
