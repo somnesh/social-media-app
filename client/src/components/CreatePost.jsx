@@ -1,5 +1,12 @@
 import { Image, ListTodo, MapPin, X } from "lucide-react";
 import { Button } from "./ui/button";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 export function CreatePost({ newPost, setNewPost }) {
   const closePopup = () => {
@@ -28,9 +35,16 @@ export function CreatePost({ newPost, setNewPost }) {
               />
               <span>Username</span>
             </div>
-            <div>
-              <h3>Dropdown</h3>
-            </div>
+            <Select>
+              <SelectTrigger className="w-[180px]">
+                <SelectValue placeholder="Visibility" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="public">Public</SelectItem>
+                <SelectItem value="friends">Friends</SelectItem>
+                <SelectItem value="private">Private</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
           <div className="my-4">
             <textarea
