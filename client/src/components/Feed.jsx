@@ -89,7 +89,7 @@ export function Feed() {
           {/* Main feed starts from here */}
           <div>
             {posts.map((post) => (
-              <Post details={post} />
+              <Post key={post._id} details={post} />
             ))}
           </div>
         </>

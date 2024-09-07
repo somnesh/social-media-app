@@ -55,10 +55,10 @@ export function Post({ details }) {
     postDuration = `Just now`;
   } else if (diffInMinutes < 60) {
     postDuration = `${diffInMinutes} minutes ago`;
-  } else if (diffInHours < 60) {
+  } else if (diffInHours < 24) {
     postDuration = `${diffInHours} hours ago`;
   } else if (diffInDays < 30) {
-    postDuration = `${diffInDays} days ago`;
+    postDuration = diffInDays === 1 ? `a day ago` :`${diffInDays} days ago`;
   } else {
     postDuration = `${postDate.getDate()} ${monthNames[postDate.getMonth()]}`;
   }
@@ -84,7 +84,7 @@ export function Post({ details }) {
                 <Lock size={16} strokeWidth={1.25} />
               )}
             </span>
-            <span>{postDuration}</span>
+            <span> · {postDuration}</span>
           </div>
         </div>
       </div>
