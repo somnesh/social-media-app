@@ -9,8 +9,12 @@ const jwt = require("jsonwebtoken");
 // phone_no
 // email
 // password
-// profile_picture_url
+// avatar
 // profile_bio
+// role [admin, user]
+// verificationToken
+// isVerified
+// verified
 // timestamps
 
 // collection schema
@@ -30,6 +34,9 @@ const UserSchema = new mongoose.Schema(
       type: String,
       required: [true, "please provide an username"],
       unique: true,
+      index: true,
+      trim: true,
+      lowercase: true,
       minlength: 3,
       maxlength: 12,
     },
@@ -48,6 +55,8 @@ const UserSchema = new mongoose.Schema(
       type: String,
       required: [true, "Please provide a email"],
       unique: true,
+      trim: true,
+      lowercase: true,
       match: [
         /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/,
         ,
@@ -59,28 +68,77 @@ const UserSchema = new mongoose.Schema(
       required: [true, "please provide a password"],
       minlength: 6,
     },
-    profile_picture_url: {
+    avatar: {
       type: String,
+      default: null,
     },
     profile_bio: {
       type: String,
+      default: null,
+    },
+    role: {
+      type: String,
+      enum: ["user", "admin"],
+      default: "user",
+    },
+    verificationToken: {
+      type: String,
+    },
+    isVerified: {
+      type: Boolean,
+      default: false,
+    },
+    verified: {
+      type: Date,
     },
   },
   { timestamps: true }
 );
 
 // before inserting all data into the database, hashing the password for privacy and security
-UserSchema.pre("save", async function () {
-  const salt = await bcrypt.genSalt(10);
-  this.password = await bcrypt.hash(this.password, salt);
+UserSchema.pre("save", async function (next) {
+  if (!this.isModified("password")) return next();
+
+  // const salt = await bcrypt.genSalt(10);
+  this.password = await bcrypt.hash(this.password, 10);
+  next();
 });
+
+// JWT token structure
+// {
+//    "userId": some id
+//    "name": user's display name
+//    "role": admin or user
+//    "avatar": profile picture
+//    "iat": when the token issued
+//    "exp": when the token expires
+// }
 
 // creating a Json WebToken
 UserSchema.methods.createJWT = function () {
+  console.log(this.role);
+  
   return jwt.sign(
-    { userId: this._id, name: this.name },
+    { 
+      userId: this._id, 
+      name: this.name, 
+      role: this.role, 
+      avatar: this.avatar 
+    },
     process.env.JWT_SECRET,
-    { expiresIn: process.env.JWT_LIFESPAN }
+    { expiresIn: this.role === "admin" ? "1hr" : process.env.JWT_LIFESPAN }
+  );
+};
+
+UserSchema.methods.createJWTRefresh = function () {
+  return jwt.sign(
+    { 
+      userId: this._id, 
+    },
+    process.env.JWT_REFRESH_SECRET,
+    {
+      expiresIn: this.role === "admin" ? "1hr" : process.env.JWT_REFRESH_LIFESPAN,
+    }
   );
 };
 
