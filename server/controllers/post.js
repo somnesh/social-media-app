@@ -13,7 +13,13 @@ const getAllPost = async (req, res) => {
 };
 
 const createPost = async (req, res) => {
+  console.log("cloudinaryRes: ", req.body.cloudinaryRes);
+  const cloudinaryResponse = req.body.cloudinaryRes;
+  if (cloudinaryResponse) {
+    req.body.image_url = cloudinaryResponse.secure_url;
+  }
   req.body.user_id = req.user.userId;
+
   const post = await Post.create(req.body);
   res.status(StatusCodes.CREATED).json({ post });
 };
