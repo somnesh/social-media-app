@@ -1,8 +1,38 @@
 import axios from "axios";
-import { Globe, Heart, Lock, MessageCircle, Repeat2, Users } from "lucide-react";
+import {
+  BookmarkPlus,
+  Ellipsis,
+  FilePenLine,
+  Globe,
+  Heart,
+  Lock,
+  MessageCircle,
+  Repeat2,
+  Trash2,
+  UserCog,
+  Users,
+} from "lucide-react";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
+
+
 import { useEffect, useState } from "react";
 
-export function Post({ details }) {
+export function Post({ details, refreshFeed, setRefreshFeed }) {
   const [userInfo, setUserInfo] = useState([]);
   useEffect(() => {
     (async () => {
@@ -25,7 +55,7 @@ export function Post({ details }) {
   }, []);
 
   // console.log(details.visibility);
-  
+
   const postDate = new Date(details.createdAt);
   const currentDate = new Date();
 
@@ -58,12 +88,30 @@ export function Post({ details }) {
   } else if (diffInHours < 24) {
     postDuration = `${diffInHours} hours ago`;
   } else if (diffInDays < 30) {
-    postDuration = diffInDays === 1 ? `a day ago` :`${diffInDays} days ago`;
+    postDuration = diffInDays === 1 ? `a day ago` : `${diffInDays} days ago`;
   } else {
     postDuration = `${postDate.getDate()} ${monthNames[postDate.getMonth()]}`;
   }
+
+  const handleDelete = async () => {
+    try {
+      const response = await axios.delete(
+        `http://localhost:3000/api/v1/post/${details._id}`,
+        {
+          headers: {
+            Authorization:
+              "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2NmE0YTViNzZmZWNhM2JmNGU0OTA1ZmUiLCJuYW1lIjoiam9obiBkb2UiLCJyb2xlIjoidXNlciIsImF2YXRhciI6bnVsbCwiaWF0IjoxNzI1Njk1MDIwLCJleHAiOjE3MjU3ODE0MjB9.mP6kU-iTTNaM30LsH17dZHiebJ_Xxcc9NsXA9MzzPi4",
+          },
+        }
+      );
+      console.log(response.data);
+      setRefreshFeed(!refreshFeed);
+    } catch (error) {
+      console.log(error);
+    }
+  };
   return (
-    <div className="bg-white dark:bg-[#242526] px-4 py-2 rounded-lg mb-4">
+    <div className="bg-white dark:bg-[#242526] px-4 py-2 rounded-lg mb-4 relative">
       <div className="flex items-center gap-3 pt-2">
         <div className="">
           <img
@@ -87,6 +135,61 @@ export function Post({ details }) {
             <span> · {postDuration}</span>
           </div>
         </div>
+        <Popover>
+          <PopoverTrigger asChild>
+            <div className="py-1 px-1 top-2 right-2 absolute hover:bg-[#F0F2F5] dark:hover:bg-[#414141] rounded-full cursor-pointer">
+              <Ellipsis />
+            </div>
+          </PopoverTrigger>
+          <PopoverContent className="w-56 dark:bg-[#242526] border dark:border-[#3a3b3c] p-2">
+            <div className="flex flex-col gap-1">
+              <div className="flex hover:bg-[#f3f4f6] dark:hover:bg-[#414141] cursor-pointer p-2 rounded-md">
+                <BookmarkPlus />
+                <span>&nbsp;</span>
+                <span>Save post</span>
+              </div>
+              <div className="flex hover:bg-[#f3f4f6] dark:hover:bg-[#414141] cursor-pointer p-2 rounded-md">
+                <FilePenLine />
+                <span>&nbsp;</span>
+                <span>Edit</span>
+              </div>
+              <div className="flex hover:bg-[#f3f4f6] dark:hover:bg-[#414141] cursor-pointer p-2 rounded-md">
+                <UserCog />
+                <span>&nbsp;</span>
+                <span>Change visibility</span>
+              </div>
+              <AlertDialog>
+                <AlertDialogTrigger>
+                  <div className="flex hover:bg-[#f3f4f6] dark:hover:bg-[#414141] cursor-pointer p-2 rounded-md">
+                    <Trash2 />
+                    <span>&nbsp;</span>
+                    <span>Delete</span>
+                  </div>
+                </AlertDialogTrigger>
+                <AlertDialogContent className="dark:bg-[#242526] dark:border-[#3a3b3c]">
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+                    <AlertDialogDescription>
+                      This action cannot be undone. This will permanently delete
+                      this post.
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel className="bg-white text-black dark:hover:bg-gray-300 dark:hover:text-black">
+                      Cancel
+                    </AlertDialogCancel>
+                    <AlertDialogAction
+                      onClick={handleDelete}
+                      className="bg-red-600 text-white hover:bg-red-700"
+                    >
+                      Delete
+                    </AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
+            </div>
+          </PopoverContent>
+        </Popover>
       </div>
       <div className="flex flex-col py-2">
         <div className="pb-2">{details.content}</div>
