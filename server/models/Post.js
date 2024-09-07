@@ -4,6 +4,7 @@ const mongoose = require("mongoose");
 // user_id
 // content
 // image_url
+// visibility
 
 const PostSchema = new mongoose.Schema(
   {
@@ -15,6 +16,17 @@ const PostSchema = new mongoose.Schema(
     content: {
       type: String,
       maxlength: 100,
+    },
+    image_url: {
+      type: String,
+    },
+    visibility: {
+      type: String,
+      enum: {
+        values: ["public", "friends", "private"],
+        message: "{VALUE} is not supported",
+      },
+      default: "public",
     },
   },
   { timestamps: true }
