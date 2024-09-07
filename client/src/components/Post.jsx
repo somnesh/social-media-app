@@ -141,28 +141,24 @@ export function Post({ details, refreshFeed, setRefreshFeed }) {
               <Ellipsis />
             </div>
           </PopoverTrigger>
-          <PopoverContent className="w-56 dark:bg-[#242526] border dark:border-[#3a3b3c] p-2">
+          <PopoverContent className="w-48 dark:bg-[#242526] border dark:border-[#3a3b3c] p-2 text-sm select-none">
             <div className="flex flex-col gap-1">
-              <div className="flex hover:bg-[#f3f4f6] dark:hover:bg-[#414141] cursor-pointer p-2 rounded-md">
-                <BookmarkPlus />
-                <span>&nbsp;</span>
+              <div className="flex hover:bg-[#f3f4f6] dark:hover:bg-[#414141] cursor-pointer px-2 py-1.5 rounded-sm items-center">
+                <BookmarkPlus className="mr-2 h-5 w-5" />
                 <span>Save post</span>
               </div>
-              <div className="flex hover:bg-[#f3f4f6] dark:hover:bg-[#414141] cursor-pointer p-2 rounded-md">
-                <FilePenLine />
-                <span>&nbsp;</span>
+              <div className="flex hover:bg-[#f3f4f6] dark:hover:bg-[#414141] cursor-pointer p-2 py-1.5 rounded-sm items-center">
+                <FilePenLine className="mr-2 h-5 w-5" />
                 <span>Edit</span>
               </div>
-              <div className="flex hover:bg-[#f3f4f6] dark:hover:bg-[#414141] cursor-pointer p-2 rounded-md">
-                <UserCog />
-                <span>&nbsp;</span>
+              <div className="flex hover:bg-[#f3f4f6] dark:hover:bg-[#414141] cursor-pointer p-2 py-1.5 rounded-sm items-center">
+                <UserCog className="mr-2 h-5 w-5" />
                 <span>Change visibility</span>
               </div>
               <AlertDialog>
-                <AlertDialogTrigger>
-                  <div className="flex hover:bg-[#f3f4f6] dark:hover:bg-[#414141] cursor-pointer p-2 rounded-md">
-                    <Trash2 />
-                    <span>&nbsp;</span>
+                <AlertDialogTrigger className="outline-none">
+                  <div className="flex hover:bg-[#f3f4f6] dark:hover:bg-[#414141] cursor-pointer py-1.5 p-2 rounded-sm items-center">
+                    <Trash2 className="mr-2 h-5 w-5" />
                     <span>Delete</span>
                   </div>
                 </AlertDialogTrigger>
