@@ -6,7 +6,7 @@ import { FeedSkeleton } from "./FeedSkeleton";
 import axios from "axios";
 
 export function Feed() {
-  const [createPostSubmit, setCreatePostSubmit] = useState(false);
+  const [refreshFeed, setRefreshFeed] = useState(false);
   const [createPostPopUp, setCreatePostPopUp] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [posts, setPosts] = useState([]);
@@ -31,7 +31,7 @@ export function Feed() {
         setIsLoading(false);
       }
     })();
-  }, [createPostSubmit]);
+  }, [refreshFeed]);
 
   const handleCreatepostClick = () => {
     setCreatePostPopUp(true);
@@ -49,8 +49,8 @@ export function Feed() {
             <CreatePost
               createPostPopUp={createPostPopUp}
               setCreatePostPopUp={setCreatePostPopUp}
-              createPostSubmit={createPostSubmit}
-              setCreatePostSubmit={setCreatePostSubmit}
+              refreshFeed={refreshFeed}
+              setRefreshFeed={setRefreshFeed}
             />
           )}
           <div className="create-new-post bg-white dark:bg-[#242526] px-4 py-2 rounded-lg mb-4">
@@ -89,7 +89,12 @@ export function Feed() {
           {/* Main feed starts from here */}
           <div>
             {posts.map((post) => (
-              <Post key={post._id} details={post} />
+              <Post
+                key={post._id}
+                details={post}
+                refreshFeed={refreshFeed}
+                setRefreshFeed={setRefreshFeed}
+              />
             ))}
           </div>
         </>
