@@ -5,16 +5,18 @@ import { Sidebar } from "./components/Sidebar";
 import { ThemeProvider } from "./contexts/theme";
 
 function App() {
-  const [theme, setTheme] = useState("white");
+  const [theme, setTheme] = useState(localStorage.theme === "dark" || !("theme" in localStorage) ? "dark" : "white");
   const [triggerElement, setTriggerElement] = useState(null);
 
   const darkTheme = (e) => {
     setTheme("dark");
+    localStorage.theme = "dark";
     setTriggerElement(e);
   };
 
   const lightTheme = (e) => {
     setTheme("white");
+    localStorage.theme = "white";
     setTriggerElement(e);
   };
 
