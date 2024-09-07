@@ -13,8 +13,11 @@ const getAllPost = async (req, res) => {
 };
 
 const createPost = async (req, res) => {
-  console.log("cloudinaryRes: ", req.body.cloudinaryRes);
   const cloudinaryResponse = req.body.cloudinaryRes;
+
+  if (!cloudinaryResponse && req.body.content == "") {
+    throw new BadRequestError("Both content and image field cannot be empty!");
+  }
   if (cloudinaryResponse) {
     req.body.image_url = cloudinaryResponse.secure_url;
   }
