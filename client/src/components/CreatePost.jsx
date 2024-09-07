@@ -3,7 +3,6 @@ import {
   Image,
   ImagePlus,
   ListTodo,
-  Loader2,
   Lock,
   MapPin,
   Users,
@@ -24,15 +23,15 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { useEffect, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import axios from "axios";
 import { CreatePostSubmitLoader } from "./CreatePostSubmitLoader";
 
 export function CreatePost({
   createPostPopUp,
   setCreatePostPopUp,
-  createPostSubmit,
-  setCreatePostSubmit,
+  refreshFeed,
+  setRefreshFeed,
 }) {
   const [visibility, setVisibility] = useState("public");
   const [isLoading, setIsLoading] = useState(false);
@@ -77,11 +76,11 @@ export function CreatePost({
       console.log("Form submitted : ", response);
       console.log(response.data);
       closePopup();
-      setCreatePostSubmit(!createPostSubmit);
+      setRefreshFeed(!refreshFeed);
     } catch (error) {
       console.log("Form submission failed : ", error);
     } finally {
-      setIsLoading(false);      
+      setIsLoading(false);
     }
   };
 
