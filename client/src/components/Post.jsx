@@ -1,6 +1,8 @@
 import axios from "axios";
 import {
   BookmarkPlus,
+  CircleCheck,
+  CircleX,
   Ellipsis,
   FilePenLine,
   Globe,
@@ -29,10 +31,11 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 
-
+import { useToast } from "../components/hooks/use-toast";
 import { useEffect, useState } from "react";
 
 export function Post({ details, refreshFeed, setRefreshFeed }) {
+  const { toast } = useToast();
   const [userInfo, setUserInfo] = useState([]);
   useEffect(() => {
     (async () => {
@@ -42,7 +45,7 @@ export function Post({ details, refreshFeed, setRefreshFeed }) {
           {
             headers: {
               Authorization:
-                "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2NmE0YTViNzZmZWNhM2JmNGU0OTA1ZmUiLCJuYW1lIjoiam9obiBkb2UiLCJyb2xlIjoidXNlciIsImF2YXRhciI6bnVsbCwiaWF0IjoxNzI1Njk1MDIwLCJleHAiOjE3MjU3ODE0MjB9.mP6kU-iTTNaM30LsH17dZHiebJ_Xxcc9NsXA9MzzPi4",
+                "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2NmE0YTViNzZmZWNhM2JmNGU0OTA1ZmUiLCJuYW1lIjoiSm9obiBEb2UiLCJyb2xlIjoidXNlciIsImF2YXRhciI6bnVsbCwiaWF0IjoxNzI1NzkwNTU5LCJleHAiOjE3MjY2NTQ1NTl9.W9wL3vbaVVcZqHn8tT9oujSZcxy8qHrqGEfgPdc0CYA",
             },
           }
         );
@@ -86,12 +89,19 @@ export function Post({ details, refreshFeed, setRefreshFeed }) {
   } else if (diffInMinutes < 60) {
     postDuration = `${diffInMinutes} minutes ago`;
   } else if (diffInHours < 24) {
-    postDuration = `${diffInHours} hours ago`;
+    postDuration = diffInHours === 1 ? `about an hour ago` :`${diffInHours} hours ago`;
   } else if (diffInDays < 30) {
     postDuration = diffInDays === 1 ? `a day ago` : `${diffInDays} days ago`;
   } else {
     postDuration = `${postDate.getDate()} ${monthNames[postDate.getMonth()]}`;
   }
+
+  const toastHandler = (msg, vari) => {
+    toast({
+      variant: vari ? "destructive" : "default",
+      description: msg,
+    });
+  };
 
   const handleDelete = async () => {
     try {
@@ -100,14 +110,28 @@ export function Post({ details, refreshFeed, setRefreshFeed }) {
         {
           headers: {
             Authorization:
-              "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2NmE0YTViNzZmZWNhM2JmNGU0OTA1ZmUiLCJuYW1lIjoiam9obiBkb2UiLCJyb2xlIjoidXNlciIsImF2YXRhciI6bnVsbCwiaWF0IjoxNzI1Njk1MDIwLCJleHAiOjE3MjU3ODE0MjB9.mP6kU-iTTNaM30LsH17dZHiebJ_Xxcc9NsXA9MzzPi4",
+              "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2NmE0YTViNzZmZWNhM2JmNGU0OTA1ZmUiLCJuYW1lIjoiSm9obiBEb2UiLCJyb2xlIjoidXNlciIsImF2YXRhciI6bnVsbCwiaWF0IjoxNzI1NzkwNTU5LCJleHAiOjE3MjY2NTQ1NTl9.W9wL3vbaVVcZqHn8tT9oujSZcxy8qHrqGEfgPdc0CYA",
           },
         }
       );
       console.log(response.data);
       setRefreshFeed(!refreshFeed);
+
+      toastHandler(
+        <div className="flex gap-2 items-center">
+          <CircleCheck className="bg-green-600 rounded-full text-white dark:text-[#242526]" />
+          <span>Post deleted</span>
+        </div>
+      );
     } catch (error) {
       console.log(error);
+      toastHandler(
+        <div className="flex gap-2 items-center">
+          <CircleX className="bg-red-600 rounded-full text-white dark:text-[#7f1d1d]" />
+          <span>Something went wrong</span>
+        </div>,
+        true
+      );
     }
   };
   return (
@@ -156,7 +180,7 @@ export function Post({ details, refreshFeed, setRefreshFeed }) {
                 <span>Change visibility</span>
               </div>
               <AlertDialog>
-                <AlertDialogTrigger className="outline-none">
+                <AlertDialogTrigger>
                   <div className="flex hover:bg-[#f3f4f6] dark:hover:bg-[#414141] cursor-pointer py-1.5 p-2 rounded-sm items-center">
                     <Trash2 className="mr-2 h-5 w-5" />
                     <span>Delete</span>

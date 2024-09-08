@@ -3,6 +3,7 @@ import { Feed } from "./components/Feed";
 import { Header } from "./components/Header";
 import { Sidebar } from "./components/Sidebar";
 import { ThemeProvider } from "./contexts/theme";
+import { Toaster } from "./components/ui/toaster";
 
 function App() {
   const [theme, setTheme] = useState(localStorage.theme === "dark" || !("theme" in localStorage) ? "dark" : "white");
@@ -39,6 +40,7 @@ function App() {
           <h2>unknown section</h2>
         </section>
       </main>
+      <Toaster /> 
     </ThemeProvider>
   );
 }
