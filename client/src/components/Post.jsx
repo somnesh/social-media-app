@@ -36,11 +36,12 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useToast } from "../components/hooks/use-toast";
 import { useEffect, useState } from "react";
+import { useToastHandler } from "../contexts/ToastContext";
 
 export function Post({ details, refreshFeed, setRefreshFeed }) {
-  const { toast } = useToast();
   const [userInfo, setUserInfo] = useState([]);
 
+  const toastHandler = useToastHandler();
   const authToken =
     "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2NmE0YTViNzZmZWNhM2JmNGU0OTA1ZmUiLCJuYW1lIjoiSm9obiBEb2UiLCJyb2xlIjoidXNlciIsImF2YXRhciI6bnVsbCwiaWF0IjoxNzI1NzkwNTU5LCJleHAiOjE3MjY2NTQ1NTl9.W9wL3vbaVVcZqHn8tT9oujSZcxy8qHrqGEfgPdc0CYA";
 
@@ -103,13 +104,6 @@ export function Post({ details, refreshFeed, setRefreshFeed }) {
     postDuration = `${postDate.getDate()} ${monthNames[postDate.getMonth()]}`;
   }
 
-  const toastHandler = (msg, vari) => {
-    toast({
-      variant: vari ? "destructive" : "default",
-      description: msg,
-    });
-  };
-
   const handleDelete = async () => {
     try {
       const response = await axios.delete(
@@ -127,7 +121,8 @@ export function Post({ details, refreshFeed, setRefreshFeed }) {
         <div className="flex gap-2 items-center">
           <CircleCheck className="bg-green-600 rounded-full text-white dark:text-[#242526]" />
           <span>Post deleted</span>
-        </div>
+        </div>,
+        false
       );
     } catch (error) {
       console.log(error);
@@ -140,6 +135,7 @@ export function Post({ details, refreshFeed, setRefreshFeed }) {
       );
     }
   };
+
   return (
     <div className="bg-white dark:bg-[#242526] px-4 py-2 rounded-lg mb-4 relative">
       <div className="flex items-center gap-3 pt-2">

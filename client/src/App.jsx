@@ -4,9 +4,14 @@ import { Header } from "./components/Header";
 import { Sidebar } from "./components/Sidebar";
 import { ThemeProvider } from "./contexts/theme";
 import { Toaster } from "./components/ui/toaster";
+import { ToastHandlerProvider } from "./contexts/ToastContext";
 
 function App() {
-  const [theme, setTheme] = useState(localStorage.theme === "dark" || !("theme" in localStorage) ? "dark" : "white");
+  const [theme, setTheme] = useState(
+    localStorage.theme === "dark" || !("theme" in localStorage)
+      ? "dark"
+      : "white"
+  );
   const [triggerElement, setTriggerElement] = useState(null);
 
   const darkTheme = (e) => {
@@ -31,16 +36,18 @@ function App() {
 
   return (
     <ThemeProvider value={{ theme, darkTheme, lightTheme }}>
-      <Header />
-      <main className="flex px-2 py-4 bg-[#f0f2f5] dark:bg-[#18191a] min-h-screen dark:text-[#e2e4e9] transition-colors duration-500">
-        <Sidebar />
-        <Feed />
-        {/* --------------------------------------- */}
-        <section className="basis-1/4">
-          <h2>unknown section</h2>
-        </section>
-      </main>
-      <Toaster /> 
+      <ToastHandlerProvider>
+        <Header />
+        <main className="flex px-2 py-4 bg-[#f0f2f5] dark:bg-[#18191a] min-h-screen dark:text-[#e2e4e9] transition-colors duration-500">
+          <Sidebar />
+          <Feed />
+          {/* --------------------------------------- */}
+          <section className="basis-1/4">
+            <h2>unknown section</h2>
+          </section>
+        </main>
+        <Toaster />
+      </ToastHandlerProvider>
     </ThemeProvider>
   );
 }
