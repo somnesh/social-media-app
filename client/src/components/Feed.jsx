@@ -12,6 +12,8 @@ export function Feed() {
   const [posts, setPosts] = useState([]);
   const [error, setError] = useState(false);
 
+  const authToken =
+    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2NmE0YTViNzZmZWNhM2JmNGU0OTA1ZmUiLCJuYW1lIjoiSm9obiBEb2UiLCJyb2xlIjoidXNlciIsImF2YXRhciI6bnVsbCwiaWF0IjoxNzI1NzkwNTU5LCJleHAiOjE3MjY2NTQ1NTl9.W9wL3vbaVVcZqHn8tT9oujSZcxy8qHrqGEfgPdc0CYA";
   useEffect(() => {
     (async () => {
       try {
@@ -19,7 +21,7 @@ export function Feed() {
         const response = await axios.get("http://localhost:3000/api/v1/post/", {
           headers: {
             Authorization:
-              "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2NmE0YTViNzZmZWNhM2JmNGU0OTA1ZmUiLCJuYW1lIjoiam9obiBkb2UiLCJyb2xlIjoidXNlciIsImF2YXRhciI6bnVsbCwiaWF0IjoxNzI1Njk1MDIwLCJleHAiOjE3MjU3ODE0MjB9.mP6kU-iTTNaM30LsH17dZHiebJ_Xxcc9NsXA9MzzPi4",
+              `Bearer ${authToken}`,
           },
         });
 

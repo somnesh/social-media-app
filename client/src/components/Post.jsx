@@ -37,6 +37,10 @@ import { useEffect, useState } from "react";
 export function Post({ details, refreshFeed, setRefreshFeed }) {
   const { toast } = useToast();
   const [userInfo, setUserInfo] = useState([]);
+
+  const authToken =
+    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2NmE0YTViNzZmZWNhM2JmNGU0OTA1ZmUiLCJuYW1lIjoiSm9obiBEb2UiLCJyb2xlIjoidXNlciIsImF2YXRhciI6bnVsbCwiaWF0IjoxNzI1NzkwNTU5LCJleHAiOjE3MjY2NTQ1NTl9.W9wL3vbaVVcZqHn8tT9oujSZcxy8qHrqGEfgPdc0CYA";
+
   useEffect(() => {
     (async () => {
       try {
@@ -44,8 +48,7 @@ export function Post({ details, refreshFeed, setRefreshFeed }) {
           `http://localhost:3000/api/v1/user/${details.user_id}`,
           {
             headers: {
-              Authorization:
-                "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2NmE0YTViNzZmZWNhM2JmNGU0OTA1ZmUiLCJuYW1lIjoiSm9obiBEb2UiLCJyb2xlIjoidXNlciIsImF2YXRhciI6bnVsbCwiaWF0IjoxNzI1NzkwNTU5LCJleHAiOjE3MjY2NTQ1NTl9.W9wL3vbaVVcZqHn8tT9oujSZcxy8qHrqGEfgPdc0CYA",
+              Authorization: `Bearer ${authToken}`,
             },
           }
         );
@@ -89,7 +92,8 @@ export function Post({ details, refreshFeed, setRefreshFeed }) {
   } else if (diffInMinutes < 60) {
     postDuration = `${diffInMinutes} minutes ago`;
   } else if (diffInHours < 24) {
-    postDuration = diffInHours === 1 ? `about an hour ago` :`${diffInHours} hours ago`;
+    postDuration =
+      diffInHours === 1 ? `about an hour ago` : `${diffInHours} hours ago`;
   } else if (diffInDays < 30) {
     postDuration = diffInDays === 1 ? `a day ago` : `${diffInDays} days ago`;
   } else {
@@ -109,8 +113,7 @@ export function Post({ details, refreshFeed, setRefreshFeed }) {
         `http://localhost:3000/api/v1/post/${details._id}`,
         {
           headers: {
-            Authorization:
-              "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2NmE0YTViNzZmZWNhM2JmNGU0OTA1ZmUiLCJuYW1lIjoiSm9obiBEb2UiLCJyb2xlIjoidXNlciIsImF2YXRhciI6bnVsbCwiaWF0IjoxNzI1NzkwNTU5LCJleHAiOjE3MjY2NTQ1NTl9.W9wL3vbaVVcZqHn8tT9oujSZcxy8qHrqGEfgPdc0CYA",
+            Authorization: `Bearer ${authToken}`,
           },
         }
       );
