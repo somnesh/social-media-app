@@ -22,9 +22,15 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import useTheme from "../contexts/theme";
+import { jwtDecode } from "jwt-decode";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 export function ProfileMenu() {
   const { theme, darkTheme, lightTheme } = useTheme();
+
+  const authToken =
+    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2NmE0YTViNzZmZWNhM2JmNGU0OTA1ZmUiLCJuYW1lIjoiSm9obiBEb2UiLCJyb2xlIjoidXNlciIsImF2YXRhciI6bnVsbCwiaWF0IjoxNzI1NzkwNTU5LCJleHAiOjE3MjY2NTQ1NTl9.W9wL3vbaVVcZqHn8tT9oujSZcxy8qHrqGEfgPdc0CYA";
+  const decodedToken = jwtDecode(authToken);
 
   const switchTheme = (e) => {
     if (theme === "white") {
@@ -39,15 +45,17 @@ export function ProfileMenu() {
       <DropdownMenuTrigger asChild>
         <div className="flex items-center gap-2 cursor-pointer hover:bg-[#e3e5e9] active:bg-[#d0d2d6] dark:hover:bg-[#414141] dark:active:bg-[#313131] active:scale-95 select-none pl-3 pr-1 py-1 rounded-full">
           <span className="dark:text-white bg-inherit hover:bg-inherit">
-            Username
+            {decodedToken.name}
           </span>
-          <span>
-            <img
-              className="rounded-full"
-              src="https://via.placeholder.com/40"
-              alt="photo"
+          <Avatar>
+            <AvatarImage
+              src={
+                decodedToken.avatar ||
+                "https://yt3.googleusercontent.com/g3j3iOUOPhNxBCNAArBqiYGzHzCBIzr_Al8mdvtBJeZMGFDblnU5rlVUt6GY01AUwm7Cp70J=s900-c-k-c0x00ffffff-no-rj"
+              }
             />
-          </span>
+            <AvatarFallback>CN</AvatarFallback>
+          </Avatar>
         </div>
       </DropdownMenuTrigger>
 

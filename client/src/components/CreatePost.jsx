@@ -8,7 +8,9 @@ import {
   Users,
   X,
 } from "lucide-react";
+
 import { Button } from "./ui/button";
+
 import {
   Select,
   SelectContent,
@@ -16,6 +18,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 import {
   Tooltip,
@@ -26,6 +30,7 @@ import {
 import { useRef, useState } from "react";
 import axios from "axios";
 import { CreatePostSubmitLoader } from "./CreatePostSubmitLoader";
+import { jwtDecode } from "jwt-decode";
 
 export function CreatePost({
   createPostPopUp,
@@ -39,6 +44,11 @@ export function CreatePost({
   const [uploadedImage, setUploadedImage] = useState(null);
   const [uploadImagePopUp, setUploadImagePopUp] = useState(false);
   const imageRef = useRef(null);
+
+  const authToken =
+    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2NmE0YTViNzZmZWNhM2JmNGU0OTA1ZmUiLCJuYW1lIjoiSm9obiBEb2UiLCJyb2xlIjoidXNlciIsImF2YXRhciI6bnVsbCwiaWF0IjoxNzI1NzkwNTU5LCJleHAiOjE3MjY2NTQ1NTl9.W9wL3vbaVVcZqHn8tT9oujSZcxy8qHrqGEfgPdc0CYA";
+  const decodedToken = jwtDecode(authToken);
+  // console.log(decodedToken);
 
   const closePopup = () => {
     if (createPostPopUp) {
@@ -125,12 +135,16 @@ export function CreatePost({
         <form>
           <div className="flex justify-between items-center">
             <div className="flex gap-2 py-2 items-center">
-              <img
-                className="rounded-full "
-                src="https://via.placeholder.com/40"
-                alt="photo"
-              />
-              <span>Username</span>
+              <Avatar>
+                <AvatarImage
+                  src={
+                    decodedToken.avatar ||
+                    "https://yt3.googleusercontent.com/g3j3iOUOPhNxBCNAArBqiYGzHzCBIzr_Al8mdvtBJeZMGFDblnU5rlVUt6GY01AUwm7Cp70J=s900-c-k-c0x00ffffff-no-rj"
+                  }
+                />
+                <AvatarFallback>CN</AvatarFallback>
+              </Avatar>
+              <span>{decodedToken.name}</span>
             </div>
             <Select
               onValueChange={(value) => {

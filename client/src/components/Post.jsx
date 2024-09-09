@@ -14,11 +14,13 @@ import {
   UserCog,
   Users,
 } from "lucide-react";
+
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
+
 import {
   AlertDialog,
   AlertDialogAction,
@@ -31,6 +33,7 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useToast } from "../components/hooks/use-toast";
 import { useEffect, useState } from "react";
 
@@ -141,11 +144,15 @@ export function Post({ details, refreshFeed, setRefreshFeed }) {
     <div className="bg-white dark:bg-[#242526] px-4 py-2 rounded-lg mb-4 relative">
       <div className="flex items-center gap-3 pt-2">
         <div className="">
-          <img
-            className="rounded-full "
-            src="https://via.placeholder.com/40"
-            alt="photo"
-          />
+          <Avatar>
+            <AvatarImage
+              src={
+                details.avatar ||
+                "https://yt3.googleusercontent.com/g3j3iOUOPhNxBCNAArBqiYGzHzCBIzr_Al8mdvtBJeZMGFDblnU5rlVUt6GY01AUwm7Cp70J=s900-c-k-c0x00ffffff-no-rj"
+              }
+            />
+            <AvatarFallback>CN</AvatarFallback>
+          </Avatar>
         </div>
         <div className="">
           <h2 className="font-medium">{userInfo.name}</h2>

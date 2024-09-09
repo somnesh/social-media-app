@@ -4,6 +4,8 @@ import { useEffect, useState } from "react";
 import { CreatePost } from "./CreatePost";
 import { FeedSkeleton } from "./FeedSkeleton";
 import axios from "axios";
+import { jwtDecode } from "jwt-decode";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 export function Feed() {
   const [refreshFeed, setRefreshFeed] = useState(false);
@@ -14,14 +16,15 @@ export function Feed() {
 
   const authToken =
     "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2NmE0YTViNzZmZWNhM2JmNGU0OTA1ZmUiLCJuYW1lIjoiSm9obiBEb2UiLCJyb2xlIjoidXNlciIsImF2YXRhciI6bnVsbCwiaWF0IjoxNzI1NzkwNTU5LCJleHAiOjE3MjY2NTQ1NTl9.W9wL3vbaVVcZqHn8tT9oujSZcxy8qHrqGEfgPdc0CYA";
+
+  const decodedToken = jwtDecode(authToken);
   useEffect(() => {
     (async () => {
       try {
         setIsLoading(true);
         const response = await axios.get("http://localhost:3000/api/v1/post/", {
           headers: {
-            Authorization:
-              `Bearer ${authToken}`,
+            Authorization: `Bearer ${authToken}`,
           },
         });
 
@@ -58,11 +61,15 @@ export function Feed() {
           <div className="create-new-post bg-white dark:bg-[#242526] px-4 py-2 rounded-lg mb-4">
             <div className="flex items-center py-2 gap-3">
               <div className="">
-                <img
-                  className="rounded-full "
-                  src="https://via.placeholder.com/50"
-                  alt="photo"
-                />
+                <Avatar>
+                  <AvatarImage
+                    src={
+                      decodedToken.avatar ||
+                      "https://yt3.googleusercontent.com/g3j3iOUOPhNxBCNAArBqiYGzHzCBIzr_Al8mdvtBJeZMGFDblnU5rlVUt6GY01AUwm7Cp70J=s900-c-k-c0x00ffffff-no-rj"
+                    }
+                  />
+                  <AvatarFallback>CN</AvatarFallback>
+                </Avatar>
               </div>
               <div
                 onClick={handleCreatepostClick}
