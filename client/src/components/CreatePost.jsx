@@ -1,4 +1,6 @@
 import {
+  CircleAlert,
+  CircleCheck,
   Globe,
   Image,
   ImagePlus,
@@ -31,6 +33,7 @@ import { useRef, useState } from "react";
 import axios from "axios";
 import { CreatePostSubmitLoader } from "./CreatePostSubmitLoader";
 import { jwtDecode } from "jwt-decode";
+import { useToastHandler } from "../contexts/ToastContext";
 
 export function CreatePost({
   createPostPopUp,
@@ -38,6 +41,7 @@ export function CreatePost({
   refreshFeed,
   setRefreshFeed,
 }) {
+  const toastHandler = useToastHandler();
   const [visibility, setVisibility] = useState("public");
   const [isLoading, setIsLoading] = useState(false);
   const [postContent, setPostContent] = useState("");
@@ -87,8 +91,23 @@ export function CreatePost({
       console.log(response.data);
       closePopup();
       setRefreshFeed(!refreshFeed);
+
+      toastHandler(
+        <div className="flex gap-2 items-center">
+          <CircleCheck className="bg-green-600 rounded-full text-white dark:text-[#242526]" />
+          <span>Post created</span>
+        </div>,
+        false
+      );
     } catch (error) {
       console.log("Form submission failed : ", error);
+      toastHandler(
+        <div className="flex gap-2 items-center">
+          <CircleAlert className="bg-red-600 rounded-full text-white dark:text-[#7f1d1d]" />
+          <span>Something went wrong</span>
+        </div>,
+        true
+      );
     } finally {
       setIsLoading(false);
     }
@@ -180,6 +199,7 @@ export function CreatePost({
           </div>
           <div className="my-4">
             <textarea
+              autoFocus
               className="min-w-full min-h-32 p-2 rounded-md border bg-[#F0F2F5] dark:bg-[#333536] resize-none outline-none"
               name="content"
               id=""
