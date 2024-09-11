@@ -2,6 +2,7 @@ const User = require("../models/User");
 const { StatusCodes } = require("http-status-codes");
 const { BadRequestError, UnauthenticatedError } = require("../errors");
 const sendVerificationEmail = require("../utils/sendVerificationEmail");
+const jwt = require("jsonwebtoken");
 
 const isUsernameUnique = async (username) => {
   const isUnique = await User.findOne({ username });
@@ -33,19 +34,22 @@ const registerUser = async (req, res) => {
   }
   req.body.phone_no = phone_no;
 
-  const verificationToken = "1234";
+  const refreshToken = jwt.sign({}, process.env.JWT_REFRESH_SECRET, {
+    expiresIn: process.env.JWT_REFRESH_LIFESPAN,
+  });
+
   const origin = "http://localhost:3000/api/v1/";
   await sendVerificationEmail({
     name,
     email,
-    verificationToken,
+    refreshToken,
     origin,
   });
 
   // Inserting data into the database
   const user = await User.create({
     ...req.body,
-    verificationToken: verificationToken,
+    refreshToken: refreshToken,
   });
 
   res
@@ -54,20 +58,20 @@ const registerUser = async (req, res) => {
 };
 
 const verifyEmail = async (req, res) => {
-  const { token: verificationToken, email } = req.query;
+  const { token: refreshToken, email } = req.query;
   const user = await User.findOne({ email });
 
   if (!user) {
     throw new UnauthenticatedError("Verification Failed");
   }
 
-  if (user.verificationToken !== verificationToken) {
+  if (user.refreshToken !== refreshToken) {
     throw new UnauthenticatedError("Verification Failed");
   }
 
   user.isVerified = true;
   user.verified = Date.now();
-  user.verificationToken = "";
+  user.refreshToken = "";
 
   await user.save();
 
@@ -94,12 +98,103 @@ const loginUser = async (req, res) => {
   }
 
   //   when both credentials are correct a Json token is created for the session
-  const token = user.createJWT();
-  res.status(StatusCodes.OK).json({ user: { name: user.name, id: user._id }, token });
+  const accessToken = user.createJWT();
+  const refreshToken = user.createJWTRefresh();
+
+  user.refreshToken = refreshToken;
+  user.save({ validateBeforeSave: false });
+
+  const cookieOptions = {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "Strict",
+  };
+
+  res
+    .status(StatusCodes.OK)
+    .cookie("AccessToken", accessToken, cookieOptions)
+    .cookie("refreshToken", refreshToken, cookieOptions)
+    .json({
+      user: { name: user.name, id: user._id },
+      accessToken,
+      refreshToken,
+    });
+};
+
+const refreshAccessToken = async (req, res) => {
+  const user = await User.findById(req.user.userId);
+  const incomingRefreshToken = req.cookies.refreshToken;
+
+  if (!incomingRefreshToken) {
+    throw new BadRequestError("Token undefined");
+  }
+
+  const decodedToken = jwt.verify(
+    incomingRefreshToken,
+    process.env.JWT_REFRESH_SECRET
+  );
+
+  const incomingUser = await User.findById(decodedToken?.userId);
+
+  if (!incomingUser) {
+    throw new BadRequestError("Invalid refresh token");
+  }
+
+  if (incomingUser?._id !== user?._id) {
+    throw new BadRequestError("Invalid refresh token");
+  }
+
+  if (incomingRefreshToken !== user?.refreshToken) {
+    throw new BadRequestError("Invalid refresh token");
+  }
+
+  const accessToken = user.createJWT();
+  const refreshToken = user.createJWTRefresh();
+
+  user.refreshToken = refreshToken;
+  user.save({ validateBeforeSave: false });
+
+  const cookieOptions = {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "Strict",
+  };
+
+  res
+    .status(StatusCodes.OK)
+    .cookie("accessToken", accessToken, cookieOptions)
+    .cookie("refreshToken", refreshToken, cookieOptions)
+    .json({
+      user: { name: user.name, id: user._id },
+      accessToken,
+      refreshToken,
+    });
+};
+
+const logout = async (req, res) => {
+  await User.findByIdAndUpdate(
+    req.user.userId,
+    { $set: { refreshToken: undefined } },
+    { new: true }
+  );
+
+  const cookieOptions = {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "Strict",
+  };
+
+  res
+    .status(StatusCodes.OK)
+    .clearCookie("AccessToken", cookieOptions)
+    .clearCookie("refreshToken", cookieOptions)
+    .json({ status: "success" });
 };
 
 module.exports = {
   registerUser,
   loginUser,
   verifyEmail,
+  refreshAccessToken,
+  logout,
 };
