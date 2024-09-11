@@ -1,6 +1,7 @@
 require("dotenv").config();
 require("express-async-errors");
 const cors = require("cors");
+const cookieParser = require("cookie-parser");
 
 const express = require("express");
 const app = express();
@@ -10,6 +11,8 @@ app.use(express.static("./public"));
 app.use(express.json());
 // cors middleware
 app.use(cors());
+
+app.use(cookieParser());
 
 // app.use(express.urlencoded({ extended: true }));
 
