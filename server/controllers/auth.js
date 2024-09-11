@@ -71,7 +71,7 @@ const verifyEmail = async (req, res) => {
 
   user.isVerified = true;
   user.verified = Date.now();
-  user.refreshToken = "";
+  user.refreshToken = null;
 
   await user.save();
 
@@ -112,7 +112,7 @@ const loginUser = async (req, res) => {
 
   res
     .status(StatusCodes.OK)
-    .cookie("AccessToken", accessToken, cookieOptions)
+    .cookie("accessToken", accessToken, cookieOptions)
     .cookie("refreshToken", refreshToken, cookieOptions)
     .json({
       user: { name: user.name, id: user._id },
@@ -174,7 +174,7 @@ const refreshAccessToken = async (req, res) => {
 const logout = async (req, res) => {
   await User.findByIdAndUpdate(
     req.user.userId,
-    { $set: { refreshToken: undefined } },
+    { $set: { refreshToken: null } },
     { new: true }
   );
 

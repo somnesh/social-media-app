@@ -3,13 +3,14 @@ const jwt = require("jsonwebtoken");
 const { UnauthenticatedError } = require("../errors");
 
 const auth = async (req, res, next) => {
-  const authHeader = req.headers.authorization;
+  const authToken =
+    req.headers.authorization || "Bearer " + req.cookies?.accessToken;
 
-  if (!authHeader || !authHeader.startsWith("Bearer ")) {
+  if (!authToken || !authToken.startsWith("Bearer ")) {
     throw new UnauthenticatedError("Authentication invalid");
   }
 
-  const token = authHeader.split(" ")[1];
+  const token = authToken.split(" ")[1];
 
   try {
     const payload = jwt.verify(token, process.env.JWT_SECRET);
