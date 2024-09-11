@@ -81,7 +81,7 @@ const UserSchema = new mongoose.Schema(
       enum: ["user", "admin"],
       default: "user",
     },
-    verificationToken: {
+    refreshToken: {
       type: String,
     },
     isVerified: {
@@ -116,14 +116,12 @@ UserSchema.pre("save", async function (next) {
 
 // creating a Json WebToken
 UserSchema.methods.createJWT = function () {
-  console.log(this.role);
-  
   return jwt.sign(
-    { 
-      userId: this._id, 
-      name: this.name, 
-      role: this.role, 
-      avatar: this.avatar 
+    {
+      userId: this._id,
+      name: this.name,
+      role: this.role,
+      avatar: this.avatar,
     },
     process.env.JWT_SECRET,
     { expiresIn: this.role === "admin" ? "1hr" : process.env.JWT_LIFESPAN }
@@ -132,12 +130,13 @@ UserSchema.methods.createJWT = function () {
 
 UserSchema.methods.createJWTRefresh = function () {
   return jwt.sign(
-    { 
-      userId: this._id, 
+    {
+      userId: this._id,
     },
     process.env.JWT_REFRESH_SECRET,
     {
-      expiresIn: this.role === "admin" ? "1hr" : process.env.JWT_REFRESH_LIFESPAN,
+      expiresIn:
+        this.role === "admin" ? "1hr" : process.env.JWT_REFRESH_LIFESPAN,
     }
   );
 };
