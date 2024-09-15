@@ -221,6 +221,18 @@ export function Post({ details, refreshFeed, setRefreshFeed }) {
         <div className="pb-2">{details.content}</div>
         {details.image_url && <img src={details.image_url} alt="photo" />}
       </div>
+      <div className="flex justify-between mb-1">
+        <div className="flex items-center gap-1">
+          <div className="rounded-full bg-[#f91880] w-fit p-1 h-fit ">
+            <Heart size={13} fill="white" stroke="white" />
+          </div>
+          <span>1.2K</span>
+        </div>
+        <div className="flex gap-2">
+          <span>23 comments</span>
+          <span>532 shares</span>
+        </div>
+      </div>
       <div className="flex py-1 border-y dark:dark:border-y-[#3a3b3c]">
         <div className="flex basis-1/3 justify-center transition delay-75 ease-in gap-1 p-2 hover:bg-[#f9188110] hover:text-[#f91880] cursor-pointer rounded-md">
           <Heart />
