@@ -171,6 +171,24 @@ const likePost = async (req, res) => {
   }
 };
 
+const getLikes = async (req, res) => {
+  const { id: postId } = req.params;
+
+  const likes = await Like.find({ post_id: postId })
+    .populate("user_id", "name avatar")
+    .lean();
+
+  const formattedLikes = likes.map((like) => {
+    return {
+      ...like,
+      user: like.user_id, // Rename 'user_id' to 'user'
+      user_id: undefined, // remove the original 'user_id' field
+    };
+  });
+
+  res.status(StatusCodes.OK).json(formattedLikes);
+};
+
 const addComment = async (req, res) => {
   const { id: postId } = req.params;
   const commentContent = req.body.content;
@@ -212,6 +230,24 @@ const addComment = async (req, res) => {
   }
 };
 
+const getComments = async (req, res) => {
+  const { id: postId } = req.params;
+
+  const comments = await Comment.find({ post_id: postId })
+    .populate("user_id", "name avatar")
+    .lean();
+
+  const formattedComments = comments.map((comment) => {
+    return {
+      ...comment,
+      user: comment.user_id, // Rename 'user_id' to 'user'
+      user_id: undefined, // remove the original 'user_id' field
+    };
+  });
+
+  res.status(StatusCodes.OK).json(formattedComments);
+};
+
 const replyComment = async (req, res) => {};
 
 const deleteReply = async (req, res) => {};
@@ -227,7 +263,9 @@ module.exports = {
   updatePost,
   deletePost,
   likePost,
+  getLikes,
   addComment,
+  getComments,
   replyComment,
   deleteReply,
   deleteComment,

@@ -11,7 +11,9 @@ const {
   updatePost,
   deletePost,
   likePost,
+  getLikes,
   addComment,
+  getComments,
   replyComment,
   deleteReply,
   deleteComment,
@@ -25,10 +27,11 @@ router
 
 router.route("/:id").get(getPostDetails).patch(updatePost).delete(deletePost);
 
-router.route("/like/:id").patch(likePost);
+router.route("/like/:id").get(getLikes).patch(likePost);
 
 router
   .route("/comment/:id")
+  .get(getComments) // ":id" -> here "id" is "post id"
   .patch(addComment) // ":id" -> here "id" is the "user id"
   .delete(deleteComment); // ":id" -> here "id" is the "comment id"
 
