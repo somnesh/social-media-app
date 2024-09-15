@@ -28,6 +28,20 @@ const PostSchema = new mongoose.Schema(
       },
       default: "public",
     },
+    interactions: {
+      like: {
+        type: Number,
+        default: 0,
+      },
+      comment: {
+        type: Number,
+        default: 0,
+      },
+      share: {
+        type: Number,
+        default: 0,
+      },
+    },
   },
   { timestamps: true }
 );

@@ -20,7 +20,14 @@ const CommentSchema = new mongoose.Schema(
     content: {
       type: String,
       maxlength: 100,
+      require: true,
     },
+    replies: [
+      {
+        type: mongoose.Types.ObjectId,
+        ref: "Comment",
+      },
+    ],
   },
   { timestamps: true }
 );
