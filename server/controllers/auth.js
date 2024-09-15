@@ -186,7 +186,7 @@ const logout = async (req, res) => {
 
   res
     .status(StatusCodes.OK)
-    .clearCookie("AccessToken", cookieOptions)
+    .clearCookie("accessToken", cookieOptions)
     .clearCookie("refreshToken", cookieOptions)
     .json({ status: "success" });
 };
