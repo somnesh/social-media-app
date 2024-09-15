@@ -10,12 +10,29 @@ const {
   getPostDetails,
   updatePost,
   deletePost,
+  likePost,
+  addComment,
+  replyComment,
+  deleteReply,
+  deleteComment,
+  sharePost,
 } = require("../controllers/post");
 
 router
   .route("/")
   .get(getAllPost)
-  .post(upload.single("files")  , uploadFile, createPost);
+  .post(upload.single("files"), uploadFile, createPost);
+
 router.route("/:id").get(getPostDetails).patch(updatePost).delete(deletePost);
+
+router.route("/like/:id").patch(likePost);
+
+router
+  .route("/comment/:id")
+  .patch(addComment) // ":id" -> here "id" is the "user id"
+  .delete(deleteComment); // ":id" -> here "id" is the "comment id"
+
+router.route("/reply/:id").patch(replyComment).delete(deleteReply); // ":id" -> here "id" is the "parent comment id"
+router.route("/share/:id").patch(sharePost);
 
 module.exports = router;
