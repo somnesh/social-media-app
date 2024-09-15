@@ -10,6 +10,7 @@ import {
   Lock,
   MessageCircle,
   Repeat2,
+  SendHorizonal,
   Trash2,
   UserCog,
   Users,
@@ -33,13 +34,28 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { useToast } from "../components/hooks/use-toast";
 import { useEffect, useState } from "react";
 import { useToastHandler } from "../contexts/ToastContext";
+import { CommentsLoader } from "./CommentsLoader";
+import { CommentStructure } from "./CommentStructure";
+import { LikeSkeleton } from "./LikeSkeleton";
 
 export function Post({ details, refreshFeed, setRefreshFeed }) {
+  const [isLoading, setIsLoading] = useState(false);
   const [userInfo, setUserInfo] = useState([]);
+  const [commentBoxPopup, setCommentBoxPopup] = useState(false);
+  const [comments, setComments] = useState([]);
+  const [likeDetails, setLikeDetails] = useState([]);
 
   const toastHandler = useToastHandler();
   const authToken =
@@ -135,9 +151,55 @@ export function Post({ details, refreshFeed, setRefreshFeed }) {
       );
     }
   };
+  console.log(details);
+
+  const handleCommentBoxPopup = () => {
+    setCommentBoxPopup(true);
+  };
+
+  const handleCommentBoxRepliesPopup = async () => {
+    try {
+      setIsLoading(true);
+      setCommentBoxPopup(true);
+      const response = await axios.get(
+        `http://localhost:3000/api/v1/post/comment/${details._id}`,
+        {
+          headers: {
+            Authorization: `Bearer ${authToken}`,
+          },
+        }
+      );
+      setComments(response.data);
+    } catch (error) {
+      console.log(`Something went wrong: ${error}`);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleLikePopup = async () => {
+    try {
+      setIsLoading(true);
+
+      const response = await axios.get(
+        `http://localhost:3000/api/v1/post/like/${details._id}`,
+        {
+          headers: {
+            Authorization: `Bearer ${authToken}`,
+          },
+        }
+      );
+
+      setLikeDetails(response.data);
+    } catch (error) {
+      console.log(`Something went wrong: ${error}`);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   return (
-    <div className="bg-white dark:bg-[#242526] px-4 py-2 rounded-lg mb-4 relative">
+    <div className="bg-white dark:bg-[#242526] px-4 py-2 rounded-lg mb-4 relative transition-all">
       <div className="flex items-center gap-3 pt-2">
         <div className="">
           <Avatar>
@@ -167,7 +229,7 @@ export function Post({ details, refreshFeed, setRefreshFeed }) {
         </div>
         <Popover>
           <PopoverTrigger asChild>
-            <div className="py-1 px-1 top-2 right-2 absolute hover:bg-[#F0F2F5] dark:hover:bg-[#414141] rounded-full cursor-pointer">
+            <div className="py-1 px-1 top-2 right-2 absolute hover:bg-[#F0F2F5] dark:hover:bg-[#414141] rounded-full cursor-pointer transition">
               <Ellipsis />
             </div>
           </PopoverTrigger>
@@ -221,32 +283,115 @@ export function Post({ details, refreshFeed, setRefreshFeed }) {
         <div className="pb-2">{details.content}</div>
         {details.image_url && <img src={details.image_url} alt="photo" />}
       </div>
-      <div className="flex justify-between mb-1">
+      <div className="flex justify-between mb-1 text-sm">
         <div className="flex items-center gap-1">
-          <div className="rounded-full bg-[#f91880] w-fit p-1 h-fit ">
-            <Heart size={13} fill="white" stroke="white" />
-          </div>
-          <span>1.2K</span>
+          {details.interactions.like !== 0 ? (
+            <>
+              <div className="rounded-full bg-[#f91880] w-fit p-1 h-fit ">
+                <Heart size={13} fill="white" stroke="white" />
+              </div>
+              <Dialog>
+                <DialogTrigger
+                  onClick={handleLikePopup}
+                  className="hover:underline"
+                >
+                  <span>{details.interactions.like}</span>
+                </DialogTrigger>
+                <DialogContent>
+                  <DialogHeader>
+                    <DialogTitle>Likes</DialogTitle>
+                    <DialogDescription>
+                      {isLoading ? (
+                        <LikeSkeleton />
+                      ) : (
+                        likeDetails.map((like) => (
+                          <div className="flex gap-2 items-center mt-4 text-base text-black dark:text-[#e2e4e9]">
+                            <Avatar>
+                              <AvatarImage
+                                src={
+                                  like.user.avatar ||
+                                  "https://yt3.googleusercontent.com/g3j3iOUOPhNxBCNAArBqiYGzHzCBIzr_Al8mdvtBJeZMGFDblnU5rlVUt6GY01AUwm7Cp70J=s900-c-k-c0x00ffffff-no-rj"
+                                }
+                              />
+                              <AvatarFallback>CN</AvatarFallback>
+                            </Avatar>
+                            <span>{like.user.name}</span>
+                          </div>
+                        ))
+                      )}
+                    </DialogDescription>
+                  </DialogHeader>
+                </DialogContent>
+              </Dialog>
+            </>
+          ) : (
+            <span>Be the first to like this post</span>
+          )}
         </div>
         <div className="flex gap-2">
-          <span>23 comments</span>
-          <span>532 shares</span>
+          {details.interactions.comment !== 0 && (
+            <div
+              onClick={handleCommentBoxRepliesPopup}
+              className="hover:underline cursor-pointer"
+            >
+              {details.interactions.comment}
+              {details.interactions.comment === 1 ? " comment" : " comments"}
+            </div>
+          )}
+          <div className="flex gap-2">
+            {details.interactions.share !== 0 && (
+              <span>
+                {details.interactions.share}
+                {details.interactions.share === 1 ? " share" : " shares"}
+              </span>
+            )}
+          </div>
         </div>
       </div>
       <div className="flex py-1 border-y dark:dark:border-y-[#3a3b3c]">
-        <div className="flex basis-1/3 justify-center transition delay-75 ease-in gap-1 p-2 hover:bg-[#f9188110] hover:text-[#f91880] cursor-pointer rounded-md">
+        <div className="flex basis-1/3 justify-center transition gap-1 p-2 hover:bg-[#f9188110] hover:text-[#f91880] cursor-pointer rounded-md">
           <Heart />
           <span>React</span>
         </div>
-        <div className="flex basis-1/3 justify-center gap-1 p-2 hover:bg-[#1d9cf010] cursor-pointer rounded-md transition delay-75 ease-in hover:text-[#1d9bf0]">
+        <div
+          onClick={handleCommentBoxPopup}
+          className="flex basis-1/3 justify-center gap-1 p-2 hover:bg-[#1d9cf010] cursor-pointer rounded-md transition hover:text-[#1d9bf0]"
+        >
           <MessageCircle />
           <span>Comment</span>
         </div>
-        <div className="flex basis-1/3 justify-center gap-1 p-2 hover:bg-[#00ba7c10] cursor-pointer rounded-md transition delay-75 ease-in hover:text-[#00ba7c]">
+        <div className="flex basis-1/3 justify-center gap-1 p-2 hover:bg-[#00ba7c10] cursor-pointer rounded-md transition  hover:text-[#00ba7c]">
           <Repeat2 />
           <span>Share</span>
         </div>
       </div>
+      {/* {commentBoxReplies && (
+      
+      )} */}
+      <div>
+        {isLoading ? (
+          <CommentsLoader />
+        ) : (
+          comments.map((comment) => <CommentStructure details={comment} />)
+        )}
+      </div>
+      {commentBoxPopup && (
+        <div>
+          <div className="flex mt-2 py-1 pl-3 pr-1 justify-between bg-[#f0f2f5] dark:bg-[#414141] rounded-md items-center">
+            <input
+              autoFocus
+              type="text"
+              name="comment"
+              id="comment"
+              placeholder="Write a comment"
+              className="w-full bg-transparent outline-none text-gray-50"
+            />
+            <div className="cursor-pointer p-2 bg-indigo-500 hover:bg-indigo-600 active:bg-slate-500 rounded-md transition">
+              <SendHorizonal size={18} stroke="white" />
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
