@@ -50,7 +50,7 @@ import { CommentsLoader } from "./CommentsLoader";
 import { CommentStructure } from "./CommentStructure";
 import { LikeSkeleton } from "./LikeSkeleton";
 
-export function Post({ details, refreshFeed, setRefreshFeed }) {
+export function Post({ details, refreshFeed, setRefreshFeed, refreshToken }) {
   const [isLoading, setIsLoading] = useState(false);
   const [userInfo, setUserInfo] = useState([]);
   const [commentBoxPopup, setCommentBoxPopup] = useState(false);
@@ -58,8 +58,8 @@ export function Post({ details, refreshFeed, setRefreshFeed }) {
   const [likeDetails, setLikeDetails] = useState([]);
 
   const toastHandler = useToastHandler();
-  const authToken =
-    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2NmE0YTViNzZmZWNhM2JmNGU0OTA1ZmUiLCJuYW1lIjoiSm9obiBEb2UiLCJyb2xlIjoidXNlciIsImF2YXRhciI6bnVsbCwiaWF0IjoxNzI1NzkwNTU5LCJleHAiOjE3MjY2NTQ1NTl9.W9wL3vbaVVcZqHn8tT9oujSZcxy8qHrqGEfgPdc0CYA";
+  const authToken = refreshToken;
+  console.log(authToken);
 
   useEffect(() => {
     (async () => {

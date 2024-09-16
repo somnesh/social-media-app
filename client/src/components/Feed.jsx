@@ -6,6 +6,7 @@ import { FeedSkeleton } from "./FeedSkeleton";
 import axios from "axios";
 import { jwtDecode } from "jwt-decode";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { useLocation } from "react-router-dom";
 
 export function Feed() {
   const [refreshFeed, setRefreshFeed] = useState(false);
@@ -14,8 +15,11 @@ export function Feed() {
   const [posts, setPosts] = useState([]);
   const [error, setError] = useState(false);
 
-  const authToken =
-    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2NmE0YTViNzZmZWNhM2JmNGU0OTA1ZmUiLCJuYW1lIjoiSm9obiBEb2UiLCJyb2xlIjoidXNlciIsImF2YXRhciI6bnVsbCwiaWF0IjoxNzI1NzkwNTU5LCJleHAiOjE3MjY2NTQ1NTl9.W9wL3vbaVVcZqHn8tT9oujSZcxy8qHrqGEfgPdc0CYA";
+  const location = useLocation();
+  const res = location.state;
+
+  const authToken = res.result.accessToken;
+  console.log(authToken);
 
   const decodedToken = jwtDecode(authToken);
   useEffect(() => {
@@ -99,6 +103,7 @@ export function Feed() {
           <div>
             {posts.map((post) => (
               <Post
+                refreshToken={authToken}
                 key={post._id}
                 details={post}
                 refreshFeed={refreshFeed}

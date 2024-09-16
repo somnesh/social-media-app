@@ -130,10 +130,10 @@ export function SignupPage() {
           <p className="mt-6 text-center text-sm text-gray-500">
             Already have an account?{" "}
             <Link
-              to={"/signin"}
+              to={"/login"}
               className="font-semibold leading-6 text-indigo-600 hover:text-indigo-500"
             >
-              Sign in
+              Login
             </Link>
           </p>
         </div>
