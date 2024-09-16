@@ -5,6 +5,31 @@ import { Sidebar } from "./components/Sidebar";
 import { ThemeProvider } from "./contexts/theme";
 import { Toaster } from "./components/ui/toaster";
 import { ToastHandlerProvider } from "./contexts/ToastContext";
+import { LoginPage } from "./pages/LoginPage";
+import { SignupPage } from "./pages/SignupPage";
+
+import {
+  createBrowserRouter,
+  RouterProvider,
+  Route,
+  Link,
+} from "react-router-dom";
+import { Home } from "./pages/HomePage";
+
+const router = createBrowserRouter([
+  {
+    path: "/",
+    element: <Home />,
+  },
+  {
+    path: "/signin",
+    element: <LoginPage />,
+  },
+  {
+    path: "/signup",
+    element: <SignupPage />,
+  },
+]);
 
 function App() {
   const [theme, setTheme] = useState(
@@ -37,16 +62,9 @@ function App() {
   return (
     <ThemeProvider value={{ theme, darkTheme, lightTheme }}>
       <ToastHandlerProvider>
-        <Header />
-        <main className="flex px-2 py-4 bg-[#f0f2f5] dark:bg-[#18191a] min-h-screen dark:text-[#e2e4e9] transition-colors duration-500">
-          <Sidebar />
-          <Feed />
-          {/* --------------------------------------- */}
-          <section className="basis-1/4">
-            <h2>unknown section</h2>
-          </section>
-        </main>
-        <Toaster />
+        <RouterProvider router={router}>
+          <Toaster />
+        </RouterProvider>
       </ToastHandlerProvider>
     </ThemeProvider>
   );
