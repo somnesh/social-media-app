@@ -9,6 +9,8 @@ const {
   uploadProfilePicture,
   updateUserDetails,
   deleteUser,
+  followUser,
+  unfollowUser,
 } = require("../controllers/user");
 
 router.route("/").get(authenticateAdmin, getAllUsers); // For admin
@@ -19,5 +21,8 @@ router
   .patch(updateUserDetails)
   .delete(deleteUser);
 router.route("/:id/uploads").post(uploadProfilePicture);
+
+router.route("/follow/:id").post(followUser);
+router.route("/unfollow/:id").delete(unfollowUser);
 
 module.exports = router;
