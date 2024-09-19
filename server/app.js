@@ -7,12 +7,11 @@ const express = require("express");
 const app = express();
 
 // middleware
+app.use(cookieParser());
 app.use(express.static("./public"));
 app.use(express.json());
 // cors middleware
-app.use(cors());
-
-app.use(cookieParser());
+app.use(cors({ credentials: true, origin: "http://localhost:5173" }));
 
 // app.use(express.urlencoded({ extended: true }));
 

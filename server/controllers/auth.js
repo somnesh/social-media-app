@@ -17,6 +17,7 @@ const isUsernameUnique = async (username) => {
 const registerUser = async (req, res) => {
   const { name, username, email } = req.body;
   let { phone_no } = req.body;
+  console.log(req.body);
 
   const emailAlreadyExists = await User.findOne({ email });
   if (emailAlreadyExists) {
@@ -38,7 +39,7 @@ const registerUser = async (req, res) => {
     expiresIn: process.env.JWT_REFRESH_LIFESPAN,
   });
 
-  const origin = "http://localhost:3000/api/v1/";
+  const origin = "http://localhost:3000/api/v1";
   await sendVerificationEmail({
     name,
     email,
@@ -107,7 +108,7 @@ const loginUser = async (req, res) => {
   const cookieOptions = {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
-    sameSite: "Strict",
+    sameSite: "Lax",
   };
 
   res
@@ -115,7 +116,7 @@ const loginUser = async (req, res) => {
     .cookie("accessToken", accessToken, cookieOptions)
     .cookie("refreshToken", refreshToken, cookieOptions)
     .json({
-      user: { name: user.name, id: user._id },
+      user: { name: user.name, id: user._id, avatar: user.avatar },
       accessToken,
       refreshToken,
     });
@@ -137,11 +138,11 @@ const refreshAccessToken = async (req, res) => {
   const incomingUser = await User.findById(decodedToken?.userId);
 
   if (!incomingUser) {
-    throw new BadRequestError("Invalid refresh token");
+    throw new BadRequestError("Invalid refresh token user not found");
   }
 
-  if (incomingUser?._id !== user?._id) {
-    throw new BadRequestError("Invalid refresh token");
+  if (incomingUser?._id.toString() !== user?._id.toString()) {
+    throw new BadRequestError("Invalid refresh token, user id not matched");
   }
 
   if (incomingRefreshToken !== user?.refreshToken) {
@@ -157,7 +158,7 @@ const refreshAccessToken = async (req, res) => {
   const cookieOptions = {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
-    sameSite: "Strict",
+    sameSite: "Lax",
   };
 
   res
@@ -172,16 +173,20 @@ const refreshAccessToken = async (req, res) => {
 };
 
 const logout = async (req, res) => {
-  await User.findByIdAndUpdate(
-    req.user.userId,
-    { $set: { refreshToken: null } },
-    { new: true }
-  );
+  try {
+    await User.findByIdAndUpdate(
+      req.user.userId,
+      { $set: { refreshToken: null } },
+      { new: true }
+    );
+  } catch (error) {
+    console.log(error);
+  }
 
   const cookieOptions = {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
-    sameSite: "Strict",
+    sameSite: "Lax",
   };
 
   res
