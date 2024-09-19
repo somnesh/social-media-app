@@ -1,20 +1,16 @@
 import { useEffect, useState } from "react";
-import { Feed } from "./components/Feed";
-import { Header } from "./components/Header";
-import { Sidebar } from "./components/Sidebar";
 import { ThemeProvider } from "./contexts/theme";
 import { Toaster } from "./components/ui/toaster";
 import { ToastHandlerProvider } from "./contexts/ToastContext";
 import { LoginPage } from "./pages/LoginPage";
 import { SignupPage } from "./pages/SignupPage";
 
-import {
-  createBrowserRouter,
-  RouterProvider,
-  Route,
-  Link,
-} from "react-router-dom";
+import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import { Home } from "./pages/HomePage";
+import { SomethingWentWrong } from "./pages/SomethingWentWrong";
+import { NotFound } from "./pages/NotFound";
+import { EmailConfirmation } from "./pages/EmailConfirmation";
+import { BadRequest } from "./pages/BadRequest";
 
 const router = createBrowserRouter([
   {
@@ -29,13 +25,29 @@ const router = createBrowserRouter([
     path: "/signup",
     element: <SignupPage />,
   },
+  {
+    path: "/email-confirmation",
+    element: <EmailConfirmation />,
+  },
+  {
+    path: "/500",
+    element: <SomethingWentWrong />,
+  },
+  {
+    path: "/404",
+    element: <NotFound />,
+  },
+  {
+    path: "/400",
+    element: <BadRequest />,
+  },
 ]);
 
 function App() {
   const [theme, setTheme] = useState(
-    localStorage.theme === "dark" || !("theme" in localStorage)
-      ? "dark"
-      : "white"
+    localStorage.theme === "white" || !("theme" in localStorage)
+      ? "white"
+      : "dark"
   );
   const [triggerElement, setTriggerElement] = useState(null);
 
