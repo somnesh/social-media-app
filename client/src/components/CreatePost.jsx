@@ -31,9 +31,10 @@ import {
 } from "@/components/ui/tooltip";
 import { useRef, useState } from "react";
 import axios from "axios";
-import { CreatePostSubmitLoader } from "./CreatePostSubmitLoader";
+import { CreatePostSubmitLoader } from "./loaders/CreatePostSubmitLoader";
 import { jwtDecode } from "jwt-decode";
 import { useToastHandler } from "../contexts/ToastContext";
+import { useLocation } from "react-router-dom";
 
 export function CreatePost({
   createPostPopUp,
@@ -49,10 +50,14 @@ export function CreatePost({
   const [uploadImagePopUp, setUploadImagePopUp] = useState(false);
   const imageRef = useRef(null);
 
-  const authToken =
-    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2NmE0YTViNzZmZWNhM2JmNGU0OTA1ZmUiLCJuYW1lIjoiSm9obiBEb2UiLCJyb2xlIjoidXNlciIsImF2YXRhciI6bnVsbCwiaWF0IjoxNzI1NzkwNTU5LCJleHAiOjE3MjY2NTQ1NTl9.W9wL3vbaVVcZqHn8tT9oujSZcxy8qHrqGEfgPdc0CYA";
+  const location = useLocation();
+  const res = location.state;
+
+  const authToken = res.result.accessToken;
   const decodedToken = jwtDecode(authToken);
   // console.log(decodedToken);
+
+  const API_URL = import.meta.env.VITE_API_URL;
 
   const closePopup = () => {
     if (createPostPopUp) {
@@ -72,20 +77,14 @@ export function CreatePost({
     if (uploadedImage) {
       formData.append("files", imageRef.current.files[0]);
     }
-    const authToken =
-      "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2NmE0YTViNzZmZWNhM2JmNGU0OTA1ZmUiLCJuYW1lIjoiSm9obiBEb2UiLCJyb2xlIjoidXNlciIsImF2YXRhciI6bnVsbCwiaWF0IjoxNzI1NzkwNTU5LCJleHAiOjE3MjY2NTQ1NTl9.W9wL3vbaVVcZqHn8tT9oujSZcxy8qHrqGEfgPdc0CYA";
     console.log(formData.get("files"));
     try {
-      const response = await axios.post(
-        "http://localhost:3000/api/v1/post",
-        formData,
-        {
-          headers: {
-            Authorization: `Bearer ${authToken}`,
-            "Content-Type": "multipart/form-data",
-          },
-        }
-      );
+      const response = await axios.post(`${API_URL}/post`, formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+        withCredentials: true,
+      });
 
       console.log("Form submitted : ", response);
       console.log(response.data);
