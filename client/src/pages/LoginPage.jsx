@@ -2,6 +2,7 @@ import axios from "axios";
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
+import { LoginPageImageLoader } from "../components/loaders/LoginPageImageLoader";
 
 export function LoginPage() {
   const [bgImage, setBgImage] = useState("");
@@ -9,16 +10,31 @@ export function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const navigate = useNavigate();
+
+  const API_URL = import.meta.env.VITE_API_URL;
+  const UNSPLASH_API = import.meta.env.VITE_UNSPLASH_API;
+
   useEffect(() => {
     const fetchImage = async () => {
       try {
-        const response = await fetch(
-          `https://api.unsplash.com/photos/random?client_id=Ft0KZUtAt1P8n6yuyFGPtRWYvSpUIZf1ozp92RVSCcw&query=city`
-        );
+        setIsLoading(true);
+        const response = await fetch(UNSPLASH_API);
         const data = await response.json();
-        setBgImage(data.urls.full);
+        const img = new Image();
+        img.src = data.urls.full; // Set the image source to the fetched URL
+
+        img.onload = () => {
+          setBgImage(data.urls.full); // Update the background once the image has loaded
+          setIsLoading(false);
+        };
+
+        img.onerror = () => {
+          console.error("Error loading image");
+          setIsLoading(false);
+        };
       } catch (error) {
         console.error("Error fetching image:", error);
+        setIsLoading(false);
       }
     };
     fetchImage();
@@ -27,12 +43,28 @@ export function LoginPage() {
   const handleLogin = async (e) => {
     setIsLoading(true);
     e.preventDefault();
-    const result = await axios.post("http://localhost:3000/api/v1/auth/login", {
-      email: email,
-      password: password,
-    });
-    console.log(result);
-    navigate("/", { state: { result: result.data } });
+    try {
+      const result = await axios.post(
+        `${API_URL}/auth/login`,
+        {
+          email: email,
+          password: password,
+        },
+        { withCredentials: true }
+      );
+      console.log(result);
+
+      localStorage.setItem("name", result.data.user.name);
+      localStorage.setItem("id", result.data.user.id);
+      localStorage.setItem("avatar", result.data.user.avatar);
+
+      navigate("/", { state: { result: result.data } });
+    } catch (error) {
+      console.error("Login failed: ", error);
+      navigate("/500"); // Something went wrong page
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -129,13 +161,15 @@ export function LoginPage() {
         </p>
       </div>
       <div className="relative flex-1 lg:max-w-[50%]">
-        <img
-          className="absolute inset-0 h-full w-full object-cover rounded-lg"
-          src={bgImage}
-          alt="random image"
-          width={1948}
-          height={2922}
-        />
+        {isLoading ? (
+          <LoginPageImageLoader />
+        ) : (
+          <img
+            className="absolute inset-0 h-full w-full object-cover rounded-lg"
+            src={bgImage}
+            alt="random image"
+          />
+        )}
       </div>
     </div>
   );
