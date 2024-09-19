@@ -2,11 +2,10 @@ import { CirclePlus, ImagePlus, ListTodo } from "lucide-react";
 import { Post } from "./Post";
 import { useEffect, useState } from "react";
 import { CreatePost } from "./CreatePost";
-import { FeedSkeleton } from "./FeedSkeleton";
 import axios from "axios";
-import { jwtDecode } from "jwt-decode";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
+import { FeedSkeleton } from "./loaders/FeedSkeleton";
 
 export function Feed() {
   const [refreshFeed, setRefreshFeed] = useState(false);
@@ -15,28 +14,23 @@ export function Feed() {
   const [posts, setPosts] = useState([]);
   const [error, setError] = useState(false);
 
-  const location = useLocation();
-  const res = location.state;
+  const navigate = useNavigate();
 
-  const authToken = res.result.accessToken;
-  console.log(authToken);
+  const API_URL = import.meta.env.VITE_API_URL;
 
-  const decodedToken = jwtDecode(authToken);
   useEffect(() => {
     (async () => {
       try {
         setIsLoading(true);
-        const response = await axios.get("http://localhost:3000/api/v1/post/", {
-          headers: {
-            Authorization: `Bearer ${authToken}`,
-          },
+        const response = await axios.get(`${API_URL}/post/`, {
+          withCredentials: true,
         });
 
         setPosts(response.data.posts);
         setIsLoading(false);
       } catch (error) {
         setError(true);
-        console.log(error);
+        console.error(error);
         setIsLoading(false);
       }
     })();
@@ -51,7 +45,7 @@ export function Feed() {
       {isLoading ? (
         <FeedSkeleton />
       ) : error ? (
-        <h1>Something went wrong</h1>
+        navigate("/500")
       ) : (
         <>
           {createPostPopUp && (
@@ -66,13 +60,10 @@ export function Feed() {
             <div className="flex items-center py-2 gap-3">
               <div className="">
                 <Avatar>
-                  <AvatarImage
-                    src={
-                      decodedToken.avatar ||
-                      "https://yt3.googleusercontent.com/g3j3iOUOPhNxBCNAArBqiYGzHzCBIzr_Al8mdvtBJeZMGFDblnU5rlVUt6GY01AUwm7Cp70J=s900-c-k-c0x00ffffff-no-rj"
-                    }
-                  />
-                  <AvatarFallback>CN</AvatarFallback>
+                  <AvatarImage src={localStorage.avatar} />
+                  <AvatarFallback className={localStorage.avatarBg}>
+                    {localStorage.name[0]}
+                  </AvatarFallback>
                 </Avatar>
               </div>
               <div
@@ -103,7 +94,6 @@ export function Feed() {
           <div>
             {posts.map((post) => (
               <Post
-                refreshToken={authToken}
                 key={post._id}
                 details={post}
                 refreshFeed={refreshFeed}

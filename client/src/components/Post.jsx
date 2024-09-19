@@ -46,11 +46,11 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useEffect, useState } from "react";
 import { useToastHandler } from "../contexts/ToastContext";
-import { CommentsLoader } from "./CommentsLoader";
+import { CommentsLoader } from "./loaders/CommentsLoader";
 import { CommentStructure } from "./CommentStructure";
-import { LikeSkeleton } from "./LikeSkeleton";
+import { LikeSkeleton } from "./loaders/LikeSkeleton";
 
-export function Post({ details, refreshFeed, setRefreshFeed, refreshToken }) {
+export function Post({ details, refreshFeed, setRefreshFeed }) {
   const [isLoading, setIsLoading] = useState(false);
   const [userInfo, setUserInfo] = useState([]);
   const [commentBoxPopup, setCommentBoxPopup] = useState(false);
@@ -58,29 +58,21 @@ export function Post({ details, refreshFeed, setRefreshFeed, refreshToken }) {
   const [likeDetails, setLikeDetails] = useState([]);
 
   const toastHandler = useToastHandler();
-  const authToken = refreshToken;
-  console.log(authToken);
+
+  const API_URL = import.meta.env.VITE_API_URL;
 
   useEffect(() => {
     (async () => {
       try {
-        const response = await axios.get(
-          `http://localhost:3000/api/v1/user/${details.user_id}`,
-          {
-            headers: {
-              Authorization: `Bearer ${authToken}`,
-            },
-          }
-        );
+        const response = await axios.get(`${API_URL}/user/${details.user_id}`, {
+          withCredentials: true,
+        });
         setUserInfo(response.data);
-        // console.log(response.data);
       } catch (error) {
-        console.log(error);
+        console.error(error);
       }
     })();
   }, []);
-
-  // console.log(details.visibility);
 
   const postDate = new Date(details.createdAt);
   const currentDate = new Date();
@@ -122,15 +114,9 @@ export function Post({ details, refreshFeed, setRefreshFeed, refreshToken }) {
 
   const handleDelete = async () => {
     try {
-      const response = await axios.delete(
-        `http://localhost:3000/api/v1/post/${details._id}`,
-        {
-          headers: {
-            Authorization: `Bearer ${authToken}`,
-          },
-        }
-      );
-      console.log(response.data);
+      const response = await axios.delete(`${API_URL}/post/${details._id}`, {
+        withCredentials: true,
+      });
       setRefreshFeed(!refreshFeed);
 
       toastHandler(
@@ -151,7 +137,6 @@ export function Post({ details, refreshFeed, setRefreshFeed, refreshToken }) {
       );
     }
   };
-  console.log(details);
 
   const handleCommentBoxPopup = () => {
     setCommentBoxPopup(true);
@@ -162,16 +147,14 @@ export function Post({ details, refreshFeed, setRefreshFeed, refreshToken }) {
       setIsLoading(true);
       setCommentBoxPopup(true);
       const response = await axios.get(
-        `http://localhost:3000/api/v1/post/comment/${details._id}`,
+        `${API_URL}/post/comment/${details._id}`,
         {
-          headers: {
-            Authorization: `Bearer ${authToken}`,
-          },
+          withCredentials: true,
         }
       );
       setComments(response.data);
     } catch (error) {
-      console.log(`Something went wrong: ${error}`);
+      console.error(`Something went wrong: ${error}`);
     } finally {
       setIsLoading(false);
     }
@@ -181,18 +164,13 @@ export function Post({ details, refreshFeed, setRefreshFeed, refreshToken }) {
     try {
       setIsLoading(true);
 
-      const response = await axios.get(
-        `http://localhost:3000/api/v1/post/like/${details._id}`,
-        {
-          headers: {
-            Authorization: `Bearer ${authToken}`,
-          },
-        }
-      );
+      const response = await axios.get(`${API_URL}/post/like/${details._id}`, {
+        withCredentials: true,
+      });
 
       setLikeDetails(response.data);
     } catch (error) {
-      console.log(`Something went wrong: ${error}`);
+      console.error(`Something went wrong: ${error}`);
     } finally {
       setIsLoading(false);
     }
@@ -297,7 +275,7 @@ export function Post({ details, refreshFeed, setRefreshFeed, refreshToken }) {
                 >
                   <span>{details.interactions.like}</span>
                 </DialogTrigger>
-                <DialogContent>
+                <DialogContent className="dark:bg-[#242526] dark:border-[#3a3b3c]">
                   <DialogHeader>
                     <DialogTitle>Likes</DialogTitle>
                     <DialogDescription>
