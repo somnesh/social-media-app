@@ -8,7 +8,6 @@ import {
   MessageSquareWarning,
 } from "lucide-react";
 
-import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -22,15 +21,14 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import useTheme from "../contexts/theme";
-import { jwtDecode } from "jwt-decode";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { useNavigate } from "react-router-dom";
+import axios from "axios";
 
 export function ProfileMenu() {
   const { theme, darkTheme, lightTheme } = useTheme();
 
-  const authToken =
-    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2NmE0YTViNzZmZWNhM2JmNGU0OTA1ZmUiLCJuYW1lIjoiSm9obiBEb2UiLCJyb2xlIjoidXNlciIsImF2YXRhciI6bnVsbCwiaWF0IjoxNzI1NzkwNTU5LCJleHAiOjE3MjY2NTQ1NTl9.W9wL3vbaVVcZqHn8tT9oujSZcxy8qHrqGEfgPdc0CYA";
-  const decodedToken = jwtDecode(authToken);
+  const navigate = useNavigate();
 
   const switchTheme = (e) => {
     if (theme === "white") {
@@ -39,22 +37,44 @@ export function ProfileMenu() {
       lightTheme(e);
     }
   };
+  const API_URL = import.meta.env.VITE_API_URL;
+  const handleLogout = async () => {
+    try {
+      await axios.post(`${API_URL}/auth/logout`, {}, { withCredentials: true });
+      navigate("/login");
+    } catch (error) {
+      console.log("Error during logout: ", error);
+    }
+  };
+
+  if (!localStorage.avatarBg) {
+    const colors = [
+      "bg-red-500",
+      "bg-blue-500",
+      "bg-green-500",
+      "bg-yellow-500",
+      "bg-purple-500",
+      "bg-pink-500",
+      "bg-indigo-500",
+      "bg-teal-500",
+      "bg-orange-500",
+    ];
+
+    localStorage.avatarBg = colors[Math.floor(Math.random() * colors.length)];
+  }
 
   return (
     <DropdownMenu modal={false}>
       <DropdownMenuTrigger asChild>
         <div className="flex items-center gap-2 cursor-pointer hover:bg-[#e3e5e9] active:bg-[#d0d2d6] dark:hover:bg-[#414141] dark:active:bg-[#313131] active:scale-95 select-none pl-3 pr-1 py-1 rounded-full">
           <span className="dark:text-white bg-inherit hover:bg-inherit">
-            {decodedToken.name}
+            {localStorage.name}
           </span>
           <Avatar>
-            <AvatarImage
-              src={
-                decodedToken.avatar ||
-                "https://yt3.googleusercontent.com/g3j3iOUOPhNxBCNAArBqiYGzHzCBIzr_Al8mdvtBJeZMGFDblnU5rlVUt6GY01AUwm7Cp70J=s900-c-k-c0x00ffffff-no-rj"
-              }
-            />
-            <AvatarFallback>CN</AvatarFallback>
+            <AvatarImage src={localStorage.avatar} />
+            <AvatarFallback className={localStorage.avatarBg}>
+              {localStorage.name[0]}
+            </AvatarFallback>
           </Avatar>
         </div>
       </DropdownMenuTrigger>
@@ -128,7 +148,10 @@ export function ProfileMenu() {
           </DropdownMenuItem>
         </DropdownMenuGroup>
 
-        <DropdownMenuItem className="cursor-pointer dark:focus:bg-[#414141] dark:text-white">
+        <DropdownMenuItem
+          onClick={handleLogout}
+          className="cursor-pointer dark:focus:bg-[#414141] dark:text-white"
+        >
           <LogOut className="mr-2 h-4 w-4" />
           <span>Log out</span>
           <DropdownMenuShortcut>⇧⌘Q</DropdownMenuShortcut>
