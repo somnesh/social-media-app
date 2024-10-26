@@ -2,9 +2,15 @@ const Post = require("../models/Post");
 const Like = require("../models/Like");
 const Comment = require("../models/Comment");
 const { StatusCodes } = require("http-status-codes");
-const { NotFoundError, BadRequestError } = require("../errors");
+const {
+  NotFoundError,
+  BadRequestError,
+  UnauthenticatedError,
+} = require("../errors");
 const { default: mongoose } = require("mongoose");
 const Interaction = require("../models/Interaction");
+const { calculateAndStoreSimilarity } = require("./recommendation");
+const PostView = require("../models/PostView");
 
 const getAllPost = async (req, res) => {
   const posts = (
@@ -33,7 +39,21 @@ const createPost = async (req, res) => {
 
 const getPostDetails = async (req, res) => {
   const postId = req.params.id;
-  const post = await Post.findById(postId);
+  const post = await Post.findById(postId).populate([
+    {
+      path: "user_id", // Populate user details from the user_id field
+      select: "name avatar", // Only select name and avatar from the user
+    },
+    {
+      path: "parent", // Populate the parent post if it exists
+      select: "content image_url user_id visibility createdAt", // Select relevant fields from the parent post
+      populate: {
+        path: "user_id", // Populate user details of the parent post
+        select: "name avatar", // Select name and avatar for the parent post's user
+      },
+    },
+  ]);
+
   if (!post) {
     throw new NotFoundError(`No post with id: ${postId}`);
   }
@@ -147,9 +167,16 @@ const likePost = async (req, res) => {
     if (doesLikeExists.length !== 0) {
       await Like.deleteOne({ post_id: postId, user_id: userId }, { session });
       await updatePostInteraction(userId, postId, "like", false, session);
+      await PostView.deleteOne(
+        { user_id: userId, post_id: postId },
+        { session }
+      );
     } else {
       await Like.create([{ post_id: postId, user_id: userId }], { session });
       await updatePostInteraction(userId, postId, "like", true, session);
+      await PostView.create([{ user_id: userId, post_id: postId }], {
+        session,
+      });
     }
 
     await session.commitTransaction();
@@ -157,10 +184,13 @@ const likePost = async (req, res) => {
 
     res.status(200).json({
       success: true,
-      message:
-        doesLikeExists.length !== 0
-          ? "Post dis-liked successfully"
-          : "Post liked successfully",
+      message: {
+        dislike: doesLikeExists.length !== 0,
+        like: !(doesLikeExists.length !== 0),
+      },
+      // doesLikeExists.length !== 0
+      //   ? "Post dis-liked successfully"
+      //   : "Post liked successfully",
     });
   } catch (error) {
     await session.abortTransaction();
@@ -250,11 +280,88 @@ const getComments = async (req, res) => {
 
 const replyComment = async (req, res) => {};
 
-const deleteReply = async (req, res) => {};
+const deleteComment = async (req, res) => {
+  const { id: commentId } = req.params;
+  const userId = req.user;
 
-const deleteComment = async (req, res) => {};
+  // check if comment exists
+  const isCommentExists = await Comment.findById(commentId);
+  if (!isCommentExists) {
+    throw new BadRequestError(`No comment exists with the id: ${commentId}`);
+  }
 
-const sharePost = async (req, res) => {};
+  // check if user has permission to delete
+  if (isCommentExists.user_id.toString() != userId._id.toString()) {
+    throw new UnauthenticatedError(
+      `The user with id:${userId._id} doesn't have the permission to perform this operation`
+    );
+  }
+
+  // start a transaction
+  const session = await mongoose.startSession();
+  session.startTransaction();
+
+  try {
+    // delete the comment
+    await Comment.findByIdAndDelete(commentId, { session });
+
+    // decrement the comment counter by 1
+    await updatePostInteraction(
+      userId,
+      isCommentExists.post_id,
+      "comment",
+      false,
+      session
+    );
+
+    // commit the transaction
+    await session.commitTransaction();
+    session.endSession();
+
+    res
+      .status(StatusCodes.OK)
+      .json({ success: true, message: "Comment deleted successfully" });
+  } catch (error) {
+    // if any failure occurs abort the transaction
+    await session.abortTransaction();
+    session.endSession();
+
+    console.error("Transaction failed, rolling back changes", error);
+    res
+      .status(500)
+      .json({ success: false, message: "Failed to delete comment" });
+  }
+};
+
+const sharePost = async (req, res) => {
+  const { id: postId } = req.params;
+  const userId = req.user;
+  req.body.user_id = userId._id;
+  req.body.parent = postId;
+  console.log(req.body);
+
+  const session = await mongoose.startSession();
+  session.startTransaction();
+  try {
+    await Post.create([req.body], { session });
+    await updatePostInteraction(userId, postId, "share", true, session);
+
+    await session.commitTransaction();
+    session.endSession();
+
+    res
+      .status(200)
+      .json({ success: true, message: "Post shared successfully" });
+  } catch (error) {
+    await session.abortTransaction();
+    session.endSession();
+
+    console.error("Transaction failed, rolling back changes", error);
+    res
+      .status(500)
+      .json({ success: false, message: "Failed to share the post" });
+  }
+};
 
 module.exports = {
   getAllPost,
@@ -267,7 +374,6 @@ module.exports = {
   addComment,
   getComments,
   replyComment,
-  deleteReply,
   deleteComment,
   sharePost,
 };
