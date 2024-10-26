@@ -1,8 +1,8 @@
-import { MailCheck } from "lucide-react";
+import { MailQuestion } from "lucide-react";
 import { useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 
-export function EmailConfirmation() {
+export function EmailVerification() {
   const navigate = useNavigate();
   const location = useLocation();
   const email = location.state?.email;
@@ -17,7 +17,7 @@ export function EmailConfirmation() {
   return (
     <div className="h-screen w-screen flex flex-col gap-2 justify-center items-center">
       <div className="flex text-2xl gap-2 items-center justify-center">
-        <MailCheck size={28} />
+        <MailQuestion size={28} />
         <span>Verification email sent</span>
       </div>
       <div>
