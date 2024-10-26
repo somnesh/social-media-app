@@ -2,7 +2,9 @@ const natural = require("natural");
 const cosineSimilarity = require("compute-cosine-similarity");
 
 const Post = require("../models/Post");
-const Similarity = require("../models/Similarity"); // New Model for Similarity
+const Similarity = require("../models/Similarity");
+const Dislike = require("../models/Dislike");
+const PostView = require("../models/PostView");
 
 const calculateAndStoreSimilarity = async () => {
   const posts = await Post.find({}).select("-createdAt -updatedAt -__v");
@@ -75,9 +77,9 @@ const calculateAndStoreSimilarity = async () => {
     }
   }
 
-  similarityData.forEach((doc) => {
-    doc.similar_posts.sort((a, b) => b.similarity_score - a.similarity_score); // Sorting descending by similarity_score
-  });
+  // similarityData.forEach((doc) => {
+  //   doc.similar_posts.sort((a, b) => b.similarity_score - a.similarity_score); // Sorting descending by similarity_score
+  // });
 
   // Step 4: Clear old similarity data
   await Similarity.deleteMany({});
@@ -88,28 +90,59 @@ const calculateAndStoreSimilarity = async () => {
   console.log("Similarity data inserted successfully.");
 };
 
-const recommendPosts = async (viewedPostIds) => {
+const recommendPosts = async (userId, viewedPostIds) => {
   try {
+    // Step 1: Retrieve disliked posts by the user
+    const dislikedPosts = await Dislike.find({ user_id: userId }).select(
+      "post_id"
+    );
+    const dislikedPostIds = dislikedPosts.map((dislike) =>
+      dislike.post_id.toString()
+    );
+
+    // Step 2: Retrieve posts that have been shown more than 3 times to the user
+    const overShownPosts = await PostView.find({
+      user_id: userId,
+      view_count: { $gte: 3 },
+    }).select("post_id");
+    const overShownPostIds = overShownPosts.map((view) =>
+      view.post_id.toString()
+    );
+
+    // Step 3: Retrieve similar posts based on the posts that the user has viewed
     const similarPosts = await Similarity.find({
       post_id: { $in: viewedPostIds },
     });
 
-    // Extract similar post IDs
+    // Step 4: Filter similar posts
     const recommendedPostIds = new Set();
     similarPosts.forEach((doc) => {
       doc.similar_posts.forEach((similarPost) => {
-        if (!viewedPostIds.includes(similarPost.post_id.toString())) {
-          recommendedPostIds.add(similarPost.post_id.toString());
+        const postIdStr = similarPost.post_id.toString();
+        if (
+          !viewedPostIds.includes(postIdStr) && // Post has not been viewed
+          !dislikedPostIds.includes(postIdStr) && // Post is not disliked
+          !overShownPostIds.includes(postIdStr) // Post has not been over-shown
+        ) {
+          recommendedPostIds.add(postIdStr);
         }
       });
     });
 
-    // Fetch the recommended posts
-    const recommendedPosts = await Post.find({
+    // Step 5: Fetch the recommended posts based on filtered IDs
+    let recommendedPosts = await Post.find({
       _id: { $in: Array.from(recommendedPostIds) },
+    }).populate({
+      path: "user_id", // Populate user details from the user_id field
+      select: "name avatar", // Only select name and avatar from the user
     });
 
-    return recommendedPosts;
+    recommendedPosts = recommendedPosts.map((post) => ({
+      ...post.toObject(), // Convert the Mongoose document to a plain object
+      recommended: true,
+    }));
+
+    return { recommendedPosts, recommendedPostIds };
   } catch (error) {
     console.error("Error recommending posts:", error);
     return [];
