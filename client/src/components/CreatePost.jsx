@@ -32,9 +32,9 @@ import {
 import { useRef, useState } from "react";
 import axios from "axios";
 import { CreatePostSubmitLoader } from "./loaders/CreatePostSubmitLoader";
-import { jwtDecode } from "jwt-decode";
+// import { jwtDecode } from "jwt-decode";
 import { useToastHandler } from "../contexts/ToastContext";
-import { useLocation } from "react-router-dom";
+// import { useLocation } from "react-router-dom";
 
 export function CreatePost({
   createPostPopUp,
@@ -50,12 +50,11 @@ export function CreatePost({
   const [uploadImagePopUp, setUploadImagePopUp] = useState(false);
   const imageRef = useRef(null);
 
-  const location = useLocation();
-  const res = location.state;
+  // const location = useLocation();
+  // const res = location.state;
 
-  const authToken = res.result.accessToken;
-  const decodedToken = jwtDecode(authToken);
-  // console.log(decodedToken);
+  // const authToken = res.result.accessToken;
+  // const decodedToken = jwtDecode(authToken);
 
   const API_URL = import.meta.env.VITE_API_URL;
 
@@ -154,15 +153,12 @@ export function CreatePost({
           <div className="flex justify-between items-center">
             <div className="flex gap-2 py-2 items-center">
               <Avatar>
-                <AvatarImage
-                  src={
-                    decodedToken.avatar ||
-                    "https://yt3.googleusercontent.com/g3j3iOUOPhNxBCNAArBqiYGzHzCBIzr_Al8mdvtBJeZMGFDblnU5rlVUt6GY01AUwm7Cp70J=s900-c-k-c0x00ffffff-no-rj"
-                  }
-                />
-                <AvatarFallback>CN</AvatarFallback>
+                <AvatarImage src={localStorage.avatar} />
+                <AvatarFallback className={localStorage.avatarBg}>
+                  {localStorage.name[0]}
+                </AvatarFallback>
               </Avatar>
-              <span>{decodedToken.name}</span>
+              <span>{localStorage.name}</span>
             </div>
             <Select
               onValueChange={(value) => {

@@ -17,7 +17,6 @@ const isUsernameUnique = async (username) => {
 const registerUser = async (req, res) => {
   const { name, username, email } = req.body;
   let { phone_no } = req.body;
-  console.log(req.body);
 
   const emailAlreadyExists = await User.findOne({ email });
   if (emailAlreadyExists) {
@@ -40,17 +39,17 @@ const registerUser = async (req, res) => {
   });
 
   const origin = "http://localhost:3000/api/v1";
+  // Inserting data into the database
+  const user = await User.create({
+    ...req.body,
+    refreshToken: refreshToken,
+  });
+
   await sendVerificationEmail({
     name,
     email,
     refreshToken,
     origin,
-  });
-
-  // Inserting data into the database
-  const user = await User.create({
-    ...req.body,
-    refreshToken: refreshToken,
   });
 
   res
@@ -74,9 +73,13 @@ const verifyEmail = async (req, res) => {
   user.verified = Date.now();
   user.refreshToken = null;
 
-  await user.save();
-
-  res.status(StatusCodes.OK).json({ msg: "Email Verified" });
+  try {
+    await user.save();
+    res.redirect("http://localhost:5173/email-verification-success");
+  } catch (error) {
+    console.error(error);
+    res.redirect("http://localhost:5173/500");
+  }
 };
 
 // for user login

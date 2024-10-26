@@ -2,7 +2,6 @@ const User = require("../models/User");
 const { StatusCodes } = require("http-status-codes");
 const { NotFoundError, BadRequestError } = require("../errors");
 const Follower = require("../models/Follower");
-const { default: mongoose } = require("mongoose");
 
 // For admin
 const getAllUsers = async (req, res) => {
@@ -32,8 +31,8 @@ const deleteUser = async (req, res) => {
 };
 
 const followUser = async (req, res) => {
-  const followerId = req.user; // User who is following (from authenticated user)
-  const followedId = req.params.id; // User being followed (from request parameter)
+  const followerId = req.user._id.toString(); // User who is following (from authenticated user)
+  const followedId = req.params.id.toString(); // User being followed (from request parameter)
 
   if (!followerId || !followedId) {
     throw new BadRequestError("Follower and Followed user cannot be empty");

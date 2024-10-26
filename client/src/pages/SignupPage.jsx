@@ -11,6 +11,7 @@ export function SignupPage() {
   const [form, setForm] = useState({
     name: "",
     date_of_birth: "",
+    gender: "male",
     username: "",
     phone_no: "",
     email: "",
@@ -19,6 +20,8 @@ export function SignupPage() {
   const navigate = useNavigate();
 
   const UNSPLASH_API = import.meta.env.VITE_UNSPLASH_API;
+  const API_URL = import.meta.env.VITE_API_URL;
+
   useEffect(() => {
     const fetchImage = async () => {
       try {
@@ -30,12 +33,12 @@ export function SignupPage() {
 
         img.onload = () => {
           setBgImage(data.urls.full); // Update the background once the image has loaded
-          setIsLoading(false); // Stop the loading indicator
+          setIsLoading(false);
         };
 
         img.onerror = () => {
           console.error("Error loading image");
-          setIsLoading(false); // Stop loading if the image fails to load
+          setIsLoading(false);
         };
       } catch (error) {
         console.error("Error fetching image:", error);
@@ -51,17 +54,19 @@ export function SignupPage() {
     e.target.classList.add("disabled:opacity-50");
     try {
       setIsLoadingSubmit(true);
-      // const result = await axios.post(`${API_URL}/auth/signup`, {
-      //   ...form,
-      // });
+      const result = await axios.post(`${API_URL}/auth/signup`, {
+        ...form,
+      });
 
-      navigate("/email-confirmation", {
+      navigate("/email-verification", {
         state: { email: form.email },
         replace: true,
       });
       setIsLoadingSubmit(false);
     } catch (error) {
       console.error("Failed to sign up: ", error);
+      e.target.classList.add("hover:bg-indigo-700");
+      e.target.classList.remove("disabled:opacity-50");
       setIsLoadingSubmit(false);
     }
   };

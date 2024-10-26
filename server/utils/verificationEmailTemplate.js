@@ -17,7 +17,7 @@ const verificationEmailTemplate = (
  <meta name="format-detection" content="email=no" />
  <meta name="x-apple-disable-message-reformatting" />
  <link href="https://fonts.googleapis.com/css?family=Hanken+Grotesk:ital,wght@0,400;0,600;0,700" rel="stylesheet" />
- <title>Funzy</title>
+ 
  <!-- Made with Postcards by Designmodo https://designmodo.com/postcards -->
  <style>
  html,
