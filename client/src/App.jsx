@@ -9,8 +9,9 @@ import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import { Home } from "./pages/HomePage";
 import { SomethingWentWrong } from "./pages/SomethingWentWrong";
 import { NotFound } from "./pages/NotFound";
-import { EmailConfirmation } from "./pages/EmailConfirmation";
+import { EmailVerification } from "./pages/EmailVerification";
 import { BadRequest } from "./pages/BadRequest";
+import { EmailVerificationSuccess } from "./pages/EmailVerificationSuccess";
 
 const router = createBrowserRouter([
   {
@@ -26,8 +27,12 @@ const router = createBrowserRouter([
     element: <SignupPage />,
   },
   {
-    path: "/email-confirmation",
-    element: <EmailConfirmation />,
+    path: "/email-verification",
+    element: <EmailVerification />,
+  },
+  {
+    path: "/email-verification-success",
+    element: <EmailVerificationSuccess />,
   },
   {
     path: "/500",
