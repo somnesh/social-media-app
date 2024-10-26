@@ -5,6 +5,7 @@ const jwt = require("jsonwebtoken");
 // ## Attributes:
 // name
 // date_of_birth
+// gender
 // username
 // phone_no
 // email
@@ -12,7 +13,7 @@ const jwt = require("jsonwebtoken");
 // avatar
 // profile_bio
 // role [admin, user]
-// verificationToken
+// refreshToken
 // isVerified
 // verified
 // timestamps
@@ -29,6 +30,11 @@ const UserSchema = new mongoose.Schema(
     date_of_birth: {
       type: String,
       required: [true, "Please provide date of birth"],
+    },
+    gender: {
+      type: String,
+      enum: ["male", "female"],
+      required: [true, "please provide gender"],
     },
     username: {
       type: String,
@@ -121,7 +127,6 @@ UserSchema.methods.createJWT = function () {
       userId: this._id,
       name: this.name,
       role: this.role,
-      avatar: this.avatar,
     },
     process.env.JWT_SECRET,
     { expiresIn: this.role === "admin" ? "1hr" : process.env.JWT_LIFESPAN }

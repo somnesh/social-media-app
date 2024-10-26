@@ -5,6 +5,11 @@ const mongoose = require("mongoose");
 // content
 // image_url
 // visibility
+// interactions
+//  ├── like
+//  ├── comment
+//  └── share
+// parent
 
 const PostSchema = new mongoose.Schema(
   {
@@ -41,6 +46,10 @@ const PostSchema = new mongoose.Schema(
         type: Number,
         default: 0,
       },
+    },
+    parent: {
+      type: mongoose.Types.ObjectId,
+      ref: "Post",
     },
   },
   { timestamps: true }
