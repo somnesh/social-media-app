@@ -22,11 +22,15 @@ export function Feed() {
     (async () => {
       try {
         setIsLoading(true);
-        const response = await axios.get(`${API_URL}/post/`, {
+        const response = await axios.get(`${API_URL}/feed/`, {
           withCredentials: true,
         });
-
-        setPosts(response.data.posts);
+        const posts = [
+          ...response.data.followedPosts,
+          ...response.data.recommendedPosts,
+        ];
+        const shuffledPosts = shuffleArray(posts);
+        setPosts(shuffledPosts);
         setIsLoading(false);
       } catch (error) {
         setError(true);
@@ -36,7 +40,7 @@ export function Feed() {
     })();
   }, [refreshFeed]);
 
-  const handleCreatepostClick = () => {
+  const handleCreatePostClick = () => {
     setCreatePostPopUp(true);
     document.body.classList.add("overflow-hidden");
   };
@@ -67,7 +71,7 @@ export function Feed() {
                 </Avatar>
               </div>
               <div
-                onClick={handleCreatepostClick}
+                onClick={handleCreatePostClick}
                 className="bg-[#F0F2F5] hover:bg-[#e3e5e9] active:bg-[#dbdde0] dark:bg-[#414141] dark:active:bg-[#6e6e6e] dark:hover:bg-[#535353] rounded-lg py-3 px-4 cursor-pointer w-full"
               >
                 what's happening?
@@ -106,3 +110,12 @@ export function Feed() {
     </section>
   );
 }
+
+const shuffleArray = (array) => {
+  let shuffledArray = [...array];
+  for (let i = shuffledArray.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [shuffledArray[i], shuffledArray[j]] = [shuffledArray[j], shuffledArray[i]];
+  }
+  return shuffledArray;
+};
