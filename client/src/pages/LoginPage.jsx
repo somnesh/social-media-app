@@ -41,6 +41,15 @@ export function LoginPage() {
   }, []);
 
   const handleLogin = async (e) => {
+    const passwordField = document.getElementById("password");
+    const emailField = document.getElementById("email");
+    const msgField = document.getElementById("msg");
+
+    passwordField.classList.remove("ring-red-600");
+    emailField.classList.remove("ring-red-600");
+    msgField.classList.remove("block");
+    msgField.classList.add("hidden");
+
     setIsLoading(true);
     e.preventDefault();
     try {
@@ -61,7 +70,10 @@ export function LoginPage() {
       navigate("/", { state: { result: result.data } });
     } catch (error) {
       console.error("Login failed: ", error);
-      navigate("/500"); // Something went wrong page
+      passwordField.classList.add("ring-red-600");
+      emailField.classList.add("ring-red-600");
+      msgField.classList.add("block");
+      msgField.classList.remove("hidden");
     } finally {
       setIsLoading(false);
     }
@@ -91,11 +103,13 @@ export function LoginPage() {
                   name="email"
                   type="email"
                   autoComplete="email"
-                  placeholder="Example@email.com"
+                  placeholder="Email address"
+                  title="Enter your email"
                   required
                   className="block w-full rounded-md border-0 p-2 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6 dark:bg-[#f0f0f0]"
                   onChange={(e) => {
                     setEmail(e.target.value);
+                    e.target.classList.remove("ring-red-600");
                   }}
                 />
               </div>
@@ -116,14 +130,22 @@ export function LoginPage() {
                   name="password"
                   type="password"
                   autoComplete="current-password"
-                  placeholder="At least 8 characters"
+                  placeholder="Enter your password"
+                  title="Enter your password"
                   required
                   className="block w-full rounded-md border-0 p-2 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
                   onChange={(e) => {
                     setPassword(e.target.value);
+                    e.target.classList.remove("ring-red-600");
                   }}
                 />
               </div>
+              <span
+                id="msg"
+                className="text-red-600 text-sm font-medium hidden"
+              >
+                Incorrect email or password
+              </span>
             </div>
 
             <div className="text-sm text-right">
