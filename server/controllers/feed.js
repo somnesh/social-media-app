@@ -32,6 +32,7 @@ const generateFeed = async (req, res) => {
     const followedPosts = await Post.find({
       user_id: { $in: followedUserIds },
       _id: { $nin: discardPost }, // Exclude already viewed posts
+      visibility: { $in: ["public", "friends"] },
     })
       .populate([
         {
@@ -125,11 +126,11 @@ const logPostView = async (req, res) => {
   res.json({ success: true, userId, postId });
 };
 
-const DislikePostRecommendation = async (req, res) => {
+const dislikePostRecommendation = async (req, res) => {
   const userId = req.user._id;
-  const postId = req.body;
+  const postId = req.body.postId;
 
   await Dislike.create([{ user_id: userId, post_id: postId }]);
   res.json({ success: true, userId, postId });
 };
-module.exports = { generateFeed, logPostView, DislikePostRecommendation };
+module.exports = { generateFeed, logPostView, dislikePostRecommendation };

@@ -7,7 +7,9 @@ const Dislike = require("../models/Dislike");
 const PostView = require("../models/PostView");
 
 const calculateAndStoreSimilarity = async () => {
-  const posts = await Post.find({}).select("-createdAt -updatedAt -__v");
+  const posts = await Post.find({ visibility: { $ne: "private" } }).select(
+    "-createdAt -updatedAt -__v"
+  );
 
   // Filter out posts with empty content
   const validPosts = posts.filter(
@@ -132,6 +134,8 @@ const recommendPosts = async (userId, viewedPostIds) => {
     // Step 5: Fetch the recommended posts based on filtered IDs
     let recommendedPosts = await Post.find({
       _id: { $in: Array.from(recommendedPostIds) },
+      user_id: { $ne: userId },
+      visibility: "public",
     }).populate({
       path: "user_id", // Populate user details from the user_id field
       select: "name avatar", // Only select name and avatar from the user
