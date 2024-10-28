@@ -29,7 +29,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import axios from "axios";
 import { CreatePostSubmitLoader } from "./loaders/CreatePostSubmitLoader";
 // import { jwtDecode } from "jwt-decode";
@@ -39,8 +39,9 @@ import { useToastHandler } from "../contexts/ToastContext";
 export function CreatePost({
   createPostPopUp,
   setCreatePostPopUp,
-  refreshFeed,
-  setRefreshFeed,
+  setPosts,
+  imageFlag,
+  setImageFlag,
 }) {
   const toastHandler = useToastHandler();
   const [visibility, setVisibility] = useState("public");
@@ -88,7 +89,7 @@ export function CreatePost({
       console.log("Form submitted : ", response);
       console.log(response.data);
       closePopup();
-      setRefreshFeed(!refreshFeed);
+      setPosts((prev) => [response.data.post, ...prev]);
 
       toastHandler(
         <div className="flex gap-2 items-center">
@@ -115,15 +116,18 @@ export function CreatePost({
     imageRef.current.click();
   };
 
-  const togglePopupUploadImage = (e) => {
-    if (!uploadImagePopUp) {
-      e.classList.remove("hidden");
-    } else {
-      e.classList.add("hidden");
-      setUploadedImage(null);
-    }
+  const togglePopupUploadImage = () => {
     setUploadImagePopUp(!uploadImagePopUp);
   };
+
+  console.log(imageFlag);
+  // if true means the image button is clicked
+  useEffect(() => {
+    if (imageFlag) {
+      togglePopupUploadImage();
+      setImageFlag(false);
+    }
+  }, [imageFlag, setImageFlag]);
 
   const handleFileChange = () => {
     const file = imageRef.current.files[0];
@@ -160,37 +164,47 @@ export function CreatePost({
               </Avatar>
               <span>{localStorage.name}</span>
             </div>
-            <Select
-              onValueChange={(value) => {
-                setVisibility(value);
-              }}
-              name="visibility"
-              defaultValue="public"
-            >
-              <SelectTrigger className="w-[180px] dark:bg-[#3a3c3d]">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent className="dark:bg-[#242526]">
-                <SelectItem value="public">
-                  <div className="flex items-center gap-1">
-                    <Globe size={16} />
-                    <span>Public</span>
-                  </div>
-                </SelectItem>
-                <SelectItem value="friends">
-                  <div className="flex items-center gap-1">
-                    <Users size={16} />
-                    <span>Friends</span>
-                  </div>
-                </SelectItem>
-                <SelectItem value="private">
-                  <div className="flex items-center gap-1">
-                    <Lock size={16} />
-                    <span>Private</span>
-                  </div>
-                </SelectItem>
-              </SelectContent>
-            </Select>
+            <TooltipProvider delayDuration="100" disabled={true}>
+              <Tooltip>
+                <Select
+                  onValueChange={(value) => {
+                    setVisibility(value);
+                  }}
+                  name="visibility"
+                  defaultValue="public"
+                >
+                  <TooltipTrigger>
+                    <SelectTrigger className="w-[180px] dark:bg-[#3a3c3d]">
+                      <SelectValue />
+                    </SelectTrigger>
+                  </TooltipTrigger>
+                  <SelectContent className="dark:bg-[#242526]">
+                    <SelectItem value="public">
+                      <div className="flex items-center gap-1">
+                        <Globe size={16} />
+                        <span>Public</span>
+                      </div>
+                    </SelectItem>
+                    <SelectItem value="friends">
+                      <div className="flex items-center gap-1">
+                        <Users size={16} />
+                        <span>Friends</span>
+                      </div>
+                    </SelectItem>
+                    <SelectItem value="private">
+                      <div className="flex items-center gap-1">
+                        <Lock size={16} />
+                        <span>Private</span>
+                      </div>
+                    </SelectItem>
+                  </SelectContent>
+                </Select>
+
+                <TooltipContent>
+                  <p>Post visibility</p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
           </div>
           <div className="my-4">
             <textarea
@@ -204,44 +218,45 @@ export function CreatePost({
                 setPostContent(e.target.value);
               }}
             ></textarea>
-
-            <div
-              id="uploadPopUp"
-              onClick={uploadImage}
-              className="relative min-h-52 w-full border-2 border-dashed border-indigo-700 rounded-lg dark:bg-[#212121] flex items-center justify-center cursor-pointer dark:hover:bg-[#181818] hidden"
-            >
-              <input
-                ref={imageRef}
-                type="file"
-                name="files"
-                accept="image/*"
-                className="hidden"
-                onChange={handleFileChange}
-              />
-
-              {uploadedImage ? (
-                <img
-                  src={uploadedImage}
-                  alt="Preview"
-                  className="max-h-52 w-auto object-contain"
-                />
-              ) : (
-                <>
-                  <ImagePlus />
-                  <span>&nbsp;Add image</span>
-                </>
-              )}
-
+            {uploadImagePopUp && (
               <div
-                onClick={(e) => {
-                  e.stopPropagation();
-                  togglePopupUploadImage(e.currentTarget.parentElement);
-                }}
-                className="py-1 px-1 top-1 right-1 absolute right-0 hover:bg-[#F0F2F5] dark:hover:bg-[#414141] rounded-full cursor-pointer"
+                id="uploadPopUp"
+                onClick={uploadImage}
+                className="relative min-h-52 w-full border-2 border-dashed border-indigo-700 rounded-lg dark:bg-[#212121] flex items-center justify-center cursor-pointer dark:hover:bg-[#181818]"
               >
-                <X />
+                <input
+                  ref={imageRef}
+                  type="file"
+                  name="files"
+                  accept="image/*"
+                  className="hidden"
+                  onChange={handleFileChange}
+                />
+
+                {uploadedImage ? (
+                  <img
+                    src={uploadedImage}
+                    alt="Preview"
+                    className="max-h-52 w-auto object-contain"
+                  />
+                ) : (
+                  <>
+                    <ImagePlus />
+                    <span>&nbsp;Add image</span>
+                  </>
+                )}
+
+                <div
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    togglePopupUploadImage();
+                  }}
+                  className="py-1 px-1 top-1 right-1 absolute right-0 hover:bg-[#F0F2F5] dark:hover:bg-[#414141] rounded-full cursor-pointer"
+                >
+                  <X />
+                </div>
               </div>
-            </div>
+            )}
           </div>
           <div className="flex justify-between my-4 items-center">
             <div className="w-full flex justify-between items-center border border-[#ced0d4] dark:border-[#3e4042] pl-3 pr-2 py-1 mr-2 rounded-md">
@@ -251,8 +266,7 @@ export function CreatePost({
                   <Tooltip>
                     <TooltipTrigger
                       onClick={() => {
-                        const e = document.getElementById("uploadPopUp");
-                        togglePopupUploadImage(e);
+                        togglePopupUploadImage();
                       }}
                       type="button"
                       className="p-2 rounded-full hover:bg-[#d3d5d8] dark:hover:bg-[#414141]"
