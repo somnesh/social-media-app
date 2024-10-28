@@ -33,7 +33,11 @@ const createPost = async (req, res) => {
   }
   req.body.user_id = req.user.userId;
 
-  const post = await Post.create(req.body);
+  let post = await Post.create(req.body);
+  post = await post.populate({
+    path: "user_id",
+    select: "name avatar",
+  });
   res.status(StatusCodes.CREATED).json({ post });
 };
 
@@ -239,7 +243,7 @@ const addComment = async (req, res) => {
 
   session.startTransaction();
   try {
-    await Comment.create(
+    const comment = await Comment.create(
       [{ post_id: postId, user_id: userId, content: commentContent }],
       { session }
     );
@@ -248,9 +252,18 @@ const addComment = async (req, res) => {
     await session.commitTransaction();
     session.endSession();
 
-    res
-      .status(200)
-      .json({ success: true, message: "Comment added successfully" });
+    const populatedComment = await Comment.findById(comment[0]._id)
+      .populate({
+        path: "user_id", // Populate the user details from user_id
+        select: "_id name avatar", // Only select _id, name, and avatar
+      })
+      .lean(); // Returns plain JavaScript object
+
+    // Rename user_id to user
+    populatedComment.user = populatedComment.user_id;
+    delete populatedComment.user_id;
+
+    res.status(200).json({ success: true, comment: populatedComment });
   } catch (error) {
     await session.abortTransaction();
     session.endSession();
@@ -262,9 +275,12 @@ const addComment = async (req, res) => {
 
 const getComments = async (req, res) => {
   const { id: postId } = req.params;
+  const { limit = 4, skip = 0 } = req.query;
 
   const comments = await Comment.find({ post_id: postId })
     .populate("user_id", "name avatar")
+    .skip(parseInt(skip))
+    .limit(parseInt(limit))
     .lean();
 
   const formattedComments = comments.map((comment) => {
