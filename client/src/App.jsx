@@ -79,9 +79,8 @@ function App() {
   return (
     <ThemeProvider value={{ theme, darkTheme, lightTheme }}>
       <ToastHandlerProvider>
-        <RouterProvider router={router}>
-          <Toaster />
-        </RouterProvider>
+        <Toaster />
+        <RouterProvider router={router} />
       </ToastHandlerProvider>
     </ThemeProvider>
   );
