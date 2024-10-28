@@ -13,6 +13,7 @@ export function Feed() {
   const [isLoading, setIsLoading] = useState(true);
   const [posts, setPosts] = useState([]);
   const [error, setError] = useState(false);
+  const [imageFlag, setImageFlag] = useState(false);
 
   const navigate = useNavigate();
 
@@ -56,8 +57,9 @@ export function Feed() {
             <CreatePost
               createPostPopUp={createPostPopUp}
               setCreatePostPopUp={setCreatePostPopUp}
-              refreshFeed={refreshFeed}
-              setRefreshFeed={setRefreshFeed}
+              setPosts={setPosts}
+              imageFlag={imageFlag}
+              setImageFlag={setImageFlag}
             />
           )}
           <div className="create-new-post bg-white dark:bg-[#242526] px-4 py-2 rounded-lg mb-4">
@@ -79,7 +81,13 @@ export function Feed() {
             </div>
 
             <div className="flex items-center text-center pt-2 mt-2 border-t-[#e4e6eb] border-t-[1px] dark:border-t-[#3a3b3c]">
-              <div className="flex basis-1/3 items-center justify-center p-2 gap-1 cursor-pointer hover:bg-[#F0F2F5] active:bg-[#e3e5e9] dark:hover:bg-[#414141] dark:active:bg-[#535353] rounded-md">
+              <div
+                onClick={() => {
+                  setImageFlag(true);
+                  handleCreatePostClick();
+                }}
+                className="flex basis-1/3 items-center justify-center p-2 gap-1 cursor-pointer hover:bg-[#F0F2F5] active:bg-[#e3e5e9] dark:hover:bg-[#414141] dark:active:bg-[#535353] rounded-md"
+              >
                 <ImagePlus />
                 <span>Image</span>
               </div>
@@ -87,7 +95,10 @@ export function Feed() {
                 <ListTodo />
                 <span>Poll</span>
               </div>
-              <div className="flex basis-1/3 items-center justify-center p-2 gap-1 cursor-pointer hover:bg-[#F0F2F5] active:bg-[#e3e5e9] dark:hover:bg-[#414141] dark:active:bg-[#535353] rounded-md">
+              <div
+                onClick={handleCreatePostClick}
+                className="flex basis-1/3 items-center justify-center p-2 gap-1 cursor-pointer hover:bg-[#F0F2F5] active:bg-[#e3e5e9] dark:hover:bg-[#414141] dark:active:bg-[#535353] rounded-md"
+              >
                 <CirclePlus />
                 <span>More</span>
               </div>
@@ -97,12 +108,7 @@ export function Feed() {
           {/* Main feed starts from here */}
           <div>
             {posts.map((post) => (
-              <Post
-                key={post._id}
-                details={post}
-                refreshFeed={refreshFeed}
-                setRefreshFeed={setRefreshFeed}
-              />
+              <Post key={post._id} details={post} setPosts={setPosts} />
             ))}
           </div>
         </>
