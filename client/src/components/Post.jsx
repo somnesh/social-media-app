@@ -3,10 +3,13 @@ import {
   BookmarkPlus,
   CircleCheck,
   CircleX,
+  Copy,
   Ellipsis,
+  EyeOff,
   FilePenLine,
   Globe,
   Heart,
+  Loader2,
   Lock,
   MessageCircle,
   Repeat2,
@@ -49,14 +52,24 @@ import { useToastHandler } from "../contexts/ToastContext";
 import { CommentsLoader } from "./loaders/CommentsLoader";
 import { CommentStructure } from "./CommentStructure";
 import { LikeSkeleton } from "./loaders/LikeSkeleton";
+import { Button } from "./ui/button";
+import { DialogClose, DialogFooter } from "./ui/dialog";
 
-export function Post({ details, refreshFeed, setRefreshFeed }) {
+export function Post({ details, setPosts }) {
   const [isLoading, setIsLoading] = useState(false);
   const [commentBoxPopup, setCommentBoxPopup] = useState(false);
   const [comments, setComments] = useState([]);
   const [likes, setLikes] = useState(details.interactions.like);
   const [likeDetails, setLikeDetails] = useState([]);
   const [isLiked, setIsLiked] = useState(details.isLiked);
+  const [commentCounter, setCommentCounter] = useState(
+    details.interactions.comment
+  );
+  const [initialCommentLoad, setInitialCommentLoad] = useState(false);
+  const [skip, setSkip] = useState(0);
+  const [hasMore, setHasMore] = useState(true);
+  const [loadMoreLoading, setLoadMoreLoading] = useState(false);
+  const limit = 4;
 
   const toastHandler = useToastHandler();
 
@@ -110,7 +123,6 @@ export function Post({ details, refreshFeed, setRefreshFeed }) {
       const response = await axios.delete(`${API_URL}/post/${details._id}`, {
         withCredentials: true,
       });
-      setRefreshFeed(!refreshFeed);
 
       toastHandler(
         <div className="flex gap-2 items-center">
@@ -118,6 +130,9 @@ export function Post({ details, refreshFeed, setRefreshFeed }) {
           <span>Post deleted</span>
         </div>,
         false
+      );
+      setPosts((posts) =>
+        posts.filter((post) => post._id !== response.data.post._id)
       );
     } catch (error) {
       console.error(error);
@@ -135,21 +150,74 @@ export function Post({ details, refreshFeed, setRefreshFeed }) {
     setCommentBoxPopup(true);
   };
 
-  const handleCommentBoxRepliesPopup = async () => {
+  const postComment = async () => {
+    const commentContent = document.getElementById("comment").value;
+    if (commentContent !== "") {
+      try {
+        const response = await axios.patch(
+          `${API_URL}/post/comment/${details._id}`,
+          { content: commentContent },
+          { withCredentials: true }
+        );
+        document.getElementById("comment").value = "";
+        setCommentCounter((prev) => prev + 1);
+        toastHandler(
+          <div className="flex gap-2 items-center">
+            <CircleCheck className="bg-green-600 rounded-full text-white dark:text-[#242526]" />
+            <span>Comment posted</span>
+          </div>,
+          false
+        );
+        setComments((prev) => [...prev, response.data.comment]);
+
+        handleCommentBoxPopup();
+      } catch (error) {
+        console.error(error);
+        toastHandler(
+          <div className="flex gap-2 items-center">
+            <CircleX className="bg-red-600 rounded-full text-white dark:text-[#7f1d1d]" />
+            <span>Something went wrong</span>
+          </div>,
+          true
+        );
+      }
+    }
+  };
+
+  const loadComments = async () => {
     try {
-      setIsLoading(true);
       setCommentBoxPopup(true);
       const response = await axios.get(
         `${API_URL}/post/comment/${details._id}`,
         {
+          params: { limit, skip },
           withCredentials: true,
         }
       );
-      setComments(response.data);
+      setComments((prev) => [...prev, ...response.data]);
+
+      if (response.data.length < limit) {
+        setHasMore(false);
+      }
     } catch (error) {
       console.error(`Something went wrong: ${error}`);
     } finally {
       setIsLoading(false);
+      setLoadMoreLoading(false);
+    }
+  };
+
+  const handleLoadMore = () => {
+    setLoadMoreLoading(true);
+    setSkip((prevSkip) => prevSkip + limit);
+    loadComments();
+  };
+
+  const loadCommentsInitial = () => {
+    if (!initialCommentLoad) {
+      setIsLoading(true);
+      loadComments();
+      setInitialCommentLoad(true);
     }
   };
 
@@ -163,16 +231,10 @@ export function Post({ details, refreshFeed, setRefreshFeed }) {
         }
       );
 
-      // const likeIcon = document.getElementById("likeIcon");
-      // const likeDom = document.getElementById("likeDom");
       if (response.data.message.like) {
-        // likeDom.classList.add("text-[#f91880]");
-        // likeIcon.classList.add("fill-[#f91880]");
         setLikes(likes + 1);
         setIsLiked(true);
       } else {
-        // likeDom.classList.remove("text-[#f91880]");
-        // likeIcon.classList.remove("fill-[#f91880]");
         setLikes(likes - 1);
         setIsLiked(false);
       }
@@ -199,9 +261,39 @@ export function Post({ details, refreshFeed, setRefreshFeed }) {
 
   const handleShare = async () => {
     try {
-      const response = await axios.post(`${API_URL}/post/share/${details._id}`);
+      // const response = await axios.post(`${API_URL}/post/share/${details.parent ? details.parent._id : details._id}`,{content: content});
     } catch (error) {
       console.error("Failed to share post: ", error);
+    }
+  };
+
+  const handleNotInterested = async () => {
+    try {
+      const response = await axios.post(
+        `${API_URL}/feed/post/dislike`,
+        { postId: details._id },
+        {
+          withCredentials: true,
+        }
+      );
+      console.log(response);
+
+      toastHandler(
+        <div className="flex gap-2 items-center">
+          <CircleCheck className="bg-green-600 rounded-full text-white dark:text-[#242526]" />
+          <span>Post hidden</span>
+        </div>,
+        false
+      );
+    } catch (error) {
+      console.error(error);
+      toastHandler(
+        <div className="flex gap-2 items-center">
+          <CircleX className="bg-red-600 rounded-full text-white dark:text-[#7f1d1d]" />
+          <span>Something went wrong</span>
+        </div>,
+        true
+      );
     }
   };
 
@@ -247,6 +339,15 @@ export function Post({ details, refreshFeed, setRefreshFeed }) {
             </PopoverTrigger>
             <PopoverContent className="w-48 dark:bg-[#242526] border dark:border-[#3a3b3c] p-1 text-sm select-none">
               <div className="flex flex-col gap-1">
+                {details.recommended && (
+                  <div
+                    onClick={handleNotInterested}
+                    className="flex hover:bg-[#f3f4f6] dark:hover:bg-[#414141] cursor-pointer px-2 py-1.5 rounded-sm items-center"
+                  >
+                    <EyeOff className="mr-2 h-5 w-5" />
+                    <span>Not interested</span>
+                  </div>
+                )}
                 <div className="flex hover:bg-[#f3f4f6] dark:hover:bg-[#414141] cursor-pointer px-2 py-1.5 rounded-sm items-center">
                   <BookmarkPlus className="mr-2 h-5 w-5" />
                   <span>Save post</span>
@@ -331,8 +432,12 @@ export function Post({ details, refreshFeed, setRefreshFeed }) {
                 </div>
               </div>
               <div className="pb-1">{details.parent.content}</div>
-              {details.image_url && (
-                <img src={details.parent.image_url} alt="photo" />
+              {details.parent.image_url && (
+                <img
+                  src={details.parent.image_url}
+                  alt="photo"
+                  className="rounded-md mb-1"
+                />
               )}
             </div>
           )}
@@ -342,14 +447,14 @@ export function Post({ details, refreshFeed, setRefreshFeed }) {
           <div className="flex items-center gap-1">
             {likes !== 0 ? (
               <>
-                <div className="rounded-full bg-[#f91880] w-fit p-1 h-fit ">
-                  <Heart size={13} fill="white" stroke="white" />
-                </div>
                 <Dialog>
                   <DialogTrigger
                     onClick={handleLikePopup}
-                    className="hover:underline"
+                    className="flex gap-1 hover:underline"
                   >
+                    <span className="rounded-full bg-[#f91880] w-fit p-1 h-fit ">
+                      <Heart size={13} fill="white" stroke="white" />
+                    </span>
                     <span>{likes}</span>
                   </DialogTrigger>
                   <DialogContent className="dark:bg-[#242526] dark:border-[#3a3b3c]">
@@ -387,13 +492,13 @@ export function Post({ details, refreshFeed, setRefreshFeed }) {
             )}
           </div>
           <div className="flex gap-2">
-            {details.interactions.comment !== 0 && (
+            {commentCounter !== 0 && (
               <div
-                onClick={handleCommentBoxRepliesPopup}
+                onClick={loadCommentsInitial}
                 className="hover:underline cursor-pointer"
               >
-                {details.interactions.comment}
-                {details.interactions.comment === 1 ? " comment" : " comments"}
+                {commentCounter}
+                {commentCounter === 1 ? " comment" : " comments"}
               </div>
             )}
             <div className="flex gap-2">
@@ -409,7 +514,7 @@ export function Post({ details, refreshFeed, setRefreshFeed }) {
         <div className="flex py-1 border-y dark:dark:border-y-[#3a3b3c]">
           <div
             className={`flex active:scale-95 basis-1/3 justify-center transition gap-1 p-2 hover:bg-[#f9188110] hover:text-[#f91880] cursor-pointer rounded-md ${
-              isLiked ? "text-[#f91880]" : ""
+              isLiked ? "text-[#f91880] font-semibold" : ""
             }`}
             onClick={handleLike}
           >
@@ -418,18 +523,54 @@ export function Post({ details, refreshFeed, setRefreshFeed }) {
           </div>
           <div
             onClick={handleCommentBoxPopup}
-            className="flex basis-1/3 justify-center gap-1 p-2 hover:bg-[#1d9cf010] cursor-pointer rounded-md transition hover:text-[#1d9bf0]"
+            className="flex active:scale-95 basis-1/3 justify-center gap-1 p-2 hover:bg-[#1d9cf010] cursor-pointer rounded-md transition hover:text-[#1d9bf0]"
           >
             <MessageCircle />
             <span>Comment</span>
           </div>
-          <div
-            onClick={handleShare}
-            className="flex basis-1/3 justify-center gap-1 p-2 hover:bg-[#00ba7c10] cursor-pointer rounded-md transition  hover:text-[#00ba7c]"
-          >
-            <Repeat2 />
-            <span>Share</span>
-          </div>
+
+          <Dialog>
+            <DialogTrigger asChild>
+              <div
+                onClick={handleShare}
+                className="flex active:scale-95 basis-1/3 justify-center gap-1 p-2 hover:bg-[#00ba7c10] cursor-pointer rounded-md transition  hover:text-[#00ba7c]"
+              >
+                <Repeat2 />
+                <span>Share</span>
+              </div>
+            </DialogTrigger>
+            <DialogContent className="sm:max-w-md">
+              <DialogHeader>
+                <DialogTitle>Share post</DialogTitle>
+                <DialogDescription>
+                  Share this post with your friends.
+                </DialogDescription>
+              </DialogHeader>
+              <div className="flex items-center justify-center gap-5 mt-2">
+                <div className="flex flex-col gap-1">
+                  <Button type="submit" size="sm" className="px-3">
+                    <span className="sr-only">Copy</span>
+                    <Copy className="h-4 w-4" />
+                  </Button>
+                  <span className="text-sm">Copy link</span>
+                </div>
+                <div className="flex flex-col gap-1">
+                  <Button type="submit" size="sm" className="px-3">
+                    <span className="sr-only">share as a post</span>
+                    <FilePenLine className="h-4 w-4" />
+                  </Button>
+                  <span className="text-sm">Share as a post</span>
+                </div>
+              </div>
+              <DialogFooter className="sm:justify-end">
+                <DialogClose asChild>
+                  <Button type="button" variant="secondary">
+                    Close
+                  </Button>
+                </DialogClose>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
         </div>
         {/* {commentBoxReplies && (
       
@@ -438,7 +579,26 @@ export function Post({ details, refreshFeed, setRefreshFeed }) {
           {isLoading ? (
             <CommentsLoader />
           ) : (
-            comments.map((comment) => <CommentStructure details={comment} />)
+            comments.map((comment) => (
+              <CommentStructure key={comment._id} details={comment} />
+            ))
+          )}
+          {initialCommentLoad && hasMore && (
+            <div className="flex gap-1 items-center ml-2">
+              <span
+                className="cursor-pointer text-sm font-bold"
+                onClick={handleLoadMore}
+              >
+                Load more comments
+              </span>
+              {loadMoreLoading && (
+                <Loader2
+                  strokeWidth={3}
+                  size={14}
+                  className="mr-1 animate-spin"
+                />
+              )}
+            </div>
           )}
         </div>
         {commentBoxPopup && (
@@ -452,7 +612,10 @@ export function Post({ details, refreshFeed, setRefreshFeed }) {
                 placeholder="Write a comment"
                 className="w-full bg-transparent outline-none text-gray-50"
               />
-              <div className="cursor-pointer p-2 bg-indigo-500 hover:bg-indigo-600 active:bg-slate-500 rounded-md transition">
+              <div
+                onClick={postComment}
+                className="active:scale-95 cursor-pointer p-2 bg-indigo-500 hover:bg-indigo-600 active:bg-slate-500 rounded-md transition"
+              >
                 <SendHorizonal size={18} stroke="white" />
               </div>
             </div>
