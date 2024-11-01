@@ -9,8 +9,8 @@ const {
 } = require("../errors");
 const { default: mongoose } = require("mongoose");
 const Interaction = require("../models/Interaction");
-const { calculateAndStoreSimilarity } = require("./recommendation");
 const PostView = require("../models/PostView");
+const SavedPost = require("../models/SavedPost");
 
 const getAllPost = async (req, res) => {
   const posts = (
@@ -43,6 +43,7 @@ const createPost = async (req, res) => {
 
 const getPostDetails = async (req, res) => {
   const postId = req.params.id;
+
   const post = await Post.findById(postId).populate([
     {
       path: "user_id", // Populate user details from the user_id field
@@ -57,11 +58,17 @@ const getPostDetails = async (req, res) => {
       },
     },
   ]);
-
   if (!post) {
     throw new NotFoundError(`No post with id: ${postId}`);
   }
-  res.status(StatusCodes.OK).json({ post });
+
+  if (!req.user && post.visibility !== "public") {
+    throw new UnauthenticatedError("You need to login first.");
+  }
+
+  res
+    .status(StatusCodes.OK)
+    .json({ post: { ...post.toObject(), contentType: "post" } });
 };
 
 const updatePost = async (req, res) => {
@@ -70,9 +77,7 @@ const updatePost = async (req, res) => {
     user: { userId },
     body: { content },
   } = req;
-  if (!content) {
-    throw new BadRequestError("Content field cannot be empty");
-  }
+
   const post = await Post.findOneAndUpdate(
     { _id: postId, user_id: userId },
     req.body,
@@ -283,18 +288,46 @@ const getComments = async (req, res) => {
     .limit(parseInt(limit))
     .lean();
 
-  const formattedComments = comments.map((comment) => {
+  let formattedComments = comments.map((comment) => {
     return {
       ...comment,
       user: comment.user_id, // Rename 'user_id' to 'user'
       user_id: undefined, // remove the original 'user_id' field
     };
   });
-
+  formattedComments[0].contentType = "comment";
   res.status(StatusCodes.OK).json(formattedComments);
 };
 
-const replyComment = async (req, res) => {};
+const replyComment = async (req, res) => {
+  const { id: commentId } = req.params;
+  const userId = req.user._id;
+
+  req.body.user_id = userId;
+  req.body.parent = commentId;
+
+  const session = await mongoose.startSession();
+  session.startTransaction();
+
+  try {
+    const comment = await Comment.create([req.body], { session });
+
+    await updatePostInteraction(userId, commentId, "comment", true, session);
+
+    await session.commitTransaction();
+    session.endSession();
+
+    res.status(StatusCodes.OK).json({ success: true, comment });
+  } catch (error) {
+    await session.abortTransaction();
+    session.endSession();
+
+    console.error("Transaction failed, rolling back changes", error);
+    res
+      .status(StatusCodes.INTERNAL_SERVER_ERROR)
+      .json({ success: false, message: "Comment reply failed" });
+  }
+};
 
 const deleteComment = async (req, res) => {
   const { id: commentId } = req.params;
@@ -354,20 +387,17 @@ const sharePost = async (req, res) => {
   const userId = req.user;
   req.body.user_id = userId._id;
   req.body.parent = postId;
-  console.log(req.body);
 
   const session = await mongoose.startSession();
   session.startTransaction();
   try {
-    await Post.create([req.body], { session });
+    const post = await Post.create([req.body], { session });
     await updatePostInteraction(userId, postId, "share", true, session);
 
     await session.commitTransaction();
     session.endSession();
 
-    res
-      .status(200)
-      .json({ success: true, message: "Post shared successfully" });
+    res.status(200).json({ success: true, post });
   } catch (error) {
     await session.abortTransaction();
     session.endSession();
@@ -377,6 +407,23 @@ const sharePost = async (req, res) => {
       .status(500)
       .json({ success: false, message: "Failed to share the post" });
   }
+};
+
+const savePost = async (req, res) => {
+  const { id: postId } = req.params;
+  const userId = req.user._id;
+  req.body.user_id = userId;
+  req.body.post_id = postId;
+
+  const duplicate = await SavedPost.find(req.body);
+
+  if (duplicate) {
+    throw new BadRequestError("Post already exists on your saved list");
+  }
+
+  const savedPost = await SavedPost.create(req.body);
+
+  res.status(StatusCodes.CREATED).json({ success: true, savedPost });
 };
 
 module.exports = {
@@ -392,4 +439,5 @@ module.exports = {
   replyComment,
   deleteComment,
   sharePost,
+  savePost,
 };
