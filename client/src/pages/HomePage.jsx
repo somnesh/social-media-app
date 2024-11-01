@@ -8,6 +8,7 @@ import { WholePageLoader } from "../components/loaders/WholePageLoader";
 
 export const Home = () => {
   const [pageLoading, setPageLoading] = useState(true);
+  const [authVerified, setAuthVerified] = useState(false);
   const navigate = useNavigate();
 
   const API_URL = import.meta.env.VITE_API_URL;
@@ -24,7 +25,7 @@ export const Home = () => {
             withCredentials: true,
           }
         );
-
+        setAuthVerified(true);
         setPageLoading(false);
       } catch (error) {
         console.error(error);
@@ -42,7 +43,7 @@ export const Home = () => {
           <Header />
           <main className="flex px-2 py-4 bg-[#f0f2f5] dark:bg-[#18191a] min-h-screen dark:text-[#e2e4e9] transition-colors duration-500">
             <Sidebar />
-            <Feed />
+            <Feed verified={authVerified} />
             {/* --------------------------------------- */}
             <section className="basis-1/4">
               <h2>unknown section</h2>

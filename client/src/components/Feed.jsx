@@ -1,13 +1,13 @@
-import { CirclePlus, ImagePlus, ListTodo } from "lucide-react";
+import { CirclePlus, ImagePlus, ListTodo, Sprout } from "lucide-react";
 import { Post } from "./Post";
 import { useEffect, useState } from "react";
 import { CreatePost } from "./CreatePost";
 import axios from "axios";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { FeedSkeleton } from "./loaders/FeedSkeleton";
 
-export function Feed() {
+export function Feed({ verified }) {
   const [refreshFeed, setRefreshFeed] = useState(false);
   const [createPostPopUp, setCreatePostPopUp] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
@@ -106,11 +106,26 @@ export function Feed() {
           </div>
 
           {/* Main feed starts from here */}
-          <div>
-            {posts.map((post) => (
-              <Post key={post._id} details={post} setPosts={setPosts} />
-            ))}
-          </div>
+          {posts.length === 0 ? (
+            <div className="mt-16 text-center flex flex-col justify-center items-center font-semibold">
+              <Sprout size={35} />
+              <span>
+                Nothing new right now, make some new friends or you can post
+                something new.
+              </span>
+            </div>
+          ) : (
+            <div>
+              {posts.map((post) => (
+                <Post
+                  key={post._id}
+                  details={post}
+                  setPosts={setPosts}
+                  verified={verified}
+                />
+              ))}
+            </div>
+          )}
         </>
       )}
     </section>

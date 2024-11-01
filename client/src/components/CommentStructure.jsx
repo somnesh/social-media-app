@@ -25,12 +25,14 @@ import {
 } from "@/components/ui/popover";
 
 export function CommentStructure({ details }) {
-  console.log("comment: ", details);
-
   const [isHovered, setIsHovered] = useState(false);
+  const [open, setOpen] = useState(false);
 
   const handleMouseOver = () => setIsHovered(true);
-  const handleMouseLeave = () => setIsHovered(false);
+  const handleMouseLeave = () => {
+    setIsHovered(false);
+    setOpen(false);
+  };
 
   const commentDate = new Date(details.createdAt);
   const currentDate = new Date();
@@ -101,7 +103,7 @@ export function CommentStructure({ details }) {
       <div
         className={`flex items-center pb-3 transition-opacity duration-300 `}
       >
-        <Popover>
+        <Popover open={open} onOpenChange={setOpen}>
           <PopoverTrigger asChild>
             <div
               className={`py-1 px-1 hover:bg-[#F0F2F5] dark:hover:bg-[#414141] rounded-full cursor-pointer transition ${
