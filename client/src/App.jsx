@@ -12,6 +12,7 @@ import { NotFound } from "./pages/NotFound";
 import { EmailVerification } from "./pages/EmailVerification";
 import { BadRequest } from "./pages/BadRequest";
 import { EmailVerificationSuccess } from "./pages/EmailVerificationSuccess";
+import { PostView } from "./pages/PostView";
 
 const router = createBrowserRouter([
   {
@@ -33,6 +34,10 @@ const router = createBrowserRouter([
   {
     path: "/email-verification-success",
     element: <EmailVerificationSuccess />,
+  },
+  {
+    path: "/post/:id",
+    element: <PostView />,
   },
   {
     path: "/500",
