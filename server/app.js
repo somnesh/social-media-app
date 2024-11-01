@@ -32,14 +32,20 @@ const postRoute = require("./routes/post");
 const userRoute = require("./routes/user");
 const adminRoute = require("./routes/admin");
 const feedRoute = require("./routes/feed");
+const unprotectedPostRoute = require("./routes/UnprotectedPostRoutes");
+const reportRoute = require("./routes/report");
 
-// routes
+//protected routes
 app.use("/api/v1/auth", authRoute);
 app.use("/api/v1/post", authenticateUser, postRoute);
 app.use("/api/v1/user", authenticateUser, userRoute);
 app.use("/api/v1/auth/admin", adminRoute);
 app.use("/api/v1/admin", authenticateAdmin, adminRoute);
-app.use("/api/v1/feed/", authenticateUser, feedRoute);
+app.use("/api/v1/feed", authenticateUser, feedRoute);
+app.use("/api/v1/report", authenticateUser, reportRoute);
+
+// unprotected routes
+app.use("/api/v1/post", unprotectedPostRoute);
 
 // error handler middleware
 app.use(notFoundMiddleware);

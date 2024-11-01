@@ -7,16 +7,14 @@ const { uploadFile } = require("../middleware/uploadFile");
 const {
   getAllPost,
   createPost,
-  getPostDetails,
   updatePost,
   deletePost,
   likePost,
-  getLikes,
   addComment,
-  getComments,
   replyComment,
   deleteComment,
   sharePost,
+  savePost,
 } = require("../controllers/post");
 
 router
@@ -24,17 +22,18 @@ router
   .get(getAllPost)
   .post(upload.single("files"), uploadFile, createPost);
 
-router.route("/:id").get(getPostDetails).patch(updatePost).delete(deletePost);
+router.route("/:id").patch(updatePost).delete(deletePost);
 
-router.route("/like/:id").get(getLikes).patch(likePost);
+router.route("/like/:id").patch(likePost);
 
 router
   .route("/comment/:id")
-  .get(getComments) // ":id" -> here "id" is "post id"
   .patch(addComment) // ":id" -> here "id" is the "user id"
   .delete(deleteComment); // ":id" -> here "id" is the "comment id"
 
-router.route("/reply/:id").patch(replyComment); // ":id" -> here "id" is the "parent comment id"
+router.route("/comment/reply/:id").post(replyComment); // ":id" -> here "id" is the "parent comment id"
 router.route("/share/:id").post(sharePost);
+
+router.route("/save/:id").post(savePost);
 
 module.exports = router;
