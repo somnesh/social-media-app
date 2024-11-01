@@ -1,7 +1,30 @@
+import { useNavigate } from "react-router-dom";
 import { ProfileMenu } from "./ProfileMenu";
 import { SearchBar } from "./SearchBar";
+import { Button } from "./ui/button";
+import { useEffect, useState } from "react";
+import axios from "axios";
 
 export function Header() {
+  const navigate = useNavigate();
+  const [verified, setVerified] = useState(false);
+
+  const API_URL = import.meta.env.VITE_API_URL;
+  useEffect(() => {
+    try {
+      (async () =>
+        await axios.post(
+          `${API_URL}/auth/refresh-token`,
+          {},
+          {
+            withCredentials: true,
+          }
+        ))();
+      setVerified(true);
+    } catch (error) {
+      console.error(error);
+    }
+  }, []);
   return (
     <header className="flex py-1 pl-3 pr-2 bg-white dark:bg-[#242526] items-center sticky top-0 transition-colors duration-500 shadow-md z-40">
       <section className="basis-1/4">
@@ -16,7 +39,19 @@ export function Header() {
       </section>
 
       <section className="flex basis-1/4 justify-end items-center gap-2">
-        <ProfileMenu />
+        {verified ? (
+          <ProfileMenu />
+        ) : (
+          <div className="flex gap-2 py-1">
+            <Button onClick={() => navigate("/signup")}>Sign up</Button>
+            <Button
+              onClick={() => navigate("/login")}
+              className="bg-blue-500 hover:bg-blue-600 dark:bg-indigo-500 dark:hover:bg-indigo-600 text-white"
+            >
+              Login
+            </Button>
+          </div>
+        )}
       </section>
     </header>
   );
