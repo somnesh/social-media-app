@@ -1,12 +1,15 @@
 import axios from "axios";
 import {
   BookmarkPlus,
+  Check,
   CircleCheck,
   CircleX,
   Copy,
   Ellipsis,
   EyeOff,
   FilePenLine,
+  FileSymlink,
+  FileWarning,
   Globe,
   Heart,
   Loader2,
@@ -38,6 +41,21 @@ import {
 } from "@/components/ui/alert-dialog";
 
 import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+
+import {
   Dialog,
   DialogContent,
   DialogDescription,
@@ -47,15 +65,20 @@ import {
 } from "@/components/ui/dialog";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useToastHandler } from "../contexts/ToastContext";
 import { CommentsLoader } from "./loaders/CommentsLoader";
 import { CommentStructure } from "./CommentStructure";
 import { LikeSkeleton } from "./loaders/LikeSkeleton";
 import { Button } from "./ui/button";
-import { DialogClose, DialogFooter } from "./ui/dialog";
+import { useNavigate } from "react-router-dom";
+import CryptoJS from "crypto-js";
+import { PostEditor } from "./PostEditor";
+import { PostVisibilityEditor } from "./PostVisibilityEditor";
+import { PostReportEditor } from "./PostReportEditor";
 
-export function Post({ details, setPosts }) {
+export function Post({ details, setPosts, verified }) {
+  const [isVerified, setIsVerified] = useState(verified);
   const [isLoading, setIsLoading] = useState(false);
   const [commentBoxPopup, setCommentBoxPopup] = useState(false);
   const [comments, setComments] = useState([]);
@@ -65,15 +88,29 @@ export function Post({ details, setPosts }) {
   const [commentCounter, setCommentCounter] = useState(
     details.interactions.comment
   );
+  const [shareCounter, setShareCounter] = useState(details.interactions.share);
   const [initialCommentLoad, setInitialCommentLoad] = useState(false);
   const [skip, setSkip] = useState(0);
   const [hasMore, setHasMore] = useState(true);
   const [loadMoreLoading, setLoadMoreLoading] = useState(false);
-  const limit = 4;
+  const [copyLinkSuccess, setCopyLinkSuccess] = useState(false);
+  const [postContent, setPostContent] = useState("");
+  const [openMain, setOpenMain] = useState(false); // for shadcn dialog
+  const [open, setOpen] = useState(false); // for shadcn dialog
+  const [visibility, setVisibility] = useState("public"); // share post visibility
+  const [openPostMenu, setOpenPostMenu] = useState(false);
+  const [openPostEditor, setOpenPostEditor] = useState(false);
+  const [openReportPostEditor, setOpenReportPostEditor] = useState(false);
+  const [openPostVisibilityEditor, setOpenPostVisibilityEditor] =
+    useState(false);
+  const [postCaption, setPostCaption] = useState(details.content);
+  const limit = 4; // comment load limit
 
+  const navigate = useNavigate();
   const toastHandler = useToastHandler();
 
   const API_URL = import.meta.env.VITE_API_URL;
+  const APP_URL = import.meta.env.VITE_APP_URL;
 
   const postDate = new Date(details.createdAt);
 
@@ -118,6 +155,24 @@ export function Post({ details, setPosts }) {
   };
   let postDuration = calculatePostDuration(postDate);
 
+  useEffect(() => {
+    if (!isVerified) {
+      try {
+        (async () =>
+          await axios.post(
+            `${API_URL}/auth/refresh-token`,
+            {},
+            {
+              withCredentials: true,
+            }
+          ))();
+        setIsVerified(true);
+      } catch (error) {
+        console.error(error);
+      }
+    }
+  }, []);
+
   const handleDelete = async () => {
     try {
       const response = await axios.delete(`${API_URL}/post/${details._id}`, {
@@ -147,46 +202,56 @@ export function Post({ details, setPosts }) {
   };
 
   const handleCommentBoxPopup = () => {
-    setCommentBoxPopup(true);
+    if (isVerified) {
+      setCommentBoxPopup(true);
+    } else {
+      navigate("/login");
+    }
   };
 
   const postComment = async () => {
-    const commentContent = document.getElementById("comment").value;
-    if (commentContent !== "") {
-      try {
-        const response = await axios.patch(
-          `${API_URL}/post/comment/${details._id}`,
-          { content: commentContent },
-          { withCredentials: true }
-        );
-        document.getElementById("comment").value = "";
-        setCommentCounter((prev) => prev + 1);
-        toastHandler(
-          <div className="flex gap-2 items-center">
-            <CircleCheck className="bg-green-600 rounded-full text-white dark:text-[#242526]" />
-            <span>Comment posted</span>
-          </div>,
-          false
-        );
-        setComments((prev) => [...prev, response.data.comment]);
+    if (isVerified) {
+      const commentContent = document.getElementById("comment").value;
+      if (commentContent !== "") {
+        try {
+          const response = await axios.patch(
+            `${API_URL}/post/comment/${details._id}`,
+            { content: commentContent },
+            { withCredentials: true }
+          );
+          document.getElementById("comment").value = "";
+          setCommentCounter((prev) => prev + 1);
+          toastHandler(
+            <div className="flex gap-2 items-center">
+              <CircleCheck className="bg-green-600 rounded-full text-white dark:text-[#242526]" />
+              <span>Comment posted</span>
+            </div>,
+            false
+          );
+          setComments((prev) => [...prev, response.data.comment]);
 
-        handleCommentBoxPopup();
-      } catch (error) {
-        console.error(error);
-        toastHandler(
-          <div className="flex gap-2 items-center">
-            <CircleX className="bg-red-600 rounded-full text-white dark:text-[#7f1d1d]" />
-            <span>Something went wrong</span>
-          </div>,
-          true
-        );
+          handleCommentBoxPopup();
+        } catch (error) {
+          console.error(error);
+          toastHandler(
+            <div className="flex gap-2 items-center">
+              <CircleX className="bg-red-600 rounded-full text-white dark:text-[#7f1d1d]" />
+              <span>Something went wrong</span>
+            </div>,
+            true
+          );
+        }
       }
+    } else {
+      navigate("/login");
     }
   };
 
   const loadComments = async () => {
     try {
-      setCommentBoxPopup(true);
+      if (isVerified) {
+        setCommentBoxPopup(true);
+      }
       const response = await axios.get(
         `${API_URL}/post/comment/${details._id}`,
         {
@@ -194,7 +259,10 @@ export function Post({ details, setPosts }) {
           withCredentials: true,
         }
       );
-      setComments((prev) => [...prev, ...response.data]);
+      console.log(response.data);
+
+      const newComments = [...comments, ...response.data];
+      setComments(newComments);
 
       if (response.data.length < limit) {
         setHasMore(false);
@@ -207,10 +275,15 @@ export function Post({ details, setPosts }) {
     }
   };
 
+  useEffect(() => {
+    if (initialCommentLoad) {
+      loadComments();
+    }
+  }, [skip]);
+
   const handleLoadMore = () => {
     setLoadMoreLoading(true);
     setSkip((prevSkip) => prevSkip + limit);
-    loadComments();
   };
 
   const loadCommentsInitial = () => {
@@ -222,24 +295,28 @@ export function Post({ details, setPosts }) {
   };
 
   const handleLike = async () => {
-    try {
-      const response = await axios.patch(
-        `${API_URL}/post/like/${details._id}`,
-        {},
-        {
-          withCredentials: true,
-        }
-      );
+    if (isVerified) {
+      try {
+        const response = await axios.patch(
+          `${API_URL}/post/like/${details._id}`,
+          {},
+          {
+            withCredentials: true,
+          }
+        );
 
-      if (response.data.message.like) {
-        setLikes(likes + 1);
-        setIsLiked(true);
-      } else {
-        setLikes(likes - 1);
-        setIsLiked(false);
+        if (response.data.message.like) {
+          setLikes(likes + 1);
+          setIsLiked(true);
+        } else {
+          setLikes(likes - 1);
+          setIsLiked(false);
+        }
+      } catch (error) {
+        console.error(error);
       }
-    } catch (error) {
-      console.error(error);
+    } else {
+      navigate("/login");
     }
   };
 
@@ -259,11 +336,49 @@ export function Post({ details, setPosts }) {
     }
   };
 
-  const handleShare = async () => {
-    try {
-      // const response = await axios.post(`${API_URL}/post/share/${details.parent ? details.parent._id : details._id}`,{content: content});
-    } catch (error) {
-      console.error("Failed to share post: ", error);
+  const handleShare = async (e) => {
+    e.preventDefault();
+    if (isVerified) {
+      try {
+        const content = postContent;
+        const response = await axios.post(
+          `${API_URL}/post/share/${
+            details.parent ? details.parent._id : details._id
+          }`,
+          { content: content, visibility: visibility },
+          {
+            withCredentials: true,
+          }
+        );
+
+        const postDetails = await axios.get(
+          `${API_URL}/post/${response.data.post[0]._id}`,
+          {
+            withCredentials: true,
+          }
+        );
+        setPosts((prev) => [postDetails.data.post, ...prev]);
+        setOpen(false);
+        toastHandler(
+          <div className="flex gap-2 items-center">
+            <CircleCheck className="bg-green-600 rounded-full text-white dark:text-[#242526]" />
+            <span>Post shared</span>
+          </div>,
+          false
+        );
+        setPostContent("");
+      } catch (error) {
+        console.error("Failed to share post: ", error);
+        toastHandler(
+          <div className="flex gap-2 items-center">
+            <CircleX className="bg-red-600 rounded-full text-white dark:text-[#7f1d1d]" />
+            <span>Something went wrong</span>
+          </div>,
+          true
+        );
+      }
+    } else {
+      navigate("/login");
     }
   };
 
@@ -276,7 +391,6 @@ export function Post({ details, setPosts }) {
           withCredentials: true,
         }
       );
-      console.log(response);
 
       toastHandler(
         <div className="flex gap-2 items-center">
@@ -295,6 +409,80 @@ export function Post({ details, setPosts }) {
         true
       );
     }
+  };
+
+  const handleCopyLink = async () => {
+    try {
+      // encrypt the post id
+      const ENCRYPTION_SECRET = import.meta.env.VITE_URL_ENCRYPTION_SECRET;
+      const encryptedPostID = CryptoJS.AES.encrypt(
+        details._id,
+        ENCRYPTION_SECRET
+      ).toString();
+
+      const urlSafeEncryptedPostID = encryptedPostID
+        .replace(/\+/g, "-")
+        .replace(/\//g, "_");
+
+      // adding the link to the clipboard
+      await navigator.clipboard.writeText(
+        `${APP_URL}/post/${urlSafeEncryptedPostID}`
+      );
+      setCopyLinkSuccess(true);
+      setTimeout(() => {
+        setCopyLinkSuccess(false);
+      }, 2000);
+    } catch (err) {
+      console.error("Failed to copy link: ", err);
+    }
+  };
+
+  const handleSavePost = async () => {
+    try {
+      const response = await axios.post(
+        `${API_URL}/post/save/${details._id}`,
+        {},
+        { withCredentials: true }
+      );
+
+      toastHandler(
+        <div className="flex gap-2 items-center">
+          <CircleCheck className="bg-green-600 rounded-full text-white dark:text-[#242526]" />
+          <span>Post Saved</span>
+        </div>,
+        false
+      );
+    } catch (error) {
+      let msg = "";
+      if (error.response) {
+        msg = error.response.data.msg;
+      }
+
+      toastHandler(
+        <div className="flex gap-2 items-center">
+          <CircleX className="bg-red-600 rounded-full text-white dark:text-[#7f1d1d]" />
+          <span>{msg || "Something went wrong"}</span>
+        </div>,
+        true
+      );
+    } finally {
+      setOpenPostMenu(false);
+    }
+  };
+
+  const handleEditPost = async () => {
+    setOpenPostMenu(false);
+    setOpenPostEditor(true);
+  };
+
+  const handleChangeVisibility = () => {
+    setOpenPostMenu(false);
+    setOpenPostVisibilityEditor(true);
+  };
+
+  const handleReportPost = async () => {
+    setOpenPostMenu(false);
+    setOpenReportPostEditor(true);
   };
 
   return (
@@ -331,7 +519,7 @@ export function Post({ details, setPosts }) {
               <span> · {postDuration}</span>
             </div>
           </div>
-          <Popover>
+          <Popover open={openPostMenu} onOpenChange={setOpenPostMenu}>
             <PopoverTrigger asChild>
               <div className="py-1 px-1 top-2 right-2 absolute hover:bg-[#F0F2F5] dark:hover:bg-[#414141] rounded-full cursor-pointer transition">
                 <Ellipsis />
@@ -348,23 +536,34 @@ export function Post({ details, setPosts }) {
                     <span>Not interested</span>
                   </div>
                 )}
-                <div className="flex hover:bg-[#f3f4f6] dark:hover:bg-[#414141] cursor-pointer px-2 py-1.5 rounded-sm items-center">
-                  <BookmarkPlus className="mr-2 h-5 w-5" />
-                  <span>Save post</span>
-                </div>
+                {isVerified && (
+                  <div
+                    onClick={handleSavePost}
+                    className="flex hover:bg-[#f3f4f6] dark:hover:bg-[#414141] cursor-pointer px-2 py-1.5 rounded-sm items-center"
+                  >
+                    <BookmarkPlus className="mr-2 h-5 w-5" />
+                    <span>Save post</span>
+                  </div>
+                )}
                 {localStorage.id === details.user_id._id && (
                   <>
-                    <div className="flex hover:bg-[#f3f4f6] dark:hover:bg-[#414141] cursor-pointer p-2 py-1.5 rounded-sm items-center">
+                    <div
+                      onClick={handleEditPost}
+                      className="flex hover:bg-[#f3f4f6] dark:hover:bg-[#414141] cursor-pointer p-2 py-1.5 rounded-sm items-center"
+                    >
                       <FilePenLine className="mr-2 h-5 w-5" />
                       <span>Edit</span>
                     </div>
-                    <div className="flex hover:bg-[#f3f4f6] dark:hover:bg-[#414141] cursor-pointer p-2 py-1.5 rounded-sm items-center">
+                    <div
+                      onClick={handleChangeVisibility}
+                      className="flex hover:bg-[#f3f4f6] dark:hover:bg-[#414141] cursor-pointer p-2 py-1.5 rounded-sm items-center"
+                    >
                       <UserCog className="mr-2 h-5 w-5" />
                       <span>Change visibility</span>
                     </div>
 
                     <AlertDialog>
-                      <AlertDialogTrigger>
+                      <AlertDialogTrigger className="outline-none">
                         <div className="flex hover:bg-[#f3f4f6] dark:hover:bg-[#414141] cursor-pointer py-1.5 p-2 rounded-sm items-center">
                           <Trash2 className="mr-2 h-5 w-5" />
                           <span>Delete</span>
@@ -393,12 +592,44 @@ export function Post({ details, setPosts }) {
                     </AlertDialog>
                   </>
                 )}
+                <div
+                  onClick={handleReportPost}
+                  className="flex hover:bg-[#f3f4f6] dark:hover:bg-[#414141] cursor-pointer px-2 py-1.5 rounded-sm items-center"
+                >
+                  <FileWarning className="mr-2 h-5 w-5" />
+                  <span>Report</span>
+                </div>
               </div>
             </PopoverContent>
           </Popover>
+          {openPostEditor && (
+            <PostEditor
+              openPostEditor={openPostEditor}
+              setOpenPostEditor={setOpenPostEditor}
+              postCaption={postCaption}
+              setPostCaption={setPostCaption}
+              details={details}
+            />
+          )}
+          {openPostVisibilityEditor && (
+            <PostVisibilityEditor
+              openPostVisibilityEditor={openPostVisibilityEditor}
+              setOpenPostVisibilityEditor={setOpenPostVisibilityEditor}
+              visibility={visibility}
+              setVisibility={setVisibility}
+              details={details}
+            />
+          )}
+          {openReportPostEditor && (
+            <PostReportEditor
+              openReportPostEditor={openReportPostEditor}
+              setOpenReportPostEditor={setOpenReportPostEditor}
+              details={details}
+            />
+          )}
         </div>
         <div className="flex flex-col py-2">
-          <div className="pb-2">{details.content}</div>
+          <div className="pb-2">{postCaption}</div>
           {details.parent && (
             <div className="border border-[#e4e6eb] dark:border-[#3a3b3c] py-2 px-3 rounded-lg">
               <div className="flex text-sm mb-2 gap-2">
@@ -491,7 +722,7 @@ export function Post({ details, setPosts }) {
               <span>Be the first to like this post</span>
             )}
           </div>
-          <div className="flex gap-2">
+          <div className="flex gap-3">
             {commentCounter !== 0 && (
               <div
                 onClick={loadCommentsInitial}
@@ -502,10 +733,10 @@ export function Post({ details, setPosts }) {
               </div>
             )}
             <div className="flex gap-2">
-              {details.interactions.share !== 0 && (
+              {shareCounter !== 0 && (
                 <span>
-                  {details.interactions.share}
-                  {details.interactions.share === 1 ? " share" : " shares"}
+                  {shareCounter}
+                  {shareCounter === 1 ? " share" : " shares"}
                 </span>
               )}
             </div>
@@ -529,46 +760,138 @@ export function Post({ details, setPosts }) {
             <span>Comment</span>
           </div>
 
-          <Dialog>
+          <Dialog open={openMain} onOpenChange={setOpenMain}>
             <DialogTrigger asChild>
-              <div
-                onClick={handleShare}
-                className="flex active:scale-95 basis-1/3 justify-center gap-1 p-2 hover:bg-[#00ba7c10] cursor-pointer rounded-md transition  hover:text-[#00ba7c]"
-              >
+              <div className="flex active:scale-95 basis-1/3 justify-center gap-1 p-2 hover:bg-[#00ba7c10] cursor-pointer rounded-md transition  hover:text-[#00ba7c]">
                 <Repeat2 />
                 <span>Share</span>
               </div>
             </DialogTrigger>
-            <DialogContent className="sm:max-w-md">
+            <DialogContent className="sm:max-w-md dark:bg-[#242526] dark:border-[#3a3b3c]">
               <DialogHeader>
                 <DialogTitle>Share post</DialogTitle>
                 <DialogDescription>
                   Share this post with your friends.
                 </DialogDescription>
               </DialogHeader>
-              <div className="flex items-center justify-center gap-5 mt-2">
+              <div className="flex items-start gap-5 mt-2">
                 <div className="flex flex-col gap-1">
-                  <Button type="submit" size="sm" className="px-3">
+                  <Button
+                    onClick={handleCopyLink}
+                    type="submit"
+                    size="sm"
+                    className="px-3 bg-transparent border hover:bg-slate-200 dark:bg-white dark:hover:bg-slate-200"
+                  >
                     <span className="sr-only">Copy</span>
-                    <Copy className="h-4 w-4" />
+
+                    {copyLinkSuccess ? (
+                      <Check className="h-4 w-4 text-black" />
+                    ) : (
+                      <Copy className="h-4 w-4 text-black" />
+                    )}
                   </Button>
                   <span className="text-sm">Copy link</span>
                 </div>
-                <div className="flex flex-col gap-1">
-                  <Button type="submit" size="sm" className="px-3">
+                <div
+                  onClick={() => {
+                    setOpen(true);
+                    setOpenMain(false);
+                  }}
+                  className="flex flex-col gap-1 "
+                >
+                  <Button
+                    type="submit"
+                    size="sm"
+                    className="px-3 bg-transparent border hover:bg-slate-200 dark:bg-white dark:hover:bg-slate-200"
+                  >
                     <span className="sr-only">share as a post</span>
-                    <FilePenLine className="h-4 w-4" />
+                    <FileSymlink className="h-4 w-4 text-black" />
                   </Button>
-                  <span className="text-sm">Share as a post</span>
+                  <span className="text-sm text-center">Share as a post</span>
                 </div>
               </div>
-              <DialogFooter className="sm:justify-end">
-                <DialogClose asChild>
-                  <Button type="button" variant="secondary">
-                    Close
-                  </Button>
-                </DialogClose>
-              </DialogFooter>
+            </DialogContent>
+          </Dialog>
+          <Dialog open={open} onOpenChange={setOpen}>
+            <DialogTrigger asChild></DialogTrigger>
+            <DialogContent className="sm:max-w-md dark:bg-[#242526] dark:border-[#3a3b3c]">
+              <DialogHeader>
+                <DialogTitle>Share post</DialogTitle>
+                <DialogDescription>
+                  Say something about the post or just share now.
+                </DialogDescription>
+              </DialogHeader>
+              <form>
+                <div className="flex justify-between items-center">
+                  <div className="flex gap-2 py-2 items-center">
+                    <Avatar>
+                      <AvatarImage src={localStorage.avatar} />
+                      <AvatarFallback className={localStorage.avatarBg}>
+                        {localStorage.name[0]}
+                      </AvatarFallback>
+                    </Avatar>
+                    <span>{localStorage.name}</span>
+                  </div>
+                  <TooltipProvider delayDuration="100" disabled={true}>
+                    <Tooltip>
+                      <Select
+                        onValueChange={(value) => {
+                          setVisibility(value);
+                        }}
+                        name="visibility"
+                        defaultValue="public"
+                      >
+                        <TooltipTrigger>
+                          <SelectTrigger className="w-[180px] dark:bg-[#3a3c3d]">
+                            <SelectValue />
+                          </SelectTrigger>
+                        </TooltipTrigger>
+                        <SelectContent className="dark:bg-[#242526]">
+                          <SelectItem value="public">
+                            <div className="flex items-center gap-1">
+                              <Globe size={16} />
+                              <span>Public</span>
+                            </div>
+                          </SelectItem>
+                          <SelectItem value="friends">
+                            <div className="flex items-center gap-1">
+                              <Users size={16} />
+                              <span>Friends</span>
+                            </div>
+                          </SelectItem>
+                        </SelectContent>
+                      </Select>
+
+                      <TooltipContent>
+                        <p>Post visibility</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
+                </div>
+                <div className="my-4">
+                  <textarea
+                    autoFocus
+                    className="min-w-full min-h-32 p-2 rounded-md border bg-[#F0F2F5] dark:bg-[#333536] resize-none outline-none"
+                    name="content"
+                    id=""
+                    placeholder="Start writing here ..."
+                    value={postContent}
+                    onChange={(e) => {
+                      setPostContent(e.target.value);
+                    }}
+                  ></textarea>
+                </div>
+                <div className="flex justify-end items-center">
+                  <div>
+                    <Button
+                      onClick={(e) => handleShare(e)}
+                      className="bg-indigo-500 dark:text-white  dark:hover:bg-indigo-600 px-4"
+                    >
+                      Share now
+                    </Button>
+                  </div>
+                </div>
+              </form>
             </DialogContent>
           </Dialog>
         </div>
