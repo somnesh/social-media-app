@@ -3,6 +3,8 @@ const mongoose = require("mongoose");
 // post_id
 // user_id (FK)
 // content
+// replyCounter
+// parent
 // timestamp
 
 const CommentSchema = new mongoose.Schema(
@@ -22,12 +24,14 @@ const CommentSchema = new mongoose.Schema(
       maxlength: 100,
       require: true,
     },
-    replies: [
-      {
-        type: mongoose.Types.ObjectId,
-        ref: "Comment",
-      },
-    ],
+    reply_counter: {
+      type: Number,
+      default: 0,
+    },
+    parent: {
+      type: mongoose.Types.ObjectId,
+      ref: "Comment",
+    },
   },
   { timestamps: true }
 );
