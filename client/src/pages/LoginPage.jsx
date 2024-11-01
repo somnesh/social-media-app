@@ -15,6 +15,20 @@ export function LoginPage() {
   const UNSPLASH_API = import.meta.env.VITE_UNSPLASH_API;
 
   useEffect(() => {
+    try {
+      (async () =>
+        await axios.post(
+          `${API_URL}/auth/refresh-token`,
+          {},
+          {
+            withCredentials: true,
+          }
+        ))();
+      navigate("/");
+    } catch (error) {
+      console.error(error);
+    }
+
     const fetchImage = async () => {
       try {
         setIsLoading(true);
