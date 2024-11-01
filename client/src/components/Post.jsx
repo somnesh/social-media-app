@@ -75,7 +75,7 @@ import { useNavigate } from "react-router-dom";
 import CryptoJS from "crypto-js";
 import { PostEditor } from "./PostEditor";
 import { PostVisibilityEditor } from "./PostVisibilityEditor";
-import { PostReportEditor } from "./PostReportEditor";
+import { ReportEditor } from "./ReportEditor";
 
 export function Post({ details, setPosts, verified }) {
   const [isVerified, setIsVerified] = useState(verified);
@@ -621,7 +621,7 @@ export function Post({ details, setPosts, verified }) {
             />
           )}
           {openReportPostEditor && (
-            <PostReportEditor
+            <ReportEditor
               openReportPostEditor={openReportPostEditor}
               setOpenReportPostEditor={setOpenReportPostEditor}
               details={details}
