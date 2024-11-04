@@ -11,6 +11,7 @@ const { default: mongoose } = require("mongoose");
 const Interaction = require("../models/Interaction");
 const PostView = require("../models/PostView");
 const SavedPost = require("../models/SavedPost");
+const LikeComment = require("../models/LikeComment");
 
 const getAllPost = async (req, res) => {
   const posts = (
@@ -75,7 +76,6 @@ const updatePost = async (req, res) => {
   const {
     params: { id: postId },
     user: { userId },
-    body: { content },
   } = req;
 
   const post = await Post.findOneAndUpdate(
@@ -281,18 +281,31 @@ const addComment = async (req, res) => {
 const getComments = async (req, res) => {
   const { id: postId } = req.params;
   const { limit = 4, skip = 0 } = req.query;
+  const userId = req.user;
 
-  const comments = await Comment.find({ post_id: postId })
+  const comments = await Comment.find({ post_id: postId, parent: null })
     .populate("user_id", "name avatar")
     .skip(parseInt(skip))
     .limit(parseInt(limit))
     .lean();
+
+  const commentIds = [...comments.map((comment) => comment._id.toString())];
+
+  const likedComments = await LikeComment.find({
+    comment_id: { $in: commentIds },
+    user_id: userId,
+  });
+
+  const likedCommentIds = likedComments.map((like) =>
+    like.comment_id.toString()
+  );
 
   let formattedComments = comments.map((comment) => {
     return {
       ...comment,
       user: comment.user_id, // Rename 'user_id' to 'user'
       user_id: undefined, // remove the original 'user_id' field
+      isLiked: likedCommentIds.includes(comment._id.toString()),
     };
   });
   formattedComments[0].contentType = "comment";
@@ -306,18 +319,52 @@ const replyComment = async (req, res) => {
   req.body.user_id = userId;
   req.body.parent = commentId;
 
+  const comment = await Comment.findById(commentId);
+
+  if (!comment) {
+    throw new NotFoundError("Comment not found");
+  }
+
+  req.body.post_id = comment.post_id;
+
   const session = await mongoose.startSession();
   session.startTransaction();
 
   try {
-    const comment = await Comment.create([req.body], { session });
+    const reply = await Comment.create(req.body);
 
-    await updatePostInteraction(userId, commentId, "comment", true, session);
+    // Save the reply within the session
+    await reply.save({ session });
+
+    // Populate the user_id field with name and avatar
+    await reply.populate("user_id", "name avatar");
+
+    await updatePostInteraction(
+      userId,
+      comment.post_id,
+      "comment",
+      true,
+      session
+    );
+    await Comment.findByIdAndUpdate(
+      commentId,
+      { $inc: { reply_counter: 1 } },
+      { new: true, session }
+    );
 
     await session.commitTransaction();
     session.endSession();
 
-    res.status(StatusCodes.OK).json({ success: true, comment });
+    let formattedComments = {
+      ...reply.toObject(),
+      user: reply.user_id, // Rename 'user_id' to 'user'
+      user_id: undefined, // remove the original 'user_id' field
+    };
+
+    formattedComments.contentType = "comment";
+    res
+      .status(StatusCodes.OK)
+      .json({ success: true, reply: formattedComments });
   } catch (error) {
     await session.abortTransaction();
     session.endSession();
@@ -327,6 +374,32 @@ const replyComment = async (req, res) => {
       .status(StatusCodes.INTERNAL_SERVER_ERROR)
       .json({ success: false, message: "Comment reply failed" });
   }
+};
+
+const getCommentReplies = async (req, res) => {
+  const { id: commentId } = req.params; // Get the parent comment ID
+  const { limit = 4, skip = 0 } = req.query;
+
+  // Fetch replies with pagination
+  const replies = await Comment.find({ parent: commentId })
+    .populate("user_id", "name avatar")
+    .skip(parseInt(skip))
+    .limit(parseInt(limit))
+    .lean();
+
+  if (replies.length === 0) {
+    throw new NotFoundError("Comment not found");
+  }
+
+  let formattedReplies = replies.map((reply) => {
+    return {
+      ...reply,
+      user: reply.user_id, // Rename 'user_id' to 'user'
+      user_id: undefined, // remove the original 'user_id' field
+    };
+  });
+
+  res.status(StatusCodes.OK).json(formattedReplies);
 };
 
 const deleteComment = async (req, res) => {
@@ -352,7 +425,7 @@ const deleteComment = async (req, res) => {
 
   try {
     // delete the comment
-    await Comment.findByIdAndDelete(commentId, { session });
+    const comment = await Comment.findByIdAndDelete(commentId, { session });
 
     // decrement the comment counter by 1
     await updatePostInteraction(
@@ -367,9 +440,7 @@ const deleteComment = async (req, res) => {
     await session.commitTransaction();
     session.endSession();
 
-    res
-      .status(StatusCodes.OK)
-      .json({ success: true, message: "Comment deleted successfully" });
+    res.status(StatusCodes.OK).json({ success: true, comment });
   } catch (error) {
     // if any failure occurs abort the transaction
     await session.abortTransaction();
@@ -379,6 +450,64 @@ const deleteComment = async (req, res) => {
     res
       .status(500)
       .json({ success: false, message: "Failed to delete comment" });
+  }
+};
+
+const likeComment = async (req, res) => {
+  const { id: commentId } = req.params;
+  const userId = req.user._id;
+
+  req.body.comment_id = commentId;
+  req.body.user_id = userId;
+
+  const doesLikeExists = await LikeComment.find({
+    comment_id: commentId,
+    user_id: userId,
+  });
+  const session = await mongoose.startSession();
+  session.startTransaction();
+
+  try {
+    if (doesLikeExists.length === 0) {
+      await Comment.findByIdAndUpdate(
+        commentId,
+        { $inc: { like_counter: 1 } },
+        { new: true, session }
+      );
+
+      await LikeComment.create([req.body], { session });
+    } else {
+      await LikeComment.deleteOne(
+        {
+          comment_id: commentId,
+          user_id: userId,
+        },
+        { session }
+      );
+
+      await Comment.findByIdAndUpdate(
+        commentId,
+        { $inc: { like_counter: -1 } },
+        { new: true, session }
+      );
+    }
+
+    await session.commitTransaction();
+    session.endSession();
+
+    res.status(StatusCodes.OK).json({
+      success: true,
+      message: {
+        dislike: doesLikeExists.length !== 0,
+        like: !(doesLikeExists.length !== 0),
+      },
+    });
+  } catch (error) {
+    await session.abortTransaction();
+    session.endSession();
+
+    console.error("Transaction failed, rolling back changes", error);
+    res.status(500).json({ success: false, message: "Failed to like post" });
   }
 };
 
@@ -426,6 +555,28 @@ const savePost = async (req, res) => {
   res.status(StatusCodes.CREATED).json({ success: true, savedPost });
 };
 
+const updateComment = async (req, res) => {
+  const { id: commentId } = req.params;
+  const userId = req.user;
+
+  const comment = await Comment.findOneAndUpdate(
+    { _id: commentId, user_id: userId },
+    req.body,
+    {
+      new: true,
+      runValidators: true,
+    }
+  );
+
+  if (!comment) {
+    throw new BadRequestError(
+      "Comment not found or user doesn't have permission to perform this action"
+    );
+  }
+
+  res.status(StatusCodes.OK).json({ success: true, comment });
+};
+
 module.exports = {
   getAllPost,
   createPost,
@@ -440,4 +591,7 @@ module.exports = {
   deleteComment,
   sharePost,
   savePost,
+  updateComment,
+  getCommentReplies,
+  likeComment,
 };
