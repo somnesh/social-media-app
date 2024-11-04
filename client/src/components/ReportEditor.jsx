@@ -15,8 +15,8 @@ import { useToastHandler } from "../contexts/ToastContext";
 import { CircleCheck, CircleX } from "lucide-react";
 
 export function ReportEditor({
-  openReportPostEditor,
-  setOpenReportPostEditor,
+  openReportEditor,
+  setOpenReportEditor,
   details,
 }) {
   const toastHandler = useToastHandler();
@@ -51,12 +51,12 @@ export function ReportEditor({
         true
       );
     } finally {
-      setOpenReportPostEditor(false);
+      setOpenReportEditor(false);
     }
   };
 
   return (
-    <Dialog open={openReportPostEditor} onOpenChange={setOpenReportPostEditor}>
+    <Dialog open={openReportEditor} onOpenChange={setOpenReportEditor}>
       <DialogTrigger asChild></DialogTrigger>
       <DialogContent className="sm:max-w-md dark:bg-[#242526] dark:border-[#3a3b3c]">
         <DialogHeader>

@@ -7,8 +7,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useNavigate } from "react-router-dom";
 import { FeedSkeleton } from "./loaders/FeedSkeleton";
 
-export function Feed({ verified }) {
-  const [refreshFeed, setRefreshFeed] = useState(false);
+export function Feed() {
   const [createPostPopUp, setCreatePostPopUp] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [posts, setPosts] = useState([]);
@@ -39,7 +38,7 @@ export function Feed({ verified }) {
         setIsLoading(false);
       }
     })();
-  }, [refreshFeed]);
+  }, []);
 
   const handleCreatePostClick = () => {
     setCreatePostPopUp(true);
@@ -117,12 +116,7 @@ export function Feed({ verified }) {
           ) : (
             <div>
               {posts.map((post) => (
-                <Post
-                  key={post._id}
-                  details={post}
-                  setPosts={setPosts}
-                  verified={verified}
-                />
+                <Post key={post._id} details={post} setPosts={setPosts} />
               ))}
             </div>
           )}

@@ -4,26 +4,31 @@ import { SearchBar } from "./SearchBar";
 import { Button } from "./ui/button";
 import { useEffect, useState } from "react";
 import axios from "axios";
+import { useAuth } from "../contexts/AuthContext";
 
 export function Header() {
   const navigate = useNavigate();
-  const [verified, setVerified] = useState(false);
+  const { setIsAuthenticated, isAuthenticated } = useAuth();
 
   const API_URL = import.meta.env.VITE_API_URL;
   useEffect(() => {
-    try {
-      (async () =>
+    const refreshAuthToken = async () => {
+      try {
         await axios.post(
           `${API_URL}/auth/refresh-token`,
           {},
           {
             withCredentials: true,
           }
-        ))();
-      setVerified(true);
-    } catch (error) {
-      console.error(error);
-    }
+        );
+
+        setIsAuthenticated(true);
+      } catch (error) {
+        console.error(error);
+        setIsAuthenticated(false);
+      }
+    };
+    refreshAuthToken();
   }, []);
   return (
     <header className="flex py-1 pl-3 pr-2 bg-white dark:bg-[#242526] items-center sticky top-0 transition-colors duration-500 shadow-md z-40">
@@ -39,7 +44,7 @@ export function Header() {
       </section>
 
       <section className="flex basis-1/4 justify-end items-center gap-2">
-        {verified ? (
+        {isAuthenticated ? (
           <ProfileMenu />
         ) : (
           <div className="flex gap-2 py-1">

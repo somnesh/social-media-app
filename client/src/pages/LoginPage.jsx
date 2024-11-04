@@ -15,19 +15,19 @@ export function LoginPage() {
   const UNSPLASH_API = import.meta.env.VITE_UNSPLASH_API;
 
   useEffect(() => {
-    try {
-      (async () =>
+    const refreshAuthToken = async () => {
+      try {
         await axios.post(
           `${API_URL}/auth/refresh-token`,
           {},
-          {
-            withCredentials: true,
-          }
-        ))();
-      navigate("/");
-    } catch (error) {
-      console.error(error);
-    }
+          { withCredentials: true }
+        );
+        navigate("/");
+      } catch (error) {
+        console.error("Error refreshing auth token:", error);
+        fetchImage();
+      }
+    };
 
     const fetchImage = async () => {
       try {
@@ -51,7 +51,7 @@ export function LoginPage() {
         setIsLoading(false);
       }
     };
-    fetchImage();
+    refreshAuthToken();
   }, []);
 
   const handleLogin = async (e) => {

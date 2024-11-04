@@ -20,6 +20,7 @@ import {
   Trash2,
   UserCog,
   Users,
+  X,
 } from "lucide-react";
 
 import {
@@ -73,12 +74,12 @@ import { LikeSkeleton } from "./loaders/LikeSkeleton";
 import { Button } from "./ui/button";
 import { useNavigate } from "react-router-dom";
 import CryptoJS from "crypto-js";
-import { PostEditor } from "./PostEditor";
+import { ContentEditor } from "./ContentEditor";
 import { PostVisibilityEditor } from "./PostVisibilityEditor";
 import { ReportEditor } from "./ReportEditor";
+import { useAuth } from "../contexts/AuthContext";
 
-export function Post({ details, setPosts, verified }) {
-  const [isVerified, setIsVerified] = useState(verified);
+export function Post({ details, setPosts }) {
   const [isLoading, setIsLoading] = useState(false);
   const [commentBoxPopup, setCommentBoxPopup] = useState(false);
   const [comments, setComments] = useState([]);
@@ -96,18 +97,20 @@ export function Post({ details, setPosts, verified }) {
   const [copyLinkSuccess, setCopyLinkSuccess] = useState(false);
   const [postContent, setPostContent] = useState("");
   const [openMain, setOpenMain] = useState(false); // for shadcn dialog
-  const [open, setOpen] = useState(false); // for shadcn dialog
   const [visibility, setVisibility] = useState("public"); // share post visibility
+  const [openShareEditor, setOpenShareEditor] = useState(false);
   const [openPostMenu, setOpenPostMenu] = useState(false);
   const [openPostEditor, setOpenPostEditor] = useState(false);
   const [openReportPostEditor, setOpenReportPostEditor] = useState(false);
   const [openPostVisibilityEditor, setOpenPostVisibilityEditor] =
     useState(false);
   const [postCaption, setPostCaption] = useState(details.content);
+
   const limit = 4; // comment load limit
 
   const navigate = useNavigate();
   const toastHandler = useToastHandler();
+  const { setIsAuthenticated, isAuthenticated } = useAuth();
 
   const API_URL = import.meta.env.VITE_API_URL;
   const APP_URL = import.meta.env.VITE_APP_URL;
@@ -156,7 +159,7 @@ export function Post({ details, setPosts, verified }) {
   let postDuration = calculatePostDuration(postDate);
 
   useEffect(() => {
-    if (!isVerified) {
+    if (!isAuthenticated) {
       try {
         (async () =>
           await axios.post(
@@ -166,7 +169,7 @@ export function Post({ details, setPosts, verified }) {
               withCredentials: true,
             }
           ))();
-        setIsVerified(true);
+        setIsAuthenticated(true);
       } catch (error) {
         console.error(error);
       }
@@ -202,7 +205,7 @@ export function Post({ details, setPosts, verified }) {
   };
 
   const handleCommentBoxPopup = () => {
-    if (isVerified) {
+    if (isAuthenticated) {
       setCommentBoxPopup(true);
     } else {
       navigate("/login");
@@ -210,11 +213,11 @@ export function Post({ details, setPosts, verified }) {
   };
 
   const postComment = async () => {
-    if (isVerified) {
+    if (isAuthenticated) {
       const commentContent = document.getElementById("comment").value;
       if (commentContent !== "") {
         try {
-          const response = await axios.patch(
+          const response = await axios.post(
             `${API_URL}/post/comment/${details._id}`,
             { content: commentContent },
             { withCredentials: true }
@@ -249,7 +252,7 @@ export function Post({ details, setPosts, verified }) {
 
   const loadComments = async () => {
     try {
-      if (isVerified) {
+      if (isAuthenticated) {
         setCommentBoxPopup(true);
       }
       const response = await axios.get(
@@ -259,12 +262,13 @@ export function Post({ details, setPosts, verified }) {
           withCredentials: true,
         }
       );
-      console.log(response.data);
+
+      console.log("response.data: ", response.data);
 
       const newComments = [...comments, ...response.data];
       setComments(newComments);
 
-      if (response.data.length < limit) {
+      if (response.data.length <= limit) {
         setHasMore(false);
       }
     } catch (error) {
@@ -295,7 +299,9 @@ export function Post({ details, setPosts, verified }) {
   };
 
   const handleLike = async () => {
-    if (isVerified) {
+    console.log(isAuthenticated);
+
+    if (isAuthenticated) {
       try {
         const response = await axios.patch(
           `${API_URL}/post/like/${details._id}`,
@@ -338,7 +344,7 @@ export function Post({ details, setPosts, verified }) {
 
   const handleShare = async (e) => {
     e.preventDefault();
-    if (isVerified) {
+    if (isAuthenticated) {
       try {
         const content = postContent;
         const response = await axios.post(
@@ -358,7 +364,7 @@ export function Post({ details, setPosts, verified }) {
           }
         );
         setPosts((prev) => [postDetails.data.post, ...prev]);
-        setOpen(false);
+        setOpenShareEditor(false);
         toastHandler(
           <div className="flex gap-2 items-center">
             <CircleCheck className="bg-green-600 rounded-full text-white dark:text-[#242526]" />
@@ -508,9 +514,9 @@ export function Post({ details, setPosts, verified }) {
             <h2 className="font-medium">{details.user_id.name}</h2>
             <div className="flex gap-1 items-center">
               <span>
-                {details.visibility === "public" ? (
+                {visibility === "public" ? (
                   <Globe size={16} strokeWidth={1.25} />
-                ) : details.visibility === "friends" ? (
+                ) : visibility === "friends" ? (
                   <Users size={16} strokeWidth={1.25} />
                 ) : (
                   <Lock size={16} strokeWidth={1.25} />
@@ -536,7 +542,7 @@ export function Post({ details, setPosts, verified }) {
                     <span>Not interested</span>
                   </div>
                 )}
-                {isVerified && (
+                {isAuthenticated && (
                   <div
                     onClick={handleSavePost}
                     className="flex hover:bg-[#f3f4f6] dark:hover:bg-[#414141] cursor-pointer px-2 py-1.5 rounded-sm items-center"
@@ -603,11 +609,11 @@ export function Post({ details, setPosts, verified }) {
             </PopoverContent>
           </Popover>
           {openPostEditor && (
-            <PostEditor
-              openPostEditor={openPostEditor}
-              setOpenPostEditor={setOpenPostEditor}
-              postCaption={postCaption}
-              setPostCaption={setPostCaption}
+            <ContentEditor
+              openEditor={openPostEditor}
+              setOpenEditor={setOpenPostEditor}
+              currentContent={postCaption}
+              setCurrentContent={setPostCaption}
               details={details}
             />
           )}
@@ -622,8 +628,8 @@ export function Post({ details, setPosts, verified }) {
           )}
           {openReportPostEditor && (
             <ReportEditor
-              openReportPostEditor={openReportPostEditor}
-              setOpenReportPostEditor={setOpenReportPostEditor}
+              openReportEditor={openReportPostEditor}
+              setOpenReportEditor={setOpenReportPostEditor}
               details={details}
             />
           )}
@@ -794,8 +800,12 @@ export function Post({ details, setPosts, verified }) {
                 </div>
                 <div
                   onClick={() => {
-                    setOpen(true);
-                    setOpenMain(false);
+                    if (isAuthenticated) {
+                      setOpenShareEditor(true);
+                      setOpenMain(false);
+                    } else {
+                      navigate("/login");
+                    }
                   }}
                   className="flex flex-col gap-1 "
                 >
@@ -812,7 +822,7 @@ export function Post({ details, setPosts, verified }) {
               </div>
             </DialogContent>
           </Dialog>
-          <Dialog open={open} onOpenChange={setOpen}>
+          <Dialog open={openShareEditor} onOpenChange={setOpenShareEditor}>
             <DialogTrigger asChild></DialogTrigger>
             <DialogContent className="sm:max-w-md dark:bg-[#242526] dark:border-[#3a3b3c]">
               <DialogHeader>
@@ -903,7 +913,14 @@ export function Post({ details, setPosts, verified }) {
             <CommentsLoader />
           ) : (
             comments.map((comment) => (
-              <CommentStructure key={comment._id} details={comment} />
+              <CommentStructure
+                key={comment._id}
+                details={comment}
+                comments={comments}
+                setComments={setComments}
+                setCommentCounter={setCommentCounter}
+                setCommentBoxPopup={setCommentBoxPopup}
+              />
             ))
           )}
           {initialCommentLoad && hasMore && (

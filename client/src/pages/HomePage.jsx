@@ -5,10 +5,11 @@ import { Sidebar } from "../components/Sidebar";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { WholePageLoader } from "../components/loaders/WholePageLoader";
+import { useAuth } from "../contexts/AuthContext";
 
 export const Home = () => {
   const [pageLoading, setPageLoading] = useState(true);
-  const [authVerified, setAuthVerified] = useState(false);
+  const { setIsAuthenticated } = useAuth();
   const navigate = useNavigate();
 
   const API_URL = import.meta.env.VITE_API_URL;
@@ -25,10 +26,11 @@ export const Home = () => {
             withCredentials: true,
           }
         );
-        setAuthVerified(true);
         setPageLoading(false);
+        setIsAuthenticated(true);
       } catch (error) {
         console.error(error);
+        setIsAuthenticated(false);
         navigate("/login");
         setPageLoading(false);
       }
@@ -43,7 +45,7 @@ export const Home = () => {
           <Header />
           <main className="flex px-2 py-4 bg-[#f0f2f5] dark:bg-[#18191a] min-h-screen dark:text-[#e2e4e9] transition-colors duration-500">
             <Sidebar />
-            <Feed verified={authVerified} />
+            <Feed />
             {/* --------------------------------------- */}
             <section className="basis-1/4">
               <h2>unknown section</h2>
