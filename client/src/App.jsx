@@ -13,6 +13,7 @@ import { EmailVerification } from "./pages/EmailVerification";
 import { BadRequest } from "./pages/BadRequest";
 import { EmailVerificationSuccess } from "./pages/EmailVerificationSuccess";
 import { PostView } from "./pages/PostView";
+import { AuthProvider } from "./contexts/AuthContext";
 
 const router = createBrowserRouter([
   {
@@ -82,12 +83,14 @@ function App() {
   }, [theme]);
 
   return (
-    <ThemeProvider value={{ theme, darkTheme, lightTheme }}>
-      <ToastHandlerProvider>
-        <Toaster />
-        <RouterProvider router={router} />
-      </ToastHandlerProvider>
-    </ThemeProvider>
+    <AuthProvider>
+      <ThemeProvider value={{ theme, darkTheme, lightTheme }}>
+        <ToastHandlerProvider>
+          <Toaster />
+          <RouterProvider router={router} />
+        </ToastHandlerProvider>
+      </ThemeProvider>
+    </AuthProvider>
   );
 }
 
