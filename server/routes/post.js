@@ -15,6 +15,8 @@ const {
   deleteComment,
   sharePost,
   savePost,
+  updateComment,
+  likeComment,
 } = require("../controllers/post");
 
 router
@@ -28,10 +30,12 @@ router.route("/like/:id").patch(likePost);
 
 router
   .route("/comment/:id")
-  .patch(addComment) // ":id" -> here "id" is the "user id"
-  .delete(deleteComment); // ":id" -> here "id" is the "comment id"
+  .post(addComment) // ":id" -> here "id" is the "user id"
+  .delete(deleteComment) // ":id" -> here "id" is the "comment id"
+  .patch(updateComment);
 
-router.route("/comment/reply/:id").post(replyComment); // ":id" -> here "id" is the "parent comment id"
+router.route("/comment/:id/like").patch(likeComment);
+router.route("/comment/:id/reply").post(replyComment); // ":id" -> here "id" is the "parent comment id"
 router.route("/share/:id").post(sharePost);
 
 router.route("/save/:id").post(savePost);
