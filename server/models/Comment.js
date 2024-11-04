@@ -24,6 +24,10 @@ const CommentSchema = new mongoose.Schema(
       maxlength: 100,
       require: true,
     },
+    like_counter: {
+      type: Number,
+      default: 0,
+    },
     reply_counter: {
       type: Number,
       default: 0,
