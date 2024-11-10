@@ -1,8 +1,7 @@
-import React, { useState, useCallback, useRef, useEffect } from "react";
+import React, { useState, useCallback, useRef } from "react";
 import axios from "axios";
 import { debounce } from "lodash";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Dot, Loader2 } from "lucide-react";
 import { useAuth } from "../contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
 
@@ -17,12 +16,14 @@ export function SearchBar() {
   const { isAuthenticated } = useAuth();
   const navigate = useNavigate();
   const API_URL = import.meta.env.VITE_API_URL;
+  const APP_URL = import.meta.env.VITE_APP_URL;
 
   // Handler to hide another div when clicked outside
 
   const handleClickOutside = (event) => {
     if (targetDivRef.current && !targetDivRef.current.contains(event.target)) {
       // If the click is outside of the target div, hide the other div
+      setQuery("");
       setIsVisible(false);
     }
     document.removeEventListener("mousedown", handleClickOutside);
@@ -92,9 +93,14 @@ export function SearchBar() {
       </div>
       {isVisible && (
         <div className="absolute top-10 bg-[#ffffff] dark:bg-[#3a3b3c] px-2 py-2 rounded-b-md text-[#b0b3b8] w-64 max-w-full shadow-md">
-          {results.length === 0 && !isLoading && (
-            <span className="font-medium text-sm text-center block py-5">
+          {query.length === 0 && !isLoading && (
+            <span className="font-medium text-sm text-black dark:text-white text-center block py-5">
               Start finding new people
+            </span>
+          )}
+          {results.length === 0 && !isLoading && query.length !== 0 && (
+            <span className="font-medium text-sm text-black dark:text-white text-center block py-5">
+              No results containing your search terms were found.
             </span>
           )}
           {isLoading && (
@@ -115,8 +121,8 @@ export function SearchBar() {
             <>
               {results.map((user) => (
                 <a
-                  href="#"
-                  className="flex items-center cursor-pointer p-2 gap-2 text-black dark:text-inherit hover:bg-slate-100 dark:hover:bg-[#454647] text-sm rounded-sm"
+                  href={`${APP_URL}/user/${user.username}`}
+                  className="flex items-center cursor-pointer p-2 gap-2 text-black dark:text-white hover:bg-slate-100 dark:hover:bg-[#454647] text-sm rounded-sm"
                 >
                   <Avatar>
                     <AvatarImage src={user.avatar} />

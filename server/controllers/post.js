@@ -257,7 +257,7 @@ const getLikes = async (req, res) => {
   const { id: postId } = req.params;
 
   const likes = await Like.find({ post_id: postId })
-    .populate("user_id", "name avatar")
+    .populate("user_id", "name avatar avatarBg")
     .lean();
 
   const formattedLikes = likes.map((like) => {
@@ -669,7 +669,7 @@ const savePost = async (req, res) => {
 
   const duplicate = await SavedPost.find(req.body);
 
-  if (duplicate) {
+  if (duplicate.length !== 0) {
     throw new BadRequestError("Post already exists on your saved list");
   }
 

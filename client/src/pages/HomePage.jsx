@@ -43,6 +43,10 @@ export const Home = () => {
       setPageLoading(false);
     });
   }, []);
+
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [currentPage]);
   return (
     <>
       {pageLoading ? (

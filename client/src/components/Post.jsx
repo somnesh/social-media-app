@@ -505,7 +505,7 @@ export function Post({ details, setPosts, externalLinkFlag }) {
         <div className="flex items-center gap-3 pt-2">
           <div className="">
             <Avatar>
-              <AvatarImage src={details.avatar} />
+              <AvatarImage src={details.user_id.avatar} />
               <AvatarFallback className={details.user_id.avatarBg}>
                 {details.user_id.name[0]}
               </AvatarFallback>
@@ -708,13 +708,10 @@ export function Post({ details, setPosts, externalLinkFlag }) {
                               className="flex gap-2 items-center mt-4 text-base text-black dark:text-[#e2e4e9]"
                             >
                               <Avatar>
-                                <AvatarImage
-                                  src={
-                                    like.user.avatar ||
-                                    "https://yt3.googleusercontent.com/g3j3iOUOPhNxBCNAArBqiYGzHzCBIzr_Al8mdvtBJeZMGFDblnU5rlVUt6GY01AUwm7Cp70J=s900-c-k-c0x00ffffff-no-rj"
-                                  }
-                                />
-                                <AvatarFallback>CN</AvatarFallback>
+                                <AvatarImage src={like.user.avatar} />
+                                <AvatarFallback className={like.user.avatarBg}>
+                                  {like.user.name[0]}
+                                </AvatarFallback>
                               </Avatar>
                               <span>{like.user.name}</span>
                             </div>
