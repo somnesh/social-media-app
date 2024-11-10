@@ -210,7 +210,7 @@ const getFollowerList = async (req, res) => {
   const totalCount = await Follower.countDocuments({ followed: userId._id });
 
   const followers = await Follower.find({ followed: userId._id })
-    .populate("follower", "id name avatar profile_bio avatarBg")
+    .populate("follower", "id name avatar profile_bio avatarBg username")
     .skip(parseInt(skip))
     .limit(parseInt(limit))
     .lean();
@@ -243,7 +243,7 @@ const getFollowingList = async (req, res) => {
   const totalCount = await Follower.countDocuments({ follower: userId._id });
 
   const following = await Follower.find({ follower: userId._id })
-    .populate("followed", "id name avatar profile_bio avatarBg")
+    .populate("followed", "id name avatar profile_bio avatarBg username")
     .skip(parseInt(skip))
     .limit(parseInt(limit))
     .lean();

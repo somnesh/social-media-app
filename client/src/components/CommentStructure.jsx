@@ -161,10 +161,11 @@ export function CommentStructure({
 
   const handleLike = async () => {
     if (isAuthenticated) {
+      const postLink = `${APP_URL}/post/${encryptPostId(details.post_id)}`;
       try {
         const response = await axios.patch(
           `${API_URL}/post/comment/${details._id}/like`,
-          {},
+          { postLink, receiverId: details.user._id },
           { withCredentials: true }
         );
         if (response.data.message.like) {

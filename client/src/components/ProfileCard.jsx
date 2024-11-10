@@ -12,6 +12,7 @@ export function ProfileCard({ details, followingBack }) {
 
   const toastHandler = useToastHandler();
   const API_URL = import.meta.env.VITE_API_URL;
+  const APP_URL = import.meta.env.VITE_APP_URL;
   console.log(details);
 
   const handleUnfollow = async () => {
@@ -107,7 +108,10 @@ export function ProfileCard({ details, followingBack }) {
       {details && (
         <div className="flex basis-1/2 flex-col gap-5 bg-white dark:bg-[#242526] px-4 py-3 transition-all drop-shadow-sm rounded-md">
           <div className="flex">
-            <a href="#" className="flex gap-3 cursor-pointer items-center">
+            <a
+              href={`${APP_URL}/user/${details.username}`}
+              className="flex gap-3 cursor-pointer items-center"
+            >
               <Avatar>
                 <AvatarImage src={details?.avatar} />
                 <AvatarFallback className={details?.avatarBg}>

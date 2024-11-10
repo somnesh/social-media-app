@@ -19,7 +19,6 @@ const LikeCommentSchema = new mongoose.Schema(
     notification_id: {
       type: mongoose.Types.ObjectId,
       ref: "Notification",
-      required: [true, "Please provide notification id"],
     },
   },
   { timestamps: true }

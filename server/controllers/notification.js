@@ -10,8 +10,6 @@ const sendNotification = async (
   notificationMessage,
   session
 ) => {
-  console.log(sender_id, " | ", receiver_Id, " | ", link);
-
   if (sender_id._id.toString() !== receiver_Id) {
     const notificationDetails = await Notification.create(
       [
@@ -24,8 +22,6 @@ const sendNotification = async (
       ],
       { session }
     );
-    console.log(notificationDetails);
-
     const socketId = userSocketMap[receiver_Id];
 
     if (socketId) {

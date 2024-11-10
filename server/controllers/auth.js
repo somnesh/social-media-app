@@ -204,6 +204,14 @@ const logout = async (req, res) => {
     .json({ status: "success" });
 };
 
+const changePassword = async (req, res) => {
+  res.post("");
+};
+
+const resetPassword = async (req, res) => {
+  res.post("");
+};
+
 module.exports = {
   registerUser,
   loginUser,
