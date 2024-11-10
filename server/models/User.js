@@ -78,6 +78,14 @@ const UserSchema = new mongoose.Schema(
       type: String,
       default: null,
     },
+    avatarBg: {
+      type: String,
+      default: getRandomColor,
+    },
+    cover_photo: {
+      type: String,
+      default: null,
+    },
     profile_bio: {
       type: String,
       default: null,
@@ -101,10 +109,29 @@ const UserSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
+UserSchema.index({
+  name: "text",
+  username: "text",
+  email: "text",
+});
+
+const colors = [
+  "bg-blue-500",
+  "bg-yellow-500",
+  "bg-indigo-500",
+  "bg-orange-500",
+];
+
+function getRandomColor() {
+  return colors[Math.floor(Math.random() * colors.length)];
+}
+
 // before inserting all data into the database, hashing the password for privacy and security
 UserSchema.pre("save", async function (next) {
   if (!this.isModified("password")) return next();
-
+  if (!this.avatarBg) {
+    this.avatarBg = getRandomColor();
+  }
   // const salt = await bcrypt.genSalt(10);
   this.password = await bcrypt.hash(this.password, 10);
   next();
