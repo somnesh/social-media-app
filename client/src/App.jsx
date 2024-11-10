@@ -14,6 +14,7 @@ import { BadRequest } from "./pages/BadRequest";
 import { EmailVerificationSuccess } from "./pages/EmailVerificationSuccess";
 import { PostView } from "./pages/PostView";
 import { AuthProvider } from "./contexts/AuthContext";
+import { ProfilePage } from "./pages/ProfilePage";
 
 const router = createBrowserRouter([
   {
@@ -39,6 +40,10 @@ const router = createBrowserRouter([
   {
     path: "/post/:id",
     element: <PostView />,
+  },
+  {
+    path: "/user/:username",
+    element: <ProfilePage />,
   },
   {
     path: "/500",
