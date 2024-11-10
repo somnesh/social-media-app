@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
 import { LoginPageImageLoader } from "../components/loaders/LoginPageImageLoader";
+import { useAuth } from "../contexts/AuthContext";
 
 export function LoginPage() {
   const [bgImage, setBgImage] = useState("");
@@ -10,20 +11,25 @@ export function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const navigate = useNavigate();
+  const { setIsAuthenticated, isAuthenticated } = useAuth();
 
   const API_URL = import.meta.env.VITE_API_URL;
   const UNSPLASH_API = import.meta.env.VITE_UNSPLASH_API;
 
   useEffect(() => {
     const refreshAuthToken = async () => {
+      console.log("login page");
+
       try {
         await axios.post(
           `${API_URL}/auth/refresh-token`,
           {},
           { withCredentials: true }
         );
+        setIsAuthenticated(true);
         navigate("/");
       } catch (error) {
+        setIsAuthenticated(false);
         console.error("Error refreshing auth token:", error);
         fetchImage();
       }
@@ -80,9 +86,11 @@ export function LoginPage() {
       localStorage.setItem("name", result.data.user.name);
       localStorage.setItem("id", result.data.user.id);
       localStorage.setItem("avatar", result.data.user.avatar);
-
+      localStorage.setItem("avatarBg", result.data.user.avatarBg);
+      setIsAuthenticated(true);
       navigate("/", { state: { result: result.data } });
     } catch (error) {
+      setIsAuthenticated(false);
       console.error("Login failed: ", error);
       passwordField.classList.add("ring-red-600");
       emailField.classList.add("ring-red-600");

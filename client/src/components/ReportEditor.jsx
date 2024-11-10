@@ -63,7 +63,7 @@ export function ReportEditor({
           <DialogTitle>Report</DialogTitle>
           <DialogDescription>
             Tell us what's wrong, you can check your report status in help
-            center. Click Report post when you're done.
+            centre. Click Report when you're done.
           </DialogDescription>
         </DialogHeader>
 
@@ -83,9 +83,9 @@ export function ReportEditor({
             onClick={handleReportPost}
             type="submit"
             size="sm"
-            className="px-3 bg-transparent border hover:bg-slate-200 dark:bg-white dark:hover:bg-slate-200"
+            className="px-3 bg-transparent border text-black hover:bg-slate-200 dark:bg-white dark:hover:bg-slate-200"
           >
-            Report post
+            Report
           </Button>
         </DialogFooter>
       </DialogContent>

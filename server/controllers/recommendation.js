@@ -138,7 +138,7 @@ const recommendPosts = async (userId, viewedPostIds) => {
       visibility: "public",
     }).populate({
       path: "user_id", // Populate user details from the user_id field
-      select: "name avatar", // Only select name and avatar from the user
+      select: "name avatar avatarBg", // Only select name and avatar from the user
     });
 
     recommendedPosts = recommendedPosts.map((post) => ({

@@ -34,6 +34,7 @@ import { useToastHandler } from "../contexts/ToastContext";
 import { ReportEditor } from "./ReportEditor";
 import { ContentEditor } from "./ContentEditor";
 import { useAuth } from "../contexts/AuthContext";
+import encryptPostId from "../utils/encryptPostId";
 
 export function CommentStructure({
   details,
@@ -41,6 +42,7 @@ export function CommentStructure({
   setComments,
   setCommentCounter,
   setCommentBoxPopup,
+  replyTreeLimitFlag,
 }) {
   const [isHovered, setIsHovered] = useState(false);
   const [open, setOpen] = useState(false);
@@ -57,6 +59,9 @@ export function CommentStructure({
   const [replyBoxPopup, setReplyBoxPopup] = useState(false);
 
   const API_URL = import.meta.env.VITE_API_URL;
+  const APP_URL = import.meta.env.VITE_APP_URL;
+  console.log(details);
+
   const toastHandler = useToastHandler();
   const { isAuthenticated } = useAuth();
 
@@ -179,17 +184,25 @@ export function CommentStructure({
 
   const handleCancelReply = async () => {
     setReplyBoxPopup(false);
-    setCommentBoxPopup(true);
+    if (!replyTreeLimitFlag) {
+      setCommentBoxPopup(true);
+    }
   };
 
   const handleReply = async () => {
     if (isAuthenticated) {
+      const postLink = `${APP_URL}/post/${encryptPostId(details.post_id)}`;
+
       const commentContent = document.getElementById("comment").value;
       if (commentContent !== "") {
         try {
           const response = await axios.post(
-            `${API_URL}/post/comment/${details._id}/reply`,
-            { content: commentContent },
+            `${API_URL}/post/comment/${details.parent}/reply`,
+            {
+              content: commentContent,
+              postLink,
+              receiverId: details.user._id,
+            },
             { withCredentials: true }
           );
           document.getElementById("comment").value = "";
@@ -203,7 +216,11 @@ export function CommentStructure({
           );
           console.log("res: ", response.data.reply);
 
-          setReplies((prev) => [...prev, response.data.reply]);
+          if (!replyTreeLimitFlag) {
+            setReplies((prev) => [...prev, response.data.reply]);
+          } else {
+            setComments((prev) => [...prev, response.data.reply]);
+          }
 
           handleCommentBoxPopup();
         } catch (error) {
@@ -224,6 +241,7 @@ export function CommentStructure({
 
   const handleReport = async () => {
     setOpen(false);
+    setOpenReportEditor(true);
   };
 
   const loadReplies = async () => {
@@ -244,6 +262,7 @@ export function CommentStructure({
       }
     } catch (error) {
       console.error("Failed to load replies", error);
+      setHasMoreReplies(false);
     }
   };
 
@@ -386,13 +405,22 @@ export function CommentStructure({
 
       <div className="flex flex-col ml-14">
         {replies.map((reply) => (
+          // <CommentStructure
+          //   key={reply._id}
+          //   details={reply}
+          //   comments={replies}
+          //   setComments={setReplies}
+          //   setCommentCounter={setCommentCounter}
+          //   setCommentBoxPopup={setCommentBoxPopup}
+          // />
           <CommentStructure
             key={reply._id}
             details={reply}
-            comments={replies}
-            setComments={setReplies}
+            comments={!replyTreeLimitFlag ? replies : comments}
+            setComments={!replyTreeLimitFlag ? setReplies : setComments}
             setCommentCounter={setCommentCounter}
-            setCommentBoxPopup={setCommentBoxPopup}
+            setCommentBoxPopup={setReplyBoxPopup}
+            replyTreeLimitFlag={true}
           />
         ))}
       </div>
@@ -409,7 +437,12 @@ export function CommentStructure({
       {replyBoxPopup && (
         <div className="mt-2">
           <div className="flex justify-between items-center text-sm font-semibold py-1 px-2 bg-[#f0f2f5] dark:bg-[#5a5a5a] rounded-t-md">
-            <span className="px-1">replying to {details.user.name}</span>
+            <span className="px-1">
+              replying to{" "}
+              {details.user.name === localStorage.name
+                ? "yourself"
+                : details.user.name}
+            </span>
             <div
               onClick={handleCancelReply}
               className="py-1 px-1 hover:bg-[#F0F2F5] dark:hover:bg-[#505050] dark:bg-[#2e2e2e] rounded-full cursor-pointer"

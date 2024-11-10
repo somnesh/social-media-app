@@ -45,7 +45,7 @@ export function Feed() {
     document.body.classList.add("overflow-hidden");
   };
   return (
-    <section className="basis-1/2 mx-auto max-w-[680px] select-none gap-2 overflow-y-auto">
+    <>
       {isLoading ? (
         <FeedSkeleton />
       ) : error ? (
@@ -122,7 +122,7 @@ export function Feed() {
           )}
         </>
       )}
-    </section>
+    </>
   );
 }
 
