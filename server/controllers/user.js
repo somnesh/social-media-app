@@ -74,11 +74,37 @@ const getUserDetails = async (req, res) => {
 };
 
 const uploadProfilePicture = async (req, res) => {
-  res.send("profile picture upload");
+  const cloudinaryResponse = req.body.cloudinaryRes;
+
+  if (!cloudinaryResponse) {
+    throw new BadRequestError("Image field cannot be empty!");
+  }
+  const avatar = cloudinaryResponse.secure_url;
+
+  const updatedUser = await User.findOneAndUpdate(
+    { _id: req.user },
+    { avatar: avatar },
+    { new: true }
+  ).select("-password -refreshToken -isVerified -verified -role -__v");
+
+  res.status(StatusCodes.OK).json({ success: true, updatedUser });
 };
 
 const uploadCoverPhoto = async (req, res) => {
-  res.send("Cover photo upload");
+  const cloudinaryResponse = req.body.cloudinaryRes;
+
+  if (!cloudinaryResponse) {
+    throw new BadRequestError("Image field cannot be empty!");
+  }
+  const coverPhoto = cloudinaryResponse.secure_url;
+
+  const updatedUser = await User.findOneAndUpdate(
+    { _id: req.user },
+    { cover_photo: coverPhoto },
+    { new: true }
+  ).select("-password -refreshToken -isVerified -verified -role -__v");
+
+  res.status(StatusCodes.OK).json({ success: true, updatedUser });
 };
 
 const updateUserDetails = async (req, res) => {
@@ -288,4 +314,5 @@ module.exports = {
   getFollowingList,
   removeFollower,
   searchUser,
+  uploadCoverPhoto,
 };
