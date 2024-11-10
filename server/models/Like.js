@@ -16,6 +16,11 @@ const LikeSchema = new mongoose.Schema(
       ref: "User",
       required: [true, "Please provide user id"],
     },
+    notification_id: {
+      type: mongoose.Types.ObjectId,
+      ref: "Notification",
+      required: [true, "Please provide notification id"],
+    },
   },
   { timestamps: true }
 );

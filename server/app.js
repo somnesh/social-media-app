@@ -1,17 +1,29 @@
 require("dotenv").config();
 require("express-async-errors");
+const http = require("http");
 const cors = require("cors");
 const cookieParser = require("cookie-parser");
+const { setupSocket } = require("./services/socket");
 
 const express = require("express");
 const app = express();
+
+// Socket.IO server
+const server = http.createServer(app);
+const io = setupSocket(server);
+
+// passing the io obj to req
+app.use((req, res, next) => {
+  req.io = io;
+  next();
+});
 
 // middleware
 app.use(cookieParser());
 app.use(express.static("./public"));
 app.use(express.json());
 // cors middleware
-app.use(cors({ credentials: true, origin: "http://localhost:5173" }));
+app.use(cors({ credentials: true, origin: true }));
 
 // app.use(express.urlencoded({ extended: true }));
 
@@ -57,6 +69,9 @@ const start = async () => {
     // establishing database connection
     await connectDB(process.env.MONGO_URI);
     app.listen(port, console.log(`Server is listening on port ${port}...`));
+
+    // for socket.io
+    io.listen(process.env.SOCKET_PORT);
   } catch (error) {
     console.log(error);
   }

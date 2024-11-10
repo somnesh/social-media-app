@@ -36,6 +36,10 @@ const CommentSchema = new mongoose.Schema(
       type: mongoose.Types.ObjectId,
       ref: "Comment",
     },
+    notification_id: {
+      type: mongoose.Types.ObjectId,
+      ref: "Notification",
+    },
   },
   { timestamps: true }
 );
