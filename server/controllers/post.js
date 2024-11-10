@@ -12,6 +12,9 @@ const Interaction = require("../models/Interaction");
 const PostView = require("../models/PostView");
 const SavedPost = require("../models/SavedPost");
 const LikeComment = require("../models/LikeComment");
+const Notification = require("../models/Notification");
+const { sendNotification } = require("./notification");
+const encryptPostId = require("../utils/encryptPostId");
 
 const getAllPost = async (req, res) => {
   const posts = (
@@ -43,22 +46,36 @@ const createPost = async (req, res) => {
 };
 
 const getPostDetails = async (req, res) => {
+  const userId = req.user;
   const postId = req.params.id;
 
   const post = await Post.findById(postId).populate([
     {
       path: "user_id", // Populate user details from the user_id field
-      select: "name avatar", // Only select name and avatar from the user
+      select: "name avatar avatarBg", // Only select name and avatar from the user
     },
     {
       path: "parent", // Populate the parent post if it exists
       select: "content image_url user_id visibility createdAt", // Select relevant fields from the parent post
       populate: {
         path: "user_id", // Populate user details of the parent post
-        select: "name avatar", // Select name and avatar for the parent post's user
+        select: "name avatar avatarBg", // Select name and avatar for the parent post's user
       },
     },
   ]);
+
+  const isPostLiked = await Like.find({
+    post_id: postId,
+    user_id: userId,
+  });
+
+  let isLiked = false;
+  console.log("isPostLiked: ", isPostLiked);
+
+  if (isPostLiked.length !== 0) {
+    isLiked = true;
+  }
+
   if (!post) {
     throw new NotFoundError(`No post with id: ${postId}`);
   }
@@ -67,9 +84,9 @@ const getPostDetails = async (req, res) => {
     throw new UnauthenticatedError("You need to login first.");
   }
 
-  res
-    .status(StatusCodes.OK)
-    .json({ post: { ...post.toObject(), contentType: "post" } });
+  res.status(StatusCodes.OK).json({
+    post: { ...post.toObject(), contentType: "post", isLiked: isLiked },
+  });
 };
 
 const updatePost = async (req, res) => {
@@ -157,6 +174,8 @@ const updatePostInteraction = async (
 const likePost = async (req, res) => {
   const { id: postId } = req.params;
   const userId = req.user;
+  const io = req.io;
+  const { receiverId, postLink } = req.body;
 
   if (!postId || !userId) {
     throw new BadRequestError("User id or Post id cannot be empty");
@@ -174,14 +193,41 @@ const likePost = async (req, res) => {
   session.startTransaction();
   try {
     if (doesLikeExists.length !== 0) {
-      await Like.deleteOne({ post_id: postId, user_id: userId }, { session });
+      const deletedLike = await Like.findOneAndDelete(
+        { post_id: postId, user_id: userId },
+        { session }
+      );
+      await Notification.deleteOne(
+        { _id: deletedLike.notification_id },
+        { session }
+      );
+
       await updatePostInteraction(userId, postId, "like", false, session);
       await PostView.deleteOne(
         { user_id: userId, post_id: postId },
         { session }
       );
     } else {
-      await Like.create([{ post_id: postId, user_id: userId }], { session });
+      const notificationDetails = await sendNotification(
+        io,
+        userId,
+        receiverId,
+        postLink,
+        "liked your post.",
+        session
+      );
+      console.log("notificationDetails: ", notificationDetails);
+
+      await Like.create(
+        [
+          {
+            post_id: postId,
+            user_id: userId,
+            notification_id: notificationDetails?._id || null,
+          },
+        ],
+        { session }
+      );
       await updatePostInteraction(userId, postId, "like", true, session);
       await PostView.create([{ user_id: userId, post_id: postId }], {
         session,
@@ -197,9 +243,6 @@ const likePost = async (req, res) => {
         dislike: doesLikeExists.length !== 0,
         like: !(doesLikeExists.length !== 0),
       },
-      // doesLikeExists.length !== 0
-      //   ? "Post dis-liked successfully"
-      //   : "Post liked successfully",
     });
   } catch (error) {
     await session.abortTransaction();
@@ -232,6 +275,8 @@ const addComment = async (req, res) => {
   const { id: postId } = req.params;
   const commentContent = req.body.content;
   const userId = req.user;
+  const io = req.io;
+  const { receiverId, postLink } = req.body;
 
   if (!commentContent || !userId || !postId) {
     throw new BadRequestError(
@@ -248,8 +293,23 @@ const addComment = async (req, res) => {
 
   session.startTransaction();
   try {
+    const notificationDetails = await sendNotification(
+      io,
+      userId,
+      receiverId,
+      postLink,
+      "commented on your post.",
+      session
+    );
     const comment = await Comment.create(
-      [{ post_id: postId, user_id: userId, content: commentContent }],
+      [
+        {
+          post_id: postId,
+          user_id: userId,
+          content: commentContent,
+          notification_id: notificationDetails?._id || null,
+        },
+      ],
       { session }
     );
     await updatePostInteraction(userId, postId, "comment", true, session);
@@ -313,31 +373,45 @@ const getComments = async (req, res) => {
 };
 
 const replyComment = async (req, res) => {
-  const { id: commentId } = req.params;
-  const userId = req.user._id;
+  const { id: parentComment } = req.params;
+  const userId = req.user;
+  const commentContent = req.body.content;
 
-  req.body.user_id = userId;
-  req.body.parent = commentId;
+  const io = req.io;
+  const { receiverId, postLink } = req.body;
 
-  const comment = await Comment.findById(commentId);
+  const comment = await Comment.findById(parentComment);
 
   if (!comment) {
     throw new NotFoundError("Comment not found");
   }
 
-  req.body.post_id = comment.post_id;
-
   const session = await mongoose.startSession();
   session.startTransaction();
 
   try {
-    const reply = await Comment.create(req.body);
+    const notificationDetails = await sendNotification(
+      io,
+      userId,
+      receiverId,
+      postLink,
+      "replied to your comment.",
+      session
+    );
+    const data = [
+      {
+        post_id: comment.post_id,
+        user_id: userId,
+        content: commentContent,
+        parent: comment._id,
+        notification_id: notificationDetails?._id || null,
+      },
+    ];
 
-    // Save the reply within the session
-    await reply.save({ session });
+    const reply = await Comment.create(data, { session });
 
     // Populate the user_id field with name and avatar
-    await reply.populate("user_id", "name avatar");
+    await reply[0].populate("user_id", "name avatar");
 
     await updatePostInteraction(
       userId,
@@ -346,8 +420,9 @@ const replyComment = async (req, res) => {
       true,
       session
     );
+
     await Comment.findByIdAndUpdate(
-      commentId,
+      parentComment,
       { $inc: { reply_counter: 1 } },
       { new: true, session }
     );
@@ -356,8 +431,8 @@ const replyComment = async (req, res) => {
     session.endSession();
 
     let formattedComments = {
-      ...reply.toObject(),
-      user: reply.user_id, // Rename 'user_id' to 'user'
+      ...reply[0].toObject(),
+      user: reply[0].user_id, // Rename 'user_id' to 'user'
       user_id: undefined, // remove the original 'user_id' field
     };
 
@@ -427,6 +502,15 @@ const deleteComment = async (req, res) => {
     // delete the comment
     const comment = await Comment.findByIdAndDelete(commentId, { session });
 
+    if (isCommentExists.parent) {
+      await Comment.findByIdAndUpdate(
+        isCommentExists.parent,
+        {
+          reply_counter: { $inc: -1 },
+        },
+        { session }
+      );
+    }
     // decrement the comment counter by 1
     await updatePostInteraction(
       userId,
@@ -435,6 +519,8 @@ const deleteComment = async (req, res) => {
       false,
       session
     );
+
+    await Notification.deleteOne({ _id: comment.notification_id }, { session });
 
     // commit the transaction
     await session.commitTransaction();
@@ -455,10 +541,10 @@ const deleteComment = async (req, res) => {
 
 const likeComment = async (req, res) => {
   const { id: commentId } = req.params;
-  const userId = req.user._id;
+  const userId = req.user;
 
-  req.body.comment_id = commentId;
-  req.body.user_id = userId;
+  const io = req.io;
+  const { receiverId, postLink } = req.body;
 
   const doesLikeExists = await LikeComment.find({
     comment_id: commentId,
@@ -475,13 +561,36 @@ const likeComment = async (req, res) => {
         { new: true, session }
       );
 
-      await LikeComment.create([req.body], { session });
+      const notificationDetails = await sendNotification(
+        io,
+        userId,
+        receiverId,
+        postLink,
+        "liked your comment.",
+        session
+      );
+
+      await LikeComment.create(
+        [
+          {
+            comment_id: commentId,
+            user_id: userId,
+            notification_id: notificationDetails?._id || null,
+          },
+        ],
+        { session }
+      );
     } else {
-      await LikeComment.deleteOne(
+      const deletedLike = await LikeComment.findOneAndDelete(
         {
           comment_id: commentId,
           user_id: userId,
         },
+        { session }
+      );
+
+      await Notification.deleteOne(
+        { _id: deletedLike.notification_id },
         { session }
       );
 
@@ -517,12 +626,26 @@ const sharePost = async (req, res) => {
   req.body.user_id = userId._id;
   req.body.parent = postId;
 
+  const io = req.io;
+  const { receiverId } = req.body;
+
   const session = await mongoose.startSession();
   session.startTransaction();
   try {
     const post = await Post.create([req.body], { session });
     await updatePostInteraction(userId, postId, "share", true, session);
 
+    const postLink = `${process.env.CLIENT_URL}/post/${encryptPostId(
+      post._id
+    )}`;
+    await sendNotification(
+      io,
+      userId,
+      receiverId,
+      postLink,
+      "shared your post.",
+      session
+    );
     await session.commitTransaction();
     session.endSession();
 
@@ -553,6 +676,49 @@ const savePost = async (req, res) => {
   const savedPost = await SavedPost.create(req.body);
 
   res.status(StatusCodes.CREATED).json({ success: true, savedPost });
+};
+
+const getSavedPosts = async (req, res) => {
+  const userId = req.user;
+
+  // const totalCount = await SavedPost.countDocuments({ user_id: userId });
+
+  const savedPosts = await SavedPost.find({ user_id: userId })
+    .populate([
+      {
+        path: "post_id",
+        populate: [
+          {
+            path: "user_id", // Populate user details of the post's author
+            select: "name avatar avatarBg", // Only select name, avatar, and avatarBg fields
+          },
+          {
+            path: "parent", // Populate the parent post if it exists
+            select: "content image_url user_id visibility createdAt", // Select relevant fields from the parent post
+            populate: {
+              path: "user_id", // Populate user details of the parent post's author
+              select: "name avatar avatarBg", // Only select name, avatar, and avatarBg for the parent post's user
+            },
+          },
+        ],
+      },
+    ])
+    .sort({ createdAt: -1 });
+
+  const postIds = [...savedPosts.map((post) => post.post_id._id)];
+  const likedPosts = await Like.find({
+    post_id: { $in: postIds },
+    user_id: userId,
+  });
+
+  const likedPostIds = likedPosts.map((like) => like.post_id.toString());
+
+  const savedPostsFinal = savedPosts.map((post) => ({
+    ...post.post_id.toObject(),
+    isLiked: likedPostIds.includes(post.post_id._id.toString()),
+  }));
+
+  res.status(StatusCodes.OK).json(savedPostsFinal);
 };
 
 const updateComment = async (req, res) => {
@@ -594,4 +760,5 @@ module.exports = {
   updateComment,
   getCommentReplies,
   likeComment,
+  getSavedPosts,
 };
