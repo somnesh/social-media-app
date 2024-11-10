@@ -17,6 +17,7 @@ const {
   savePost,
   updateComment,
   likeComment,
+  getSavedPosts,
 } = require("../controllers/post");
 
 router
@@ -39,5 +40,6 @@ router.route("/comment/:id/reply").post(replyComment); // ":id" -> here "id" is 
 router.route("/share/:id").post(sharePost);
 
 router.route("/save/:id").post(savePost);
+router.route("/fetch/save").get(getSavedPosts);
 
 module.exports = router;
