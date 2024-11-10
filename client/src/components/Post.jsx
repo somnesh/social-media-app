@@ -73,13 +73,15 @@ import { CommentStructure } from "./CommentStructure";
 import { LikeSkeleton } from "./loaders/LikeSkeleton";
 import { Button } from "./ui/button";
 import { useNavigate } from "react-router-dom";
-import CryptoJS from "crypto-js";
 import { ContentEditor } from "./ContentEditor";
 import { PostVisibilityEditor } from "./PostVisibilityEditor";
 import { ReportEditor } from "./ReportEditor";
 import { useAuth } from "../contexts/AuthContext";
+import encryptPostId from "../utils/encryptPostId";
 
-export function Post({ details, setPosts }) {
+export function Post({ details, setPosts, externalLinkFlag }) {
+  console.log(details);
+
   const [isLoading, setIsLoading] = useState(false);
   const [commentBoxPopup, setCommentBoxPopup] = useState(false);
   const [comments, setComments] = useState([]);
@@ -92,7 +94,7 @@ export function Post({ details, setPosts }) {
   const [shareCounter, setShareCounter] = useState(details.interactions.share);
   const [initialCommentLoad, setInitialCommentLoad] = useState(false);
   const [skip, setSkip] = useState(0);
-  const [hasMore, setHasMore] = useState(true);
+  const [hasMore, setHasMore] = useState(false);
   const [loadMoreLoading, setLoadMoreLoading] = useState(false);
   const [copyLinkSuccess, setCopyLinkSuccess] = useState(false);
   const [postContent, setPostContent] = useState("");
@@ -105,12 +107,13 @@ export function Post({ details, setPosts }) {
   const [openPostVisibilityEditor, setOpenPostVisibilityEditor] =
     useState(false);
   const [postCaption, setPostCaption] = useState(details.content);
+  const [commentContent, setCommentContent] = useState("");
 
   const limit = 4; // comment load limit
 
   const navigate = useNavigate();
   const toastHandler = useToastHandler();
-  const { setIsAuthenticated, isAuthenticated } = useAuth();
+  const { isAuthenticated } = useAuth();
 
   const API_URL = import.meta.env.VITE_API_URL;
   const APP_URL = import.meta.env.VITE_APP_URL;
@@ -158,24 +161,6 @@ export function Post({ details, setPosts }) {
   };
   let postDuration = calculatePostDuration(postDate);
 
-  useEffect(() => {
-    if (!isAuthenticated) {
-      try {
-        (async () =>
-          await axios.post(
-            `${API_URL}/auth/refresh-token`,
-            {},
-            {
-              withCredentials: true,
-            }
-          ))();
-        setIsAuthenticated(true);
-      } catch (error) {
-        console.error(error);
-      }
-    }
-  }, []);
-
   const handleDelete = async () => {
     try {
       const response = await axios.delete(`${API_URL}/post/${details._id}`, {
@@ -207,6 +192,7 @@ export function Post({ details, setPosts }) {
   const handleCommentBoxPopup = () => {
     if (isAuthenticated) {
       setCommentBoxPopup(true);
+      loadCommentsInitial();
     } else {
       navigate("/login");
     }
@@ -214,15 +200,24 @@ export function Post({ details, setPosts }) {
 
   const postComment = async () => {
     if (isAuthenticated) {
-      const commentContent = document.getElementById("comment").value;
+      // const commentContent = document.getElementById("comment").value;
+
       if (commentContent !== "") {
         try {
+          const postLink = `${APP_URL}/post/${encryptPostId(details._id)}`;
+
           const response = await axios.post(
             `${API_URL}/post/comment/${details._id}`,
-            { content: commentContent },
+            {
+              content: commentContent,
+              postLink,
+              receiverId: details.user_id._id,
+            },
             { withCredentials: true }
           );
-          document.getElementById("comment").value = "";
+          // document.getElementById("comment").value = "";
+          setCommentContent("");
+
           setCommentCounter((prev) => prev + 1);
           toastHandler(
             <div className="flex gap-2 items-center">
@@ -303,9 +298,11 @@ export function Post({ details, setPosts }) {
 
     if (isAuthenticated) {
       try {
+        const postLink = `${APP_URL}/post/${encryptPostId(details._id)}`;
+
         const response = await axios.patch(
           `${API_URL}/post/like/${details._id}`,
-          {},
+          { postLink, receiverId: details.user_id._id },
           {
             withCredentials: true,
           }
@@ -351,7 +348,11 @@ export function Post({ details, setPosts }) {
           `${API_URL}/post/share/${
             details.parent ? details.parent._id : details._id
           }`,
-          { content: content, visibility: visibility },
+          {
+            content: content,
+            visibility: visibility,
+            receiverId: details.user_id._id,
+          },
           {
             withCredentials: true,
           }
@@ -363,7 +364,11 @@ export function Post({ details, setPosts }) {
             withCredentials: true,
           }
         );
-        setPosts((prev) => [postDetails.data.post, ...prev]);
+
+        if (!externalLinkFlag) {
+          setPosts((prev) => [postDetails.data.post, ...prev]);
+        }
+
         setOpenShareEditor(false);
         toastHandler(
           <div className="flex gap-2 items-center">
@@ -420,20 +425,10 @@ export function Post({ details, setPosts }) {
   const handleCopyLink = async () => {
     try {
       // encrypt the post id
-      const ENCRYPTION_SECRET = import.meta.env.VITE_URL_ENCRYPTION_SECRET;
-      const encryptedPostID = CryptoJS.AES.encrypt(
-        details._id,
-        ENCRYPTION_SECRET
-      ).toString();
-
-      const urlSafeEncryptedPostID = encryptedPostID
-        .replace(/\+/g, "-")
-        .replace(/\//g, "_");
+      const encryptedId = encryptPostId(details._id);
 
       // adding the link to the clipboard
-      await navigator.clipboard.writeText(
-        `${APP_URL}/post/${urlSafeEncryptedPostID}`
-      );
+      await navigator.clipboard.writeText(`${APP_URL}/post/${encryptedId}`);
       setCopyLinkSuccess(true);
       setTimeout(() => {
         setCopyLinkSuccess(false);
@@ -487,8 +482,12 @@ export function Post({ details, setPosts }) {
   };
 
   const handleReportPost = async () => {
-    setOpenPostMenu(false);
-    setOpenReportPostEditor(true);
+    if (isAuthenticated) {
+      setOpenPostMenu(false);
+      setOpenReportPostEditor(true);
+    } else {
+      navigate("/login");
+    }
   };
 
   return (
@@ -507,7 +506,9 @@ export function Post({ details, setPosts }) {
           <div className="">
             <Avatar>
               <AvatarImage src={details.avatar} />
-              <AvatarFallback>{details.user_id.name[0]}</AvatarFallback>
+              <AvatarFallback className={details.user_id.avatarBg}>
+                {details.user_id.name[0]}
+              </AvatarFallback>
             </Avatar>
           </div>
           <div className="">
@@ -641,7 +642,7 @@ export function Post({ details, setPosts }) {
               <div className="flex text-sm mb-2 gap-2">
                 <Avatar>
                   <AvatarImage src={details.parent.user_id.avatar} />
-                  <AvatarFallback>
+                  <AvatarFallback className={details.parent.user_id.avatarBg}>
                     {details.parent.user_id.name[0]}
                   </AvatarFallback>
                 </Avatar>
@@ -822,88 +823,91 @@ export function Post({ details, setPosts }) {
               </div>
             </DialogContent>
           </Dialog>
-          <Dialog open={openShareEditor} onOpenChange={setOpenShareEditor}>
-            <DialogTrigger asChild></DialogTrigger>
-            <DialogContent className="sm:max-w-md dark:bg-[#242526] dark:border-[#3a3b3c]">
-              <DialogHeader>
-                <DialogTitle>Share post</DialogTitle>
-                <DialogDescription>
-                  Say something about the post or just share now.
-                </DialogDescription>
-              </DialogHeader>
-              <form>
-                <div className="flex justify-between items-center">
-                  <div className="flex gap-2 py-2 items-center">
-                    <Avatar>
-                      <AvatarImage src={localStorage.avatar} />
-                      <AvatarFallback className={localStorage.avatarBg}>
-                        {localStorage.name[0]}
-                      </AvatarFallback>
-                    </Avatar>
-                    <span>{localStorage.name}</span>
-                  </div>
-                  <TooltipProvider delayDuration="100" disabled={true}>
-                    <Tooltip>
-                      <Select
-                        onValueChange={(value) => {
-                          setVisibility(value);
-                        }}
-                        name="visibility"
-                        defaultValue="public"
-                      >
-                        <TooltipTrigger>
-                          <SelectTrigger className="w-[180px] dark:bg-[#3a3c3d]">
-                            <SelectValue />
-                          </SelectTrigger>
-                        </TooltipTrigger>
-                        <SelectContent className="dark:bg-[#242526]">
-                          <SelectItem value="public">
-                            <div className="flex items-center gap-1">
-                              <Globe size={16} />
-                              <span>Public</span>
-                            </div>
-                          </SelectItem>
-                          <SelectItem value="friends">
-                            <div className="flex items-center gap-1">
-                              <Users size={16} />
-                              <span>Friends</span>
-                            </div>
-                          </SelectItem>
-                        </SelectContent>
-                      </Select>
 
-                      <TooltipContent>
-                        <p>Post visibility</p>
-                      </TooltipContent>
-                    </Tooltip>
-                  </TooltipProvider>
-                </div>
-                <div className="my-4">
-                  <textarea
-                    autoFocus
-                    className="min-w-full min-h-32 p-2 rounded-md border bg-[#F0F2F5] dark:bg-[#333536] resize-none outline-none"
-                    name="content"
-                    id=""
-                    placeholder="Start writing here ..."
-                    value={postContent}
-                    onChange={(e) => {
-                      setPostContent(e.target.value);
-                    }}
-                  ></textarea>
-                </div>
-                <div className="flex justify-end items-center">
-                  <div>
-                    <Button
-                      onClick={(e) => handleShare(e)}
-                      className="bg-indigo-500 dark:text-white  dark:hover:bg-indigo-600 px-4"
-                    >
-                      Share now
-                    </Button>
+          {isAuthenticated && (
+            <Dialog open={openShareEditor} onOpenChange={setOpenShareEditor}>
+              <DialogTrigger asChild></DialogTrigger>
+              <DialogContent className="sm:max-w-md dark:bg-[#242526] dark:border-[#3a3b3c]">
+                <DialogHeader>
+                  <DialogTitle>Share post</DialogTitle>
+                  <DialogDescription>
+                    Say something about the post or just share now.
+                  </DialogDescription>
+                </DialogHeader>
+                <form>
+                  <div className="flex justify-between items-center">
+                    <div className="flex gap-2 py-2 items-center">
+                      <Avatar>
+                        <AvatarImage src={localStorage.avatar} />
+                        <AvatarFallback className={localStorage.avatarBg}>
+                          {localStorage.name[0]}
+                        </AvatarFallback>
+                      </Avatar>
+                      <span>{localStorage.name}</span>
+                    </div>
+                    <TooltipProvider delayDuration="100" disabled={true}>
+                      <Tooltip>
+                        <Select
+                          onValueChange={(value) => {
+                            setVisibility(value);
+                          }}
+                          name="visibility"
+                          defaultValue="public"
+                        >
+                          <TooltipTrigger>
+                            <SelectTrigger className="w-[180px] dark:bg-[#3a3c3d]">
+                              <SelectValue />
+                            </SelectTrigger>
+                          </TooltipTrigger>
+                          <SelectContent className="dark:bg-[#242526]">
+                            <SelectItem value="public">
+                              <div className="flex items-center gap-1">
+                                <Globe size={16} />
+                                <span>Public</span>
+                              </div>
+                            </SelectItem>
+                            <SelectItem value="friends">
+                              <div className="flex items-center gap-1">
+                                <Users size={16} />
+                                <span>Friends</span>
+                              </div>
+                            </SelectItem>
+                          </SelectContent>
+                        </Select>
+
+                        <TooltipContent>
+                          <p>Post visibility</p>
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
                   </div>
-                </div>
-              </form>
-            </DialogContent>
-          </Dialog>
+                  <div className="my-4">
+                    <textarea
+                      autoFocus
+                      className="min-w-full min-h-32 p-2 rounded-md border bg-[#F0F2F5] dark:bg-[#333536] resize-none outline-none"
+                      name="content"
+                      id=""
+                      placeholder="Start writing here ..."
+                      value={postContent}
+                      onChange={(e) => {
+                        setPostContent(e.target.value);
+                      }}
+                    ></textarea>
+                  </div>
+                  <div className="flex justify-end items-center">
+                    <div>
+                      <Button
+                        onClick={(e) => handleShare(e)}
+                        className="bg-indigo-500 dark:text-white  dark:hover:bg-indigo-600 px-4"
+                      >
+                        Share now
+                      </Button>
+                    </div>
+                  </div>
+                </form>
+              </DialogContent>
+            </Dialog>
+          )}
         </div>
         {/* {commentBoxReplies && (
       
@@ -920,6 +924,7 @@ export function Post({ details, setPosts }) {
                 setComments={setComments}
                 setCommentCounter={setCommentCounter}
                 setCommentBoxPopup={setCommentBoxPopup}
+                replyTreeLimitFlag={false}
               />
             ))
           )}
@@ -951,6 +956,8 @@ export function Post({ details, setPosts }) {
                 id="comment"
                 placeholder="Write a comment"
                 className="w-full bg-transparent outline-none text-gray-50"
+                value={commentContent}
+                onChange={(e) => setCommentContent(e.target.value)}
               />
               <div
                 onClick={postComment}
