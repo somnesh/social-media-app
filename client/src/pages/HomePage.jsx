@@ -6,14 +6,18 @@ import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { WholePageLoader } from "../components/loaders/WholePageLoader";
 import { useAuth } from "../contexts/AuthContext";
+import { NotificationCentre } from "../components/NotificationCentre";
+import { SavedPosts } from "../components/SavedPosts";
+import { FollowerList } from "../components/FollowerList";
+import { FollowingList } from "../components/FollowingList";
 
 export const Home = () => {
-  const [pageLoading, setPageLoading] = useState(true);
   const { setIsAuthenticated } = useAuth();
+  const [pageLoading, setPageLoading] = useState(true);
+  const [currentPage, setCurrentPage] = useState("home");
   const navigate = useNavigate();
 
   const API_URL = import.meta.env.VITE_API_URL;
-
   useEffect(() => {
     (async () => {
       try {
@@ -26,7 +30,7 @@ export const Home = () => {
             withCredentials: true,
           }
         );
-        setPageLoading(false);
+        // setPageLoading(false);
         setIsAuthenticated(true);
       } catch (error) {
         console.error(error);
@@ -35,7 +39,10 @@ export const Home = () => {
         setPageLoading(false);
       }
     })();
-  }, [navigate]);
+    document.fonts.load("1rem 'Material Symbols Outlined'").then(() => {
+      setPageLoading(false);
+    });
+  }, []);
   return (
     <>
       {pageLoading ? (
@@ -43,12 +50,19 @@ export const Home = () => {
       ) : (
         <>
           <Header />
-          <main className="flex px-2 py-4 bg-[#f0f2f5] dark:bg-[#18191a] min-h-screen dark:text-[#e2e4e9] transition-colors duration-500">
-            <Sidebar />
-            <Feed />
+          <main className="flex justify-between px-2 py-4 bg-[#f0f2f5] dark:bg-[#18191a] min-h-screen dark:text-[#e2e4e9] transition-colors duration-500 gap-3">
+            <Sidebar variant={currentPage} setCurrentPage={setCurrentPage} />
             {/* --------------------------------------- */}
-            <section className="basis-1/4">
-              <h2>unknown section</h2>
+            <section className="basis-1/2 mx-auto max-w-[680px] gap-2 overflow-y-auto">
+              {console.log(currentPage)}
+              {currentPage === "home" && <Feed />}
+              {currentPage === "followers" && <FollowerList />}
+              {currentPage === "following" && <FollowingList />}
+              {currentPage === "saved" && <SavedPosts />}
+            </section>
+            {/* --------------------------------------- */}
+            <section className="basis-1/4 h-screen max-w-96 sticky top-[4.5rem] overflow-y-auto">
+              <NotificationCentre />
             </section>
           </main>
         </>
