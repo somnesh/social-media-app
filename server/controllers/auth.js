@@ -38,7 +38,7 @@ const registerUser = async (req, res) => {
     expiresIn: process.env.JWT_REFRESH_LIFESPAN,
   });
 
-  const origin = "http://localhost:3000/api/v1";
+  const origin = process.env.API_URL;
   // Inserting data into the database
   const user = await User.create({
     ...req.body,
@@ -75,10 +75,10 @@ const verifyEmail = async (req, res) => {
 
   try {
     await user.save();
-    res.redirect("http://localhost:5173/email-verification-success");
+    res.redirect(`${process.env.CLIENT_URL}/email-verification-success`);
   } catch (error) {
     console.error(error);
-    res.redirect("http://localhost:5173/500");
+    res.redirect(`${process.env.CLIENT_URL}/500`);
   }
 };
 
@@ -119,7 +119,12 @@ const loginUser = async (req, res) => {
     .cookie("accessToken", accessToken, cookieOptions)
     .cookie("refreshToken", refreshToken, cookieOptions)
     .json({
-      user: { name: user.name, id: user._id, avatar: user.avatar },
+      user: {
+        name: user.name,
+        id: user._id,
+        avatar: user.avatar,
+        avatarBg: user.avatarBg,
+      },
       accessToken,
       refreshToken,
     });

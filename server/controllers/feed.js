@@ -37,14 +37,14 @@ const generateFeed = async (req, res) => {
       .populate([
         {
           path: "user_id", // Populate user details from the user_id field
-          select: "name avatar", // Only select name and avatar from the user
+          select: "name avatar avatarBg", // Only select name and avatar from the user
         },
         {
           path: "parent", // Populate the parent post if it exists
           select: "content image_url user_id visibility createdAt", // Select relevant fields from the parent post
           populate: {
             path: "user_id", // Populate user details of the parent post
-            select: "name avatar", // Select name and avatar for the parent post's user
+            select: "name avatar avatarBg", // Select name and avatar for the parent post's user
           },
         },
       ])
@@ -81,7 +81,7 @@ const generateFeed = async (req, res) => {
     });
   } catch (error) {
     console.error("Error fetching feed:", error);
-    res.status(500).send(combinedPosts);
+    res.status(500).send("something went wrong");
   }
 };
 
