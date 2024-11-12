@@ -62,8 +62,10 @@ export function FollowingList() {
           <div className="flex items-center flex-col gap-3">
             {totalCount !== 0 ? (
               followingList.map((chunk, index) => (
-                <div className="flex w-full gap-3" key={index}>
-                  {console.log("chunk: ", chunk)}
+                <div
+                  className="flex flex-col w-full gap-3 md:flex-row"
+                  key={index}
+                >
                   {chunk.map((follower) => (
                     <ProfileCard
                       key={follower._id}

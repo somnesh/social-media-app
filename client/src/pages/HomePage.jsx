@@ -58,7 +58,6 @@ export const Home = () => {
             <Sidebar variant={currentPage} setCurrentPage={setCurrentPage} />
             {/* --------------------------------------- */}
             <section className="basis-1/2 mx-auto max-w-[680px] gap-2 overflow-y-auto">
-              {console.log(currentPage)}
               {currentPage === "home" && <Feed />}
               {currentPage === "followers" && <FollowerList />}
               {currentPage === "following" && <FollowingList />}

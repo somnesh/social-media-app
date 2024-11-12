@@ -17,6 +17,7 @@ export function Feed() {
   const navigate = useNavigate();
 
   const API_URL = import.meta.env.VITE_API_URL;
+  const APP_URL = import.meta.env.VITE_APP_URL;
 
   useEffect(() => {
     (async () => {
@@ -63,14 +64,17 @@ export function Feed() {
           )}
           <div className="create-new-post bg-white dark:bg-[#242526] px-4 py-2 rounded-lg mb-4">
             <div className="flex items-center py-2 gap-3">
-              <div className="">
+              <a
+                href={`${APP_URL}/user/${localStorage.username}`}
+                className="hover:contrast-50"
+              >
                 <Avatar>
                   <AvatarImage src={localStorage.avatar} />
                   <AvatarFallback className={localStorage.avatarBg}>
                     {localStorage.name[0]}
                   </AvatarFallback>
                 </Avatar>
-              </div>
+              </a>
               <div
                 onClick={handleCreatePostClick}
                 className="bg-[#F0F2F5] hover:bg-[#e3e5e9] active:bg-[#dbdde0] dark:bg-[#414141] dark:active:bg-[#6e6e6e] dark:hover:bg-[#535353] rounded-lg py-3 px-4 cursor-pointer w-full"

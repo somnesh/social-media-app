@@ -81,12 +81,13 @@ export function LoginPage() {
         },
         { withCredentials: true }
       );
-      console.log(result);
+      console.log("login page: result: ", result);
 
       localStorage.setItem("name", result.data.user.name);
       localStorage.setItem("id", result.data.user.id);
       localStorage.setItem("avatar", result.data.user.avatar);
       localStorage.setItem("avatarBg", result.data.user.avatarBg);
+      localStorage.setItem("username", result.data.user.username);
       setIsAuthenticated(true);
       navigate("/", { state: { result: result.data } });
     } catch (error) {

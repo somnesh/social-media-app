@@ -14,7 +14,6 @@ const getAllUsers = async (req, res) => {
 const getUserDetails = async (req, res) => {
   const idOrUsername = req.params.idOrUsername;
   let user;
-  console.log(mongoose.Types.ObjectId.isValid(idOrUsername));
 
   if (mongoose.Types.ObjectId.isValid(idOrUsername)) {
     user = await User.findById(idOrUsername).select(
@@ -147,7 +146,7 @@ const followUser = async (req, res) => {
       follower: followerId,
       followed: followedId,
     });
-    const postLink = `${process.env.CLIENT_URL}/user/${req.user.username}`;
+    const postLink = `user/${req.user.username}`;
 
     await sendNotification(
       io,

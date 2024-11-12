@@ -13,7 +13,6 @@ export function ProfileCard({ details, followingBack }) {
   const toastHandler = useToastHandler();
   const API_URL = import.meta.env.VITE_API_URL;
   const APP_URL = import.meta.env.VITE_APP_URL;
-  console.log(details);
 
   const handleUnfollow = async () => {
     try {
@@ -107,10 +106,10 @@ export function ProfileCard({ details, followingBack }) {
     <>
       {details && (
         <div className="flex basis-1/2 flex-col gap-5 bg-white dark:bg-[#242526] px-4 py-3 transition-all drop-shadow-sm rounded-md">
-          <div className="flex">
+          <div className="flex gap-3 items-center">
             <a
               href={`${APP_URL}/user/${details.username}`}
-              className="flex gap-3 cursor-pointer items-center"
+              className="hover:contrast-50"
             >
               <Avatar>
                 <AvatarImage src={details?.avatar} />
@@ -118,13 +117,16 @@ export function ProfileCard({ details, followingBack }) {
                   {details?.name[0]}
                 </AvatarFallback>
               </Avatar>
-              <div className="flex flex-col">
-                <span className="font-medium hover:underline">
-                  {details?.name}
-                </span>
-                <span className="text-sm">{details?.profile_bio}</span>
-              </div>
             </a>
+            <div className="flex flex-col justify-center">
+              <a
+                href={`${APP_URL}/user/${details.username}`}
+                className="hover:underline"
+              >
+                <span className="font-medium ">{details?.name}</span>
+              </a>
+              <span className="text-sm ">@{details?.username}</span>
+            </div>
           </div>
           <div className="flex gap-2 justify-end">
             {isFollowingBack === null ? (

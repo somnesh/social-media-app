@@ -139,14 +139,14 @@ const recommendPosts = async (userId, viewedPostIds) => {
     }).populate([
       {
         path: "user_id", // Populate user details from the user_id field
-        select: "name avatar avatarBg", // Only select name and avatar from the user
+        select: "name avatar avatarBg username", // Only select name and avatar from the user
       },
       {
         path: "parent", // Populate the parent post if it exists
         select: "content image_url user_id visibility createdAt", // Select relevant fields from the parent post
         populate: {
           path: "user_id", // Populate user details of the parent post
-          select: "name avatar avatarBg", // Select name and avatar for the parent post's user
+          select: "name avatar avatarBg username", // Select name and avatar for the parent post's user
         },
       },
     ]);

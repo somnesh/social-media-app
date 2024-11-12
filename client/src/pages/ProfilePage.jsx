@@ -5,13 +5,31 @@ import { Header } from "../components/Header";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useAuth } from "../contexts/AuthContext";
 
 export function ProfilePage() {
   const [isLoading, setIsLoading] = useState(true);
 
   const API_URL = import.meta.env.VITE_API_URL;
   const { username } = useParams();
-  console.log("username: ", username);
+
+  const { setIsAuthenticated, isAuthenticated } = useAuth();
+
+  const refreshAuthToken = async () => {
+    try {
+      await axios.post(
+        `${API_URL}/auth/refresh-token`,
+        {},
+        {
+          withCredentials: true,
+        }
+      );
+      setIsAuthenticated(true);
+    } catch (error) {
+      console.error(error);
+      setIsAuthenticated(false);
+    }
+  };
 
   useEffect(() => {
     (async () => {
@@ -20,19 +38,19 @@ export function ProfilePage() {
         const response = await axios.get(`${API_URL}/user/${username}`, {
           withCredentials: true,
         });
-        // setPosts(response.data);
 
-        console.log(response.data);
-        // refreshAuthToken();
+        console.log("Profile page response: ", response.data);
+        refreshAuthToken();
       } catch (error) {
         console.error(error);
+        setIsAuthenticated(false);
         // navigate("/500");
-        // setIsAuthenticated(false);
       } finally {
         setIsLoading(false);
       }
     })();
   }, []);
+
   return (
     <div className="w-screen h-screen dark:bg-[#18191a] bg-[#f0f2f5]">
       <Header />
@@ -64,8 +82,25 @@ export function ProfilePage() {
             <div className="flex-1">
               <div className="flex items-start justify-between gap-4">
                 <div className="space-y-1">
-                  <h1 className="text-2xl font-bold">Somnesh Mukhepad</h1>
-                  <p className="text-sm text-muted-foreground">@username</p>
+                  <div className="flex items-center gap-2">
+                    <h1 className="text-2xl font-bold">Somnesh Mukhopadhyay</h1>
+                    <svg
+                      aria-label="Verified"
+                      className="mt-2"
+                      fill="rgb(0, 149, 246)"
+                      height="18"
+                      role="img"
+                      viewBox="0 0 40 40"
+                      width="18"
+                    >
+                      <title>One of the creator of this app</title>
+                      <path
+                        d="M19.998 3.094 14.638 0l-2.972 5.15H5.432v6.354L0 14.64 3.094 20 0 25.359l5.432 3.137v5.905h5.975L14.638 40l5.36-3.094L25.358 40l3.232-5.6h6.162v-6.01L40 25.359 36.905 20 40 14.641l-5.248-3.03v-6.46h-6.419L25.358 0l-5.36 3.094Zm7.415 11.225 2.254 2.287-11.43 11.5-6.835-6.93 2.244-2.258 4.587 4.581 9.18-9.18Z"
+                        fillRule="evenodd"
+                      ></path>
+                    </svg>
+                  </div>
+                  <p className="text-sm text-muted-foreground">@somnesh</p>
                 </div>
                 <Button variant="outline" className="shrink-0">
                   Follow

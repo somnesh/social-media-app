@@ -77,7 +77,7 @@ export function CreatePost({
     if (uploadedImage) {
       formData.append("files", imageRef.current.files[0]);
     }
-    console.log(formData.get("files"));
+
     try {
       const response = await axios.post(`${API_URL}/post`, formData, {
         headers: {
@@ -86,8 +86,7 @@ export function CreatePost({
         withCredentials: true,
       });
 
-      console.log("Form submitted : ", response);
-      console.log(response.data);
+      console.log("Form submitted : ", response.data);
       closePopup();
       setPosts((prev) => [response.data.post, ...prev]);
 
@@ -120,8 +119,6 @@ export function CreatePost({
     setUploadImagePopUp(!uploadImagePopUp);
   };
 
-  console.log(imageFlag);
-  // if true means the image button is clicked
   useEffect(() => {
     if (imageFlag) {
       togglePopupUploadImage();
@@ -251,7 +248,7 @@ export function CreatePost({
                     e.stopPropagation();
                     togglePopupUploadImage();
                   }}
-                  className="py-1 px-1 top-1 right-1 absolute right-0 hover:bg-[#F0F2F5] dark:hover:bg-[#414141] rounded-full cursor-pointer"
+                  className="py-1 px-1 top-1 right-1 absolute hover:bg-[#F0F2F5] dark:hover:bg-[#414141] rounded-full cursor-pointer"
                 >
                   <X />
                 </div>

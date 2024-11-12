@@ -204,7 +204,7 @@ export function Post({ details, setPosts, externalLinkFlag }) {
 
       if (commentContent !== "") {
         try {
-          const postLink = `${APP_URL}/post/${encryptPostId(details._id)}`;
+          const postLink = `post/${encryptPostId(details._id)}`;
 
           const response = await axios.post(
             `${API_URL}/post/comment/${details._id}`,
@@ -258,8 +258,6 @@ export function Post({ details, setPosts, externalLinkFlag }) {
         }
       );
 
-      console.log("response.data: ", response.data);
-
       const newComments = [...comments, ...response.data];
       setComments(newComments);
 
@@ -294,11 +292,9 @@ export function Post({ details, setPosts, externalLinkFlag }) {
   };
 
   const handleLike = async () => {
-    console.log(isAuthenticated);
-
     if (isAuthenticated) {
       try {
-        const postLink = `${APP_URL}/post/${encryptPostId(details._id)}`;
+        const postLink = `post/${encryptPostId(details._id)}`;
 
         const response = await axios.patch(
           `${API_URL}/post/like/${details._id}`,
@@ -403,6 +399,11 @@ export function Post({ details, setPosts, externalLinkFlag }) {
         }
       );
 
+      console.log(response.data);
+      setPosts((prev) =>
+        prev.filter((post) => post._id !== response.data.postId)
+      );
+
       toastHandler(
         <div className="flex gap-2 items-center">
           <CircleCheck className="bg-green-600 rounded-full text-white dark:text-[#242526]" />
@@ -503,16 +504,24 @@ export function Post({ details, setPosts, externalLinkFlag }) {
         } mb-4 relative transition-all drop-shadow-sm`}
       >
         <div className="flex items-center gap-3 pt-2">
-          <div className="">
+          <a
+            href={`${APP_URL}/user/${details.user_id.username}`}
+            className="hover:contrast-50"
+          >
             <Avatar>
               <AvatarImage src={details.user_id.avatar} />
               <AvatarFallback className={details.user_id.avatarBg}>
                 {details.user_id.name[0]}
               </AvatarFallback>
             </Avatar>
-          </div>
+          </a>
           <div className="">
-            <h2 className="font-medium">{details.user_id.name}</h2>
+            <a
+              href={`${APP_URL}/user/${details.user_id.username}`}
+              className="font-medium hover:underline"
+            >
+              {details.user_id.name}
+            </a>
             <div className="flex gap-1 items-center">
               <span>
                 {visibility === "public" ? (
@@ -638,7 +647,10 @@ export function Post({ details, setPosts, externalLinkFlag }) {
         <div className="flex flex-col py-2">
           <div className="pb-2">{postCaption}</div>
           {details.parent && (
-            <div className="border border-[#e4e6eb] dark:border-[#3a3b3c] py-2 px-3 rounded-lg">
+            <a
+              href={`${APP_URL}/post/${encryptPostId(details.parent._id)}`}
+              className="border border-[#e4e6eb] dark:border-[#3a3b3c] py-2 px-3 rounded-lg cursor-pointer hover:bg-[#e5e5e6] dark:hover:bg-[#404142]"
+            >
               <div className="flex text-sm mb-2 gap-2">
                 <Avatar>
                   <AvatarImage src={details.parent.user_id.avatar} />
@@ -674,10 +686,10 @@ export function Post({ details, setPosts, externalLinkFlag }) {
                 <img
                   src={details.parent.image_url}
                   alt="photo"
-                  className="rounded-md mb-1"
+                  className="rounded-md mb-1 w-full"
                 />
               )}
-            </div>
+            </a>
           )}
           {details.image_url && <img src={details.image_url} alt="photo" />}
         </div>

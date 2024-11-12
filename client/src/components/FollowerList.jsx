@@ -52,15 +52,17 @@ export function FollowerList() {
       {isLoading ? (
         <ProfileCardLoader />
       ) : (
-        <div className="">
+        <div className="flex flex-col">
           <div className="mb-4">
             <span className="text-2xl font-bold">Followers ({totalCount})</span>
           </div>
           <div className="flex items-center flex-col gap-3">
             {totalCount !== 0 ? (
               followerList.map((chunk, index) => (
-                <div className="flex w-full gap-3" key={index}>
-                  {console.log("chunk: ", chunk)}
+                <div
+                  className="flex flex-col w-full gap-3 md:flex-row"
+                  key={index}
+                >
                   {chunk.map((follower) => (
                     <ProfileCard
                       key={follower._id}

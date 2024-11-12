@@ -12,7 +12,7 @@ socket.on("connect", () => {
 });
 
 socket.on("disconnect", () => {
-  console.log(`disconnected`);
+  console.log(`Disconnected socket ID: ${socket.id}`);
 });
 
 export default socket;

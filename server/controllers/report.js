@@ -6,7 +6,6 @@ const report = async (req, res) => {
   const userId = req.user._id;
   req.body.user_id = userId;
   req.body.reported_content_id = reported_content_id;
-  console.log(req.body);
 
   const report = await Report.create(req.body);
 

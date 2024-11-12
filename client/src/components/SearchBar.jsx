@@ -70,12 +70,13 @@ export function SearchBar() {
   };
 
   return (
-    <div className="flex flex-col transition-all relative">
-      {console.log("results: ", results)}
+    <div
+      ref={targetDivRef}
+      className="flex flex-col w-fit transition-all relative"
+    >
       <div
-        ref={targetDivRef}
         onClick={handleClick}
-        className={`flex bg-[#f0f2f5] dark:bg-[#3a3b3c] px-2 py-2 text-[#b0b3b8] max-w-64 ${
+        className={`flex bg-[#f0f2f5] dark:bg-[#3a3b3c] px-2 py-2 text-[#b0b3b8] w-full ${
           isVisible ? "rounded-t-md border-b border-black" : "rounded-full"
         } z-[1]`}
       >
@@ -92,7 +93,7 @@ export function SearchBar() {
         />
       </div>
       {isVisible && (
-        <div className="absolute top-10 bg-[#ffffff] dark:bg-[#3a3b3c] px-2 py-2 rounded-b-md text-[#b0b3b8] w-64 max-w-full shadow-md">
+        <div className="absolute top-10 bg-[#ffffff] dark:bg-[#3a3b3c] px-2 py-2 rounded-b-md text-[#b0b3b8] w-full shadow-md">
           {query.length === 0 && !isLoading && (
             <span className="font-medium text-sm text-black dark:text-white text-center block py-5">
               Start finding new people

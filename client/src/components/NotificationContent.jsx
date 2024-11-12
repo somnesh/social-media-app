@@ -1,11 +1,10 @@
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 export function NotificationContent({ message }) {
-  console.log(message);
-
+  const APP_URL = import.meta.env.VITE_APP_URL;
   return (
     <a
-      href={message.link}
+      href={`${APP_URL}/${message.link}`}
       className="flex items-center gap-2 hover:bg-[#f2f2f2] dark:hover:bg-[#414141] dark:active:bg-[#383838] p-2 rounded-md cursor-pointer"
     >
       <div className="">

@@ -2,13 +2,14 @@ import { useEffect, useState } from "react";
 import { Header } from "../components/Header";
 import { WholePageLoader } from "../components/loaders/WholePageLoader";
 import axios from "axios";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { Post } from "../components/Post";
 import { useAuth } from "../contexts/AuthContext";
 
 export function PostView() {
   const API_URL = import.meta.env.VITE_API_URL;
   const { id } = useParams();
+  const navigate = useNavigate();
 
   const [isLoading, setIsLoading] = useState(true);
   const [posts, setPosts] = useState([]);
@@ -39,12 +40,12 @@ export function PostView() {
         });
         setPosts(response.data.post);
 
-        console.log(response.data);
+        console.log("PostView response: ", response.data);
         refreshAuthToken();
       } catch (error) {
         console.error(error);
-        // navigate("/500");
         setIsAuthenticated(false);
+        navigate("/404");
       } finally {
         setIsLoading(false);
       }

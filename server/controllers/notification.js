@@ -40,14 +40,12 @@ const sendNotification = async (
 
 const getNotifications = async (req, res) => {
   const userId = req.user;
-  // console.log(userId);
 
   const notificationDetails = await Notification.find({
     receiver_Id: userId,
   })
     .populate({ path: "sender", select: "name avatar avatarBg" })
     .sort({ createdAt: -1 });
-  console.log("nicely done");
 
   res.status(StatusCodes.OK).json({ notificationDetails });
 };

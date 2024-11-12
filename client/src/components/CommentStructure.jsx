@@ -59,8 +59,7 @@ export function CommentStructure({
   const [replyBoxPopup, setReplyBoxPopup] = useState(false);
 
   const API_URL = import.meta.env.VITE_API_URL;
-  const APP_URL = import.meta.env.VITE_APP_URL;
-  console.log(details);
+  console.log("CommentStructure.jsx: details: ", details);
 
   const toastHandler = useToastHandler();
   const { isAuthenticated } = useAuth();
@@ -161,7 +160,7 @@ export function CommentStructure({
 
   const handleLike = async () => {
     if (isAuthenticated) {
-      const postLink = `${APP_URL}/post/${encryptPostId(details.post_id)}`;
+      const postLink = `post/${encryptPostId(details.post_id)}`;
       try {
         const response = await axios.patch(
           `${API_URL}/post/comment/${details._id}/like`,
@@ -192,13 +191,15 @@ export function CommentStructure({
 
   const handleReply = async () => {
     if (isAuthenticated) {
-      const postLink = `${APP_URL}/post/${encryptPostId(details.post_id)}`;
+      const postLink = `post/${encryptPostId(details.post_id)}`;
 
       const commentContent = document.getElementById("comment").value;
       if (commentContent !== "") {
         try {
           const response = await axios.post(
-            `${API_URL}/post/comment/${details.parent}/reply`,
+            `${API_URL}/post/comment/${
+              !details.parent ? details._id : details.parent
+            }/reply`,
             {
               content: commentContent,
               postLink,
@@ -215,7 +216,7 @@ export function CommentStructure({
             </div>,
             false
           );
-          console.log("res: ", response.data.reply);
+          console.log("CommentStructure.jsx : response: ", response.data.reply);
 
           if (!replyTreeLimitFlag) {
             setReplies((prev) => [...prev, response.data.reply]);
@@ -275,13 +276,10 @@ export function CommentStructure({
         className="flex gap-2 m-2"
       >
         <Avatar>
-          <AvatarImage
-            src={
-              details.user.avatar ||
-              "https://yt3.googleusercontent.com/g3j3iOUOPhNxBCNAArBqiYGzHzCBIzr_Al8mdvtBJeZMGFDblnU5rlVUt6GY01AUwm7Cp70J=s900-c-k-c0x00ffffff-no-rj"
-            }
-          />
-          <AvatarFallback>CN</AvatarFallback>
+          <AvatarImage src={details.user.avatar} />
+          <AvatarFallback className={details.user.avatarBg}>
+            {details.user.name[0]}
+          </AvatarFallback>
         </Avatar>
         <div className="flex flex-col">
           <div className="flex flex-col bg-[#f0f2f5] dark:bg-[#3a3b3c] px-3 py-2 rounded-xl min-w-44">
