@@ -201,9 +201,6 @@ export function LoginPage() {
             </Link>
           </p>
         </div>
-        <p className="mt-10 text-center text-sm text-gray-500">
-          © 2023 ALL RIGHTS RESERVED
-        </p>
       </div>
       <div className="relative flex-1 lg:max-w-[50%]">
         {isLoading ? (

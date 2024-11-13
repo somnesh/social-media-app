@@ -287,9 +287,6 @@ export function SignupPage() {
             </Link>
           </p>
         </div>
-        <p className="mt-8 text-center text-sm text-gray-500">
-          © 2023 ALL RIGHTS RESERVED
-        </p>
       </div>
     </div>
   );
