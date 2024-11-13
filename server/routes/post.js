@@ -20,10 +20,9 @@ const {
   getSavedPosts,
 } = require("../controllers/post");
 
-router
-  .route("/")
-  .get(getAllPost)
-  .post(upload.single("files"), uploadFile, createPost);
+router.route("/:id").get(getAllPost); // ":id" -> userId
+
+router.route("/").post(upload.single("files"), uploadFile, createPost);
 
 router.route("/:id").patch(updatePost).delete(deletePost);
 
