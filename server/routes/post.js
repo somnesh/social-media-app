@@ -20,7 +20,7 @@ const {
   getSavedPosts,
 } = require("../controllers/post");
 
-router.route("/:id").get(getAllPost); // ":id" -> userId
+router.route("/all/:id").get(getAllPost); // ":id" -> userId
 
 router.route("/").post(upload.single("files"), uploadFile, createPost);
 
