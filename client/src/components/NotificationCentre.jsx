@@ -27,18 +27,20 @@ export function NotificationCentre() {
           </div>
         </AccordionTrigger>
         <AccordionContent className={"bg-white dark:bg-[#242526] rounded-b-md"}>
-          {notifications.length !== 0 ? (
-            notifications.map((notification, index) => (
-              <NotificationContent
-                key={notification._id}
-                message={notification}
-              />
-            ))
-          ) : (
-            <span className="block p-3 font-medium w-full text-center">
-              Nothing here right now.
-            </span>
-          )}
+          <div className="max-h-96 overflow-y-auto">
+            {notifications.length !== 0 ? (
+              notifications.map((notification, index) => (
+                <NotificationContent
+                  key={notification._id}
+                  message={notification}
+                />
+              ))
+            ) : (
+              <span className="block p-3 font-medium w-full text-center">
+                Nothing here right now.
+              </span>
+            )}
+          </div>
         </AccordionContent>
       </AccordionItem>
     </Accordion>

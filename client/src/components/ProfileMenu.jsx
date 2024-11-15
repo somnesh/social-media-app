@@ -41,6 +41,7 @@ export function ProfileMenu() {
   const handleLogout = async () => {
     try {
       await axios.post(`${API_URL}/auth/logout`, {}, { withCredentials: true });
+      localStorage.clear();
       navigate("/login");
     } catch (error) {
       console.log("Error during logout: ", error);
@@ -65,7 +66,12 @@ export function ProfileMenu() {
 
       <DropdownMenuContent className="w-48 dark:bg-[#242526]  dark:text-white dark:border-none">
         <DropdownMenuGroup>
-          <DropdownMenuItem className="dark:focus:bg-[#414141] dark:focus:text-white cursor-pointer">
+          <DropdownMenuItem
+            onClick={() => {
+              navigate(`/user/${localStorage.username}`);
+            }}
+            className="dark:focus:bg-[#414141] dark:focus:text-white cursor-pointer"
+          >
             <User className="mr-2 h-4 w-4" />
             <span>Profile</span>
             <DropdownMenuShortcut>⇧⌘P</DropdownMenuShortcut>

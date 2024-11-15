@@ -4,10 +4,12 @@ import { Link } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
 import { LoginPageImageLoader } from "../components/loaders/LoginPageImageLoader";
 import { useAuth } from "../contexts/AuthContext";
+import { Loader2 } from "lucide-react";
 
 export function LoginPage() {
   const [bgImage, setBgImage] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isLoadingLogin, setIsLoadingLogin] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const navigate = useNavigate();
@@ -61,6 +63,12 @@ export function LoginPage() {
   }, []);
 
   const handleLogin = async (e) => {
+    e.preventDefault();
+    e.target.classList.remove("hover:bg-indigo-700");
+    e.target.classList.add("disabled:opacity-50");
+
+    setIsLoadingLogin(true);
+
     const passwordField = document.getElementById("password");
     const emailField = document.getElementById("email");
     const msgField = document.getElementById("msg");
@@ -70,8 +78,6 @@ export function LoginPage() {
     msgField.classList.remove("block");
     msgField.classList.add("hidden");
 
-    setIsLoading(true);
-    e.preventDefault();
     try {
       const result = await axios.post(
         `${API_URL}/auth/login`,
@@ -97,8 +103,10 @@ export function LoginPage() {
       emailField.classList.add("ring-red-600");
       msgField.classList.add("block");
       msgField.classList.remove("hidden");
+      e.target.classList.add("hover:bg-indigo-700");
+      e.target.classList.remove("disabled:opacity-50");
     } finally {
-      setIsLoading(false);
+      setIsLoadingLogin(false);
     }
   };
 
@@ -183,10 +191,13 @@ export function LoginPage() {
             <div>
               <button
                 type="submit"
-                className="flex w-full justify-center rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-indigo-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 focus:bg-indigo-800"
+                className="flex w-full justify-center items-center gap-1 rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-indigo-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 focus:bg-indigo-800"
                 onClick={handleLogin}
               >
                 Login
+                {isLoadingLogin && (
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                )}
               </button>
             </div>
           </form>
