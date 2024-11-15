@@ -78,10 +78,9 @@ import { PostVisibilityEditor } from "./PostVisibilityEditor";
 import { ReportEditor } from "./ReportEditor";
 import { useAuth } from "../contexts/AuthContext";
 import encryptPostId from "../utils/encryptPostId";
+import VideoPlayer from "./VideoPlayer";
 
-export function Post({ details, setPosts, externalLinkFlag }) {
-  console.log(details);
-
+export function Post({ details, setPosts, externalLinkFlag, className }) {
   const [isLoading, setIsLoading] = useState(false);
   const [commentBoxPopup, setCommentBoxPopup] = useState(false);
   const [comments, setComments] = useState([]);
@@ -499,7 +498,7 @@ export function Post({ details, setPosts, externalLinkFlag }) {
         </div>
       )}
       <div
-        className={`bg-white dark:bg-[#242526] px-4 py-2 ${
+        className={`bg-white dark:bg-[#242526] px-4 py-2 ${className} ${
           details.recommended ? "rounded-b-lg" : "rounded-lg"
         } mb-4 relative transition-all drop-shadow-sm`}
       >
@@ -522,7 +521,7 @@ export function Post({ details, setPosts, externalLinkFlag }) {
             >
               {details.user_id.name}
             </a>
-            <div className="flex gap-1 items-center">
+            <div className="flex gap-1 items-center text-sm">
               <span>
                 {visibility === "public" ? (
                   <Globe size={16} strokeWidth={1.25} />
@@ -661,7 +660,7 @@ export function Post({ details, setPosts, externalLinkFlag }) {
 
                 <div className="">
                   <h2 className="font-medium">{details.parent.user_id.name}</h2>
-                  <div className="flex gap-1 items-center">
+                  <div className="flex gap-1 items-center text-sm">
                     <span>
                       {details.parent.visibility === "public" ? (
                         <Globe size={16} strokeWidth={1.25} />
@@ -691,7 +690,12 @@ export function Post({ details, setPosts, externalLinkFlag }) {
               )}
             </a>
           )}
-          {details.image_url && <img src={details.image_url} alt="photo" />}
+          {details.image_url &&
+            (details.media_type && details.media_type === "video" ? (
+              <VideoPlayer videoUrl={details.image_url} />
+            ) : (
+              <img src={details.image_url} alt="photo" />
+            ))}
         </div>
         <div className="flex justify-between mb-1 text-sm">
           <div className="flex items-center gap-1">

@@ -1,6 +1,8 @@
 import {
   CircleAlert,
   CircleCheck,
+  Clapperboard,
+  FileVideo,
   Globe,
   Image,
   ImagePlus,
@@ -8,6 +10,7 @@ import {
   Lock,
   MapPin,
   Users,
+  Video,
   X,
 } from "lucide-react";
 
@@ -34,6 +37,7 @@ import axios from "axios";
 import { CreatePostSubmitLoader } from "./loaders/CreatePostSubmitLoader";
 // import { jwtDecode } from "jwt-decode";
 import { useToastHandler } from "../contexts/ToastContext";
+import VideoPlayer from "./VideoPlayer";
 // import { useLocation } from "react-router-dom";
 
 export function CreatePost({
@@ -49,7 +53,11 @@ export function CreatePost({
   const [postContent, setPostContent] = useState("");
   const [uploadedImage, setUploadedImage] = useState(null);
   const [uploadImagePopUp, setUploadImagePopUp] = useState(false);
+  const [uploadedVideo, setUploadedVideo] = useState(null);
+  const [uploadVideoPopUp, setUploadVideoPopUp] = useState(false);
+  const [previewUrl, setPreviewUrl] = useState(null);
   const imageRef = useRef(null);
+  const videoRef = useRef(null);
 
   // const location = useLocation();
   // const res = location.state;
@@ -115,8 +123,20 @@ export function CreatePost({
     imageRef.current.click();
   };
 
+  const uploadVideo = () => {
+    videoRef.current.click();
+  };
+
   const togglePopupUploadImage = () => {
+    setUploadVideoPopUp(false);
     setUploadImagePopUp(!uploadImagePopUp);
+  };
+
+  const togglePopupUploadVideo = () => {
+    setUploadImagePopUp(false);
+    setUploadVideoPopUp(!uploadVideoPopUp);
+    setUploadedVideo(null);
+    setPreviewUrl(null);
   };
 
   useEffect(() => {
@@ -134,6 +154,16 @@ export function CreatePost({
         setUploadedImage(e.target.result); // Set the preview source to the image data
       };
       reader.readAsDataURL(file);
+    }
+  };
+
+  const handleVideoChange = (event) => {
+    const file = videoRef.current.files[0];
+    if (file && file.type.includes("video")) {
+      // Create a temporary URL for the video
+      const url = URL.createObjectURL(file);
+      setUploadedVideo(file);
+      setPreviewUrl(url);
     }
   };
 
@@ -254,6 +284,44 @@ export function CreatePost({
                 </div>
               </div>
             )}
+            {uploadVideoPopUp && (
+              <div
+                id="uploadPopUp"
+                onClick={uploadVideo}
+                className="relative min-h-52 w-full border-2 border-dashed border-indigo-700 rounded-lg dark:bg-[#212121] flex items-center justify-center cursor-pointer dark:hover:bg-[#181818]"
+              >
+                <input
+                  ref={videoRef}
+                  type="file"
+                  name="files"
+                  accept="video/*"
+                  className="hidden"
+                  onChange={handleVideoChange}
+                />
+
+                {uploadedVideo ? (
+                  <video width="440" height="300" controls>
+                    <source src={previewUrl} type="video/mp4" />
+                    Your browser does not support the video tag.
+                  </video>
+                ) : (
+                  <>
+                    <Clapperboard />
+                    <span>&nbsp;Add video</span>
+                  </>
+                )}
+
+                <div
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    togglePopupUploadVideo();
+                  }}
+                  className="py-1 px-1 top-1 right-1 absolute hover:bg-[#F0F2F5] dark:hover:bg-[#414141] rounded-full cursor-pointer"
+                >
+                  <X />
+                </div>
+              </div>
+            )}
           </div>
           <div className="flex justify-between my-4 items-center">
             <div className="w-full flex justify-between items-center border border-[#ced0d4] dark:border-[#3e4042] pl-3 pr-2 py-1 mr-2 rounded-md">
@@ -276,13 +344,16 @@ export function CreatePost({
                   </Tooltip>
                   <Tooltip>
                     <TooltipTrigger
+                      onClick={() => {
+                        togglePopupUploadVideo();
+                      }}
                       type="button"
                       className="p-2 rounded-full hover:bg-[#d3d5d8] dark:hover:bg-[#414141]"
                     >
-                      <ListTodo />
+                      <FileVideo />
                     </TooltipTrigger>
                     <TooltipContent>
-                      <p>Poll</p>
+                      <p>Video</p>
                     </TooltipContent>
                   </Tooltip>
                   <Tooltip>
@@ -290,10 +361,10 @@ export function CreatePost({
                       type="button"
                       className="p-2 rounded-full hover:bg-[#d3d5d8] dark:hover:bg-[#414141]"
                     >
-                      <MapPin />
+                      <ListTodo />
                     </TooltipTrigger>
                     <TooltipContent>
-                      <p>Location</p>
+                      <p>Poll</p>
                     </TooltipContent>
                   </Tooltip>
                 </TooltipProvider>
