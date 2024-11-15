@@ -7,17 +7,31 @@ import { Card } from "@/components/ui/card";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useAuth } from "../contexts/AuthContext";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Calendar, Camera, Mail } from "lucide-react";
+import { Calendar, Camera, CircleCheck, CircleX, Mail } from "lucide-react";
 import { TabsContent } from "../components/ui/tabs";
 import { Post } from "../components/Post";
+import { useToastHandler } from "../contexts/ToastContext";
+import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
+import ProfilePictureUpload from "../components/ProfilePictureUpload";
+import CoverPhotoUpload from "../components/CoverPhotoUpload";
+import EditProfile from "../components/EditProfile";
 
 export function ProfilePage() {
   const [isLoading, setIsLoading] = useState(true);
-  const [details, setDetails] = useState({});
+  const [details, setDetails] = useState([]);
   const [formattedDate, setFormattedDate] = useState("");
   const [posts, setPosts] = useState([]);
   const [photos, setPhotos] = useState([]);
+  const [isFollowingUser, setIsFollowingUser] = useState(false);
+  const [userFollowingBack, setUserFollowingBack] = useState(false);
+  const [openCoverPhoto, setOpenCoverPhoto] = useState(false);
+  const [openProfilePhoto, setOpenProfilePhoto] = useState(false);
+  const [openUploadProfilePhoto, setOpenUploadProfilePhoto] = useState(false);
+  const [openUploadCoverPhoto, setOpenUploadCoverPhoto] = useState(false);
+  const [profilePicture, setProfilePicture] = useState("");
+  const [coverPhoto, setCoverPhoto] = useState("");
 
+  const toastHandler = useToastHandler();
   const API_URL = import.meta.env.VITE_API_URL;
   const navigate = useNavigate();
   const { username } = useParams();
@@ -26,23 +40,29 @@ export function ProfilePage() {
 
   const getPosts = async (userId) => {
     try {
-      const response = await axios.get(`${API_URL}/post/${userId}`, {
+      const response = await axios.get(`${API_URL}/post/all/${userId}`, {
         withCredentials: true,
       });
+
       setPosts(response.data.posts);
       setPhotos(
         response.data.posts
           .filter(
             (post) => post.parent === undefined && post.image_url !== undefined
           )
-          .map((post) => post.image_url)
+          .map((post) => ({
+            media_link: post.image_url,
+            media_type: post.media_type,
+          }))
       );
+      setIsLoading(false);
     } catch (error) {
+      setIsLoading(false);
       console.error("Profile page: getPosts: ", error);
     }
   };
 
-  const refreshAuthToken = async (userId) => {
+  const refreshAuthToken = async () => {
     try {
       await axios.post(
         `${API_URL}/auth/refresh-token`,
@@ -52,12 +72,18 @@ export function ProfilePage() {
         }
       );
       setIsAuthenticated(true);
-      getPosts(userId);
     } catch (error) {
+      setIsLoading(false);
       console.error("Profile page: refreshAuthToken: ", error);
       setIsAuthenticated(false);
     }
   };
+
+  useEffect(() => {
+    if (details.length !== 0) {
+      getPosts(details.user[0]._id);
+    }
+  }, [details]);
 
   useEffect(() => {
     (async () => {
@@ -67,8 +93,12 @@ export function ProfilePage() {
           withCredentials: true,
         });
 
-        console.log("Profile page response: ", response.data);
         setDetails(response.data);
+        setIsFollowingUser(response.data.isFollowingUser);
+        setUserFollowingBack(response.data.userFollowingBack);
+        setProfilePicture(response.data.user[0].avatar);
+        setCoverPhoto(response.data.user[0].cover_photo);
+
         const dateStr = response.data.user[0].createdAt;
         const date = new Date(dateStr);
 
@@ -79,15 +109,73 @@ export function ProfilePage() {
             year: "numeric",
           })
         );
-        refreshAuthToken(response.data.user[0]._id);
+        refreshAuthToken();
       } catch (error) {
         console.error(error);
         navigate("/404");
-      } finally {
         setIsLoading(false);
       }
     })();
   }, []);
+
+  const handleUnfollow = async () => {
+    try {
+      const response = await axios.delete(
+        `${API_URL}/user/unfollow/${details.user[0]._id}`,
+        { withCredentials: true }
+      );
+
+      setUserFollowingBack(false);
+      toastHandler(
+        <div className="flex gap-2 items-center">
+          <CircleCheck className="bg-green-600 rounded-full text-white dark:text-[#242526]" />
+          <span>User unfollowed</span>
+        </div>,
+        false
+      );
+    } catch (error) {
+      console.error("Unfollow Failed: ", error);
+      toastHandler(
+        <div className="flex gap-2 items-center">
+          <CircleX className="bg-red-600 rounded-full text-white dark:text-[#7f1d1d]" />
+          <span>Something went wrong</span>
+        </div>,
+        true
+      );
+    }
+  };
+
+  const handleFollow = async () => {
+    if (isAuthenticated) {
+      try {
+        const response = await axios.post(
+          `${API_URL}/user/follow/${details.user[0]._id}`,
+          {},
+          { withCredentials: true }
+        );
+
+        setUserFollowingBack(true);
+        toastHandler(
+          <div className="flex gap-2 items-center">
+            <CircleCheck className="bg-green-600 rounded-full text-white dark:text-[#242526]" />
+            <span>User followed</span>
+          </div>,
+          false
+        );
+      } catch (error) {
+        console.error("Follow Failed: ", error);
+        toastHandler(
+          <div className="flex gap-2 items-center">
+            <CircleX className="bg-red-600 rounded-full text-white dark:text-[#7f1d1d]" />
+            <span>Something went wrong</span>
+          </div>,
+          true
+        );
+      }
+    } else {
+      navigate("/login");
+    }
+  };
 
   return (
     <>
@@ -98,15 +186,31 @@ export function ProfilePage() {
         <div className="w-full h-full bg-background px-10">
           <div className="w-full max-w-6xl mx-auto overflow-hidden bg-background rounded-b-md">
             {/* Cover Photo */}
-            <div className="h-48 relative overflow-hidden w-full">
+            <div className="h-80 relative overflow-hidden w-full">
+              <Dialog open={openCoverPhoto} onOpenChange={setOpenCoverPhoto}>
+                <DialogContent className="max-w-[90vw] max-h-[90vh] w-auto h-auto p-0 bg-transparent border-none">
+                  <img
+                    src={coverPhoto}
+                    alt="Cover picture"
+                    className="w-full h-full object-contain"
+                    draggable="false"
+                  />
+                </DialogContent>
+              </Dialog>
               <img
-                src={details.user[0].cover_photo}
-                className="w-full h-full object-cover cursor-pointer hover:contrast-[.8]"
+                onClick={() => {
+                  if (coverPhoto) setOpenCoverPhoto(true);
+                }}
+                src={coverPhoto}
+                className={`w-full h-full object-cover ${
+                  coverPhoto && "cursor-pointer hover:contrast-[.8]"
+                }`}
               />
               <div className="absolute bottom-0 left-0 right-0 h-24 bg-gradient-to-t from-background via-background/30 to-transparent" />
-              {localStorage.id === details.user[0]._id && (
+              {isAuthenticated && localStorage.id === details.user[0]._id && (
                 <div className="absolute bottom-4 right-4 flex items-center gap-2">
                   <Button
+                    onClick={() => setOpenUploadCoverPhoto(true)}
                     variant="secondary"
                     size="sm"
                     className="flex items-center gap-2"
@@ -114,41 +218,91 @@ export function ProfilePage() {
                     <Camera className="h-4 w-4" />
                     Change cover photo
                   </Button>
+                  <Dialog
+                    open={openUploadCoverPhoto}
+                    onOpenChange={setOpenUploadCoverPhoto}
+                  >
+                    <DialogTrigger></DialogTrigger>
+                    <DialogContent className="max-w-[90vw] max-h-[90vh] w-auto h-auto p-0 bg-transparent border-none">
+                      <CoverPhotoUpload
+                        setOpenUploadCoverPhoto={setOpenUploadCoverPhoto}
+                        setCoverPhoto={setCoverPhoto}
+                      />
+                    </DialogContent>
+                  </Dialog>
                 </div>
               )}
             </div>
-            {console.log("photos: ", photos)}
             {/* Profile Section */}
             <div className="px-4 pb-4 pt-0 md:px-6 relative">
               <div className="flex flex-col items-start gap-4 md:flex-row md:items-center md:gap-6">
                 {/* Profile Picture */}
                 <div className="relative -mt-12 h-32 w-32 ">
-                  <div className="flex h-full w-full overflow-hidden rounded-full border-4 border-background bg-muted">
-                    <Avatar
-                      className={
-                        "h-fit w-fit cursor-pointer hover:contrast-[.8]"
-                      }
+                  <div className="flex justify-center items-center h-full w-full overflow-hidden rounded-full border-4 border-background bg-muted">
+                    <Dialog
+                      open={openProfilePhoto}
+                      onOpenChange={setOpenProfilePhoto}
                     >
-                      <AvatarImage src={details.user[0].avatar} />
-                      <AvatarFallback className={`${details.user[0].avatarBg}`}>
+                      <DialogTrigger></DialogTrigger>
+                      <DialogContent className="max-w-[90vw] max-h-[90vh] w-auto h-auto p-0 bg-transparent border-none">
+                        <img
+                          src={profilePicture}
+                          alt="Profile picture"
+                          className="w-full h-full object-contain"
+                          draggable="false"
+                        />
+                      </DialogContent>
+                    </Dialog>
+                    <Avatar
+                      onClick={() => {
+                        if (profilePicture) setOpenProfilePhoto(true);
+                      }}
+                      className={`h-fit w-fit ${
+                        profilePicture && "cursor-pointer hover:contrast-[.8]"
+                      }`}
+                    >
+                      <AvatarImage src={profilePicture} />
+                      <AvatarFallback
+                        className={`${details.user[0].avatarBg} text-2xl font-medium`}
+                      >
                         {`${details.user[0].name[0]}`}
                       </AvatarFallback>
                     </Avatar>
                   </div>
-                  {localStorage.id === details.user[0]._id && (
-                    <Button
-                      size="icon"
-                      variant="secondary"
-                      className="absolute bottom-0 right-0 h-8 w-8 rounded-full"
-                    >
-                      <Camera className="h-4 w-4" />
-                      <span className="sr-only">Change profile picture</span>
-                    </Button>
-                  )}
+                  {isAuthenticated &&
+                    localStorage.id === details.user[0]._id && (
+                      <>
+                        <Button
+                          onClick={() => setOpenUploadProfilePhoto(true)}
+                          size="icon"
+                          variant="secondary"
+                          className="absolute bottom-0 right-0 h-8 w-8 rounded-full"
+                        >
+                          <Camera className="h-4 w-4" />
+                          <span className="sr-only">
+                            Change profile picture
+                          </span>
+                        </Button>
+                        <Dialog
+                          open={openUploadProfilePhoto}
+                          onOpenChange={setOpenUploadProfilePhoto}
+                        >
+                          <DialogTrigger></DialogTrigger>
+                          <DialogContent className="max-w-[90vw] max-h-[90vh] w-auto h-auto p-0 bg-transparent border-none">
+                            <ProfilePictureUpload
+                              setOpenUploadProfilePhoto={
+                                setOpenUploadProfilePhoto
+                              }
+                              setProfilePicture={setProfilePicture}
+                            />
+                          </DialogContent>
+                        </Dialog>
+                      </>
+                    )}
                 </div>
 
                 {/* Profile Info */}
-                <div className="flex-1">
+                <div className="flex-1 md:w-full">
                   <div className="flex items-start justify-between gap-4">
                     <div className="space-y-1">
                       <div className="flex items-center gap-2">
@@ -177,21 +331,40 @@ export function ProfilePage() {
                         @{`${details.user[0].username}`}
                       </p>
                     </div>
-                    {localStorage.id === details.user[0]._id ? (
-                      <Button variant="outline" className="shrink-0">
-                        Edit profile
-                      </Button>
-                    ) : details.isFollowingUser &&
-                      !details.userFollowingBack ? (
-                      <Button variant="outline" className="shrink-0">
+                    {isAuthenticated &&
+                    localStorage.id === details.user[0]._id ? (
+                      <Dialog>
+                        <DialogTrigger>
+                          <Button variant="outline" className="shrink-0">
+                            Edit profile
+                          </Button>
+                        </DialogTrigger>
+                        <DialogContent>
+                          <EditProfile />
+                        </DialogContent>
+                      </Dialog>
+                    ) : isFollowingUser && !userFollowingBack ? (
+                      <Button
+                        onClick={handleFollow}
+                        variant="outline"
+                        className="shrink-0"
+                      >
                         Follow back
                       </Button>
-                    ) : details.userFollowingBack ? (
-                      <Button variant="outline" className="shrink-0">
+                    ) : userFollowingBack ? (
+                      <Button
+                        onClick={handleUnfollow}
+                        variant="outline"
+                        className="shrink-0"
+                      >
                         Unfollow
                       </Button>
                     ) : (
-                      <Button variant="outline" className="shrink-0">
+                      <Button
+                        onClick={handleFollow}
+                        variant="outline"
+                        className="shrink-0"
+                      >
                         Follow
                       </Button>
                     )}
@@ -244,10 +417,7 @@ export function ProfilePage() {
                       https://somnesh.dev
                     </a>
                   </div>
-                  <div className="flex items-center gap-2">
-                    <MapPin className="h-5 w-5" />
-                    <span>San Francisco, CA</span>
-                  </div> */}
+                  */}
                     <div className="flex items-center gap-2">
                       <Calendar className="h-5 w-5" />
                       <span>Joined {formattedDate}</span>
@@ -273,38 +443,70 @@ export function ProfilePage() {
                       </TabsTrigger>
                     </TabsList>
                     <TabsContent value="posts" className="mt-6">
-                      {posts.length !== 0 ? (
-                        <>
-                          {" "}
-                          {posts.map((post) => (
-                            <Post
-                              key={post._id}
-                              details={post}
-                              setPosts={setPosts}
-                            />
-                          ))}{" "}
-                        </>
+                      {isAuthenticated ? (
+                        posts.length !== 0 ? (
+                          <>
+                            {" "}
+                            {posts.map((post) => (
+                              <Post
+                                key={post._id}
+                                details={post}
+                                setPosts={setPosts}
+                                className={"border dark:bg-[#1a1a1a]"}
+                              />
+                            ))}{" "}
+                          </>
+                        ) : (
+                          <span className="block text-center">{`${
+                            details.user[0].name === localStorage.name
+                              ? "You"
+                              : details.user[0].name
+                          } haven't post anything.`}</span>
+                        )
                       ) : (
-                        <span className="block text-center">{`${details.user[0].name} haven't post anything.`}</span>
+                        <span className="block text-center">{`Sign in to see ${details.user[0].name}'s posts.`}</span>
                       )}
                     </TabsContent>
                     <TabsContent value="photos" className="mt-6">
-                      {photos.length !== 0 ? (
-                        <div className="grid grid-cols-3 gap-4">
-                          {photos.map((photo, i) => (
-                            <div
-                              key={i}
-                              className="aspect-square overflow-hidden rounded-lg"
-                            >
-                              <img
-                                src={photo}
-                                className="h-full w-full object-cover"
-                              />
-                            </div>
-                          ))}
-                        </div>
+                      {isAuthenticated ? (
+                        photos.length !== 0 ? (
+                          <div className="grid grid-cols-3 gap-4">
+                            {photos.map((photo, i) => (
+                              <div
+                                key={i}
+                                className="aspect-square overflow-hidden rounded-lg"
+                              >
+                                {photo.media_type === "video" ? (
+                                  <video
+                                    src={photo.media_link}
+                                    className="h-full w-full object-cover"
+                                    controls
+                                    controlsList="nodownload"
+                                    preload="none"
+                                    muted="true"
+                                    poster={photo.media_link.replace(
+                                      /\.[^.]+$/,
+                                      ".jpg"
+                                    )}
+                                  ></video>
+                                ) : (
+                                  <img
+                                    src={photo.media_link}
+                                    className="h-full w-full object-cover"
+                                  />
+                                )}
+                              </div>
+                            ))}
+                          </div>
+                        ) : (
+                          <span className="block text-center">{`${
+                            details.user[0].name === localStorage.name
+                              ? "You"
+                              : details.user[0].name
+                          } haven't post any photos.`}</span>
+                        )
                       ) : (
-                        <span className="block text-center">{`${details.user[0].name} haven't post any photos.`}</span>
+                        <span className="block text-center">{`Sign in to see ${details.user[0].name}'s photos.`}</span>
                       )}
                     </TabsContent>
                   </Tabs>
