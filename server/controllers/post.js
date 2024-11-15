@@ -1,6 +1,7 @@
 const Post = require("../models/Post");
 const Like = require("../models/Like");
 const Comment = require("../models/Comment");
+const Follower = require("../models/Follower");
 const { StatusCodes } = require("http-status-codes");
 const {
   NotFoundError,
@@ -19,7 +20,25 @@ const encryptPostId = require("../utils/encryptPostId");
 const getAllPost = async (req, res) => {
   const userId = req.params.id;
 
-  const posts = await Post.find({ user_id: userId })
+  let visibility = [];
+  if (userId === req.user._id.toString()) {
+    visibility = ["public", "friends", "private"];
+  } else {
+    const isFollower = await Follower.find({
+      followed: userId,
+      follower: req.user._id,
+    });
+    if (isFollower.length !== 0) {
+      visibility = ["public", "friends"];
+    } else {
+      visibility = ["public"];
+    }
+  }
+
+  const posts = await Post.find({
+    user_id: userId,
+    visibility: { $in: visibility },
+  })
     .populate([
       {
         path: "user_id", // Populate user details from the user_id field
@@ -38,17 +57,36 @@ const getAllPost = async (req, res) => {
   if (!posts) {
     throw new NotFoundError(`No post found`);
   }
-  res.status(StatusCodes.OK).json({ count: posts.length, posts });
+
+  const postIds = [...posts.map((post) => post._id.toString())];
+
+  const likedPosts = await Like.find({
+    post_id: { $in: postIds },
+    user_id: userId,
+  }).select("post_id -_id");
+
+  const likedPostIds = likedPosts.map((like) => like.post_id.toString());
+
+  const postsWithLikes = posts.map((post) => ({
+    ...post.toObject(),
+    isLiked: likedPostIds.includes(post._id.toString()),
+  }));
+
+  res
+    .status(StatusCodes.OK)
+    .json({ count: posts.length, posts: postsWithLikes });
 };
 
 const createPost = async (req, res) => {
   const cloudinaryResponse = req.body.cloudinaryRes;
+  console.log(cloudinaryResponse.resource_type);
 
   if (!cloudinaryResponse && req.body.content == "") {
     throw new BadRequestError("Both content and image field cannot be empty!");
   }
   if (cloudinaryResponse) {
     req.body.image_url = cloudinaryResponse.secure_url;
+    req.body.media_type = cloudinaryResponse.resource_type;
   }
   req.body.user_id = req.user.userId;
 
