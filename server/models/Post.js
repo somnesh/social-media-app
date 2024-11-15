@@ -51,6 +51,10 @@ const PostSchema = new mongoose.Schema(
       type: mongoose.Types.ObjectId,
       ref: "Post",
     },
+
+    media_type: {
+      type: String,
+    },
   },
   { timestamps: true }
 );
