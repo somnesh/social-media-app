@@ -111,7 +111,7 @@ const loginUser = async (req, res) => {
   const cookieOptions = {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
-    sameSite: "Lax",
+    sameSite: process.env.NODE_ENV === "production" ? "none" : "Lax",
   };
 
   res
@@ -167,7 +167,7 @@ const refreshAccessToken = async (req, res) => {
   const cookieOptions = {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
-    sameSite: "Lax",
+    sameSite: process.env.NODE_ENV === "production" ? "none" : "Lax",
   };
 
   res
@@ -195,7 +195,7 @@ const logout = async (req, res) => {
   const cookieOptions = {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
-    sameSite: "Lax",
+    sameSite: process.env.NODE_ENV === "production" ? "none" : "Lax",
   };
 
   res
