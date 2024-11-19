@@ -15,6 +15,9 @@ import { EmailVerificationSuccess } from "./pages/EmailVerificationSuccess";
 import { PostView } from "./pages/PostView";
 import { AuthProvider } from "./contexts/AuthContext";
 import { ProfilePage } from "./pages/ProfilePage";
+import UserSettingsPage from "./pages/UserSettingsPage";
+import ResetPassword from "./pages/ResetPassword";
+import ForgotPassword from "./pages/ForgotPassword";
 
 const router = createBrowserRouter([
   {
@@ -38,12 +41,24 @@ const router = createBrowserRouter([
     element: <EmailVerificationSuccess />,
   },
   {
+    path: "/forgot-password",
+    element: <ForgotPassword />,
+  },
+  {
+    path: "/reset-password-success/:encryptUserId",
+    element: <ResetPassword />,
+  },
+  {
     path: "/post/:id",
     element: <PostView />,
   },
   {
     path: "/user/:username",
     element: <ProfilePage />,
+  },
+  {
+    path: "/settings",
+    element: <UserSettingsPage />,
   },
   {
     path: "/500",
