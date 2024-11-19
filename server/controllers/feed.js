@@ -6,15 +6,18 @@ const Post = require("../models/Post");
 const { StatusCodes } = require("http-status-codes");
 const Dislike = require("../models/Dislike");
 const Like = require("../models/Like");
+const Poll = require("../models/Poll");
 
 const generateFeed = async (req, res) => {
   const userId = req.user;
   try {
+    // Step 1: Get viewed post IDs
     let viewedPostIds = await PostView.find({ user_id: userId }).select(
       "post_id -_id"
     );
     viewedPostIds = viewedPostIds.map((id) => id.post_id);
-    // Step 1: Get recommended posts
+
+    // Step 2: Get recommended posts
     const { recommendedPosts, recommendedPostIds } = await recommendPosts(
       userId,
       viewedPostIds
@@ -22,40 +25,43 @@ const generateFeed = async (req, res) => {
 
     const discardPost = [...viewedPostIds, ...Array.from(recommendedPostIds)];
 
-    // Step 2: Fetch posts from followed users
+    // Step 3: Fetch posts from followed users
     const followedUsers = await Follower.find({ follower: userId }).select(
       "followed"
     );
-
     const followedUserIds = followedUsers.map((follow) => follow.followed);
 
     const followedPosts = await Post.find({
       user_id: { $in: followedUserIds },
-      _id: { $nin: discardPost }, // Exclude already viewed posts
+      _id: { $nin: discardPost },
       visibility: { $in: ["public", "friends"] },
     })
       .populate([
         {
-          path: "user_id", // Populate user details from the user_id field
-          select: "name avatar avatarBg username", // Only select name and avatar from the user
+          path: "user_id",
+          select: "name avatar avatarBg username",
         },
         {
-          path: "parent", // Populate the parent post if it exists
-          select: "content image_url user_id visibility createdAt", // Select relevant fields from the parent post
+          path: "parent",
+          select: "content image_url user_id media_type visibility createdAt",
           populate: {
-            path: "user_id", // Populate user details of the parent post
-            select: "name avatar avatarBg username", // Select name and avatar for the parent post's user
+            path: "user_id",
+            select: "name avatar avatarBg username",
           },
+        },
+        {
+          path: "poll_id",
         },
       ])
       .sort({ createdAt: -1 });
-    // Step 3: Combine post IDs for liked posts check
+
+    // Step 4: Combine post IDs for liked posts check
     const postIds = [
       ...followedPosts.map((post) => post._id.toString()),
       ...recommendedPostIds,
     ];
 
-    // Step 4: Check if the user has liked any of these posts
+    // Step 5: Check liked posts
     const likedPosts = await Like.find({
       post_id: { $in: postIds },
       user_id: userId,
@@ -63,21 +69,53 @@ const generateFeed = async (req, res) => {
 
     const likedPostIds = likedPosts.map((like) => like.post_id.toString());
 
-    // Step 5: Add isLiked flag to each followed and recommended post
-    const followedPostsWithLikes = followedPosts.map((post) => ({
-      ...post.toObject(),
-      isLiked: likedPostIds.includes(post._id.toString()),
-    }));
+    // Step 6: Add poll voting details and isLiked flag
+    const followedPostsWithDetails = await Promise.all(
+      followedPosts.map(async (post) => {
+        const postObj = post.toObject();
 
-    const recommendedPostsWithLikes = recommendedPosts.map((post) => ({
-      ...post,
-      isLiked: likedPostIds.includes(post._id.toString()),
-    }));
+        if (postObj.poll_id) {
+          const poll = await Poll.findById(postObj.poll_id);
+          const voter = poll.voters.find(
+            (v) => v.userId.toString() === userId._id.toString()
+          );
+          postObj.poll_id = {
+            ...poll.toObject(),
+            userVote: voter ? voter.selectedOptionIndex : null,
+          };
+        }
 
-    // Step 6: Return the feed with posts and isLiked flag
+        return {
+          ...postObj,
+          isLiked: likedPostIds.includes(postObj._id.toString()),
+        };
+      })
+    );
+
+    const recommendedPostsWithDetails = await Promise.all(
+      recommendedPosts.map(async (post) => {
+        if (post.poll_id) {
+          const poll = await Poll.findById(post.poll_id);
+          const voter = poll.voters.find(
+            (v) => v.userId.toString() === userId.toString()
+          );
+          post.poll_id = {
+            ...poll.toObject(),
+            userVote: voter ? voter.selectedOptionIndex : null,
+          };
+        }
+
+        return {
+          ...post,
+          isLiked: likedPostIds.includes(post._id.toString()),
+        };
+      })
+    );
+
+    // Step 7: Return the feed
     res.status(StatusCodes.OK).json({
-      followedPosts: followedPostsWithLikes,
-      recommendedPosts: recommendedPostsWithLikes,
+      followedPosts: followedPostsWithDetails,
+      recommendedPosts: recommendedPostsWithDetails,
     });
   } catch (error) {
     console.error("Error fetching feed:", error);
