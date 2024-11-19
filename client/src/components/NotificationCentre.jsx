@@ -39,10 +39,10 @@ export function NotificationCentre({ mobileFlag }) {
           </AccordionTrigger>
           <AccordionContent
             className={
-              "bg-white dark:bg-[#242526] rounded-b-md h-screen sm:h-auto"
+              "bg-white dark:bg-[#242526] rounded-b-md h-auto sm:h-auto  sm:pb-1"
             }
           >
-            <div className="sm:max-h-96 overflow-y-auto">
+            <div className="sm:max-h-96 h-auto overflow-y-auto">
               {notifications.length !== 0 ? (
                 notifications.map((notification, index) => (
                   <NotificationContent

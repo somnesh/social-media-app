@@ -55,7 +55,7 @@ export const Home = () => {
       ) : (
         <>
           <Header />
-          <main className="flex flex-col sm:flex-row relative sm:justify-between lg:px-2 py-4 md:pr-2 bg-[#f0f2f5] dark:bg-black min-h-screen dark:text-[#e2e4e9] transition-colors duration-500 gap-3">
+          <main className="flex flex-col sm:flex-row relative sm:justify-between lg:px-2 sm:py-4 md:pr-2 bg-[#f0f2f5] dark:bg-black min-h-screen dark:text-[#e2e4e9] transition-colors duration-500 sm:gap-3">
             <Sidebar variant={currentPage} setCurrentPage={setCurrentPage} />
             {/* --------------------------------------- */}
             <section className="lg:basis-1/2 md:basis-3/4 sm:px-1 sm:mx-auto max-w-[680px] overflow-y-auto">
