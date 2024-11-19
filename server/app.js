@@ -13,7 +13,7 @@ app.use(cookieParser());
 app.use(express.static("./public"));
 app.use(express.json());
 // cors middleware
-app.use(cors());
+app.use(cors({ credentials: true, origin: process.env.CLIENT_URL }));
 
 // app.use(express.urlencoded({ extended: true }));
 
