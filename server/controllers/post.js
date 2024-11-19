@@ -15,7 +15,9 @@ const SavedPost = require("../models/SavedPost");
 const LikeComment = require("../models/LikeComment");
 const Notification = require("../models/Notification");
 const { sendNotification } = require("./notification");
-const encryptPostId = require("../utils/encryptPostId");
+const encryptId = require("../utils/encryptId");
+const { getPoll } = require("./Poll");
+const Poll = require("../models/Poll");
 
 const getAllPost = async (req, res) => {
   const userId = req.params.id;
@@ -46,14 +48,18 @@ const getAllPost = async (req, res) => {
       },
       {
         path: "parent", // Populate the parent post if it exists
-        select: "content image_url user_id visibility createdAt", // Select relevant fields from the parent post
+        select: "content image_url user_id visibility createdAt media_type", // Select relevant fields from the parent post
         populate: {
           path: "user_id", // Populate user details of the parent post
           select: "name avatar avatarBg username", // Select name and avatar for the parent post's user
         },
       },
+      {
+        path: "poll_id",
+      },
     ])
     .sort({ createdAt: -1 });
+
   if (!posts) {
     throw new NotFoundError(`No post found`);
   }
@@ -67,19 +73,37 @@ const getAllPost = async (req, res) => {
 
   const likedPostIds = likedPosts.map((like) => like.post_id.toString());
 
-  const postsWithLikes = posts.map((post) => ({
-    ...post.toObject(),
-    isLiked: likedPostIds.includes(post._id.toString()),
-  }));
+  const postsWithPollData = await Promise.all(
+    posts.map(async (post) => {
+      const postObj = post.toObject();
+
+      // If the post has a poll, add userVote under poll_id
+      if (postObj.poll_id) {
+        const poll = await Poll.findById(postObj.poll_id);
+        const voter = poll.voters.find(
+          (v) => v.userId.toString() === req.user._id.toString()
+        );
+        postObj.poll_id = {
+          ...poll.toObject(),
+          userVote: voter ? voter.selectedOptionIndex : null,
+        };
+      }
+
+      return {
+        ...postObj,
+        isLiked: likedPostIds.includes(post._id.toString()),
+      };
+    })
+  );
 
   res
     .status(StatusCodes.OK)
-    .json({ count: posts.length, posts: postsWithLikes });
+    .json({ count: posts.length, posts: postsWithPollData });
 };
 
 const createPost = async (req, res) => {
   const cloudinaryResponse = req.body.cloudinaryRes;
-  console.log(cloudinaryResponse.resource_type);
+  // console.log(cloudinaryResponse.resource_type);
 
   if (!cloudinaryResponse && req.body.content == "") {
     throw new BadRequestError("Both content and image field cannot be empty!");
@@ -93,7 +117,7 @@ const createPost = async (req, res) => {
   let post = await Post.create(req.body);
   post = await post.populate({
     path: "user_id",
-    select: "name avatar",
+    select: "name avatar avatarBg username",
   });
   res.status(StatusCodes.CREATED).json({ post });
 };
@@ -102,20 +126,26 @@ const getPostDetails = async (req, res) => {
   const userId = req.user;
   const postId = req.params.id;
 
-  const post = await Post.findById(postId).populate([
+  let post = await Post.findById(postId).populate([
     {
       path: "user_id", // Populate user details from the user_id field
       select: "name avatar avatarBg username", // Only select name and avatar from the user
     },
     {
       path: "parent", // Populate the parent post if it exists
-      select: "content image_url user_id visibility createdAt", // Select relevant fields from the parent post
+      select: "content image_url user_id visibility media_type createdAt", // Select relevant fields from the parent post
       populate: {
         path: "user_id", // Populate user details of the parent post
         select: "name avatar avatarBg username", // Select name and avatar for the parent post's user
       },
     },
   ]);
+  let contentType = "post";
+  let pollDetails;
+  if (post.poll_id) {
+    contentType = "poll";
+    pollDetails = await getPoll(post.poll_id, userId);
+  }
 
   const isPostLiked = await Like.find({
     post_id: postId,
@@ -137,7 +167,12 @@ const getPostDetails = async (req, res) => {
   }
 
   res.status(StatusCodes.OK).json({
-    post: { ...post.toObject(), contentType: "post", isLiked: isLiked },
+    post: {
+      ...post.toObject(),
+      contentType,
+      isLiked: isLiked,
+      poll_id: pollDetails,
+    },
   });
 };
 
@@ -687,7 +722,7 @@ const sharePost = async (req, res) => {
     const post = await Post.create([req.body], { session });
     await updatePostInteraction(userId, postId, "share", true, session);
 
-    const postLink = `post/${encryptPostId(post[0]._id.toString())}`;
+    const postLink = `post/${encryptId(post[0]._id.toString())}`;
     await sendNotification(
       io,
       userId,
