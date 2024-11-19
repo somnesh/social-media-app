@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { CreatePost } from "./CreatePost";
 import axios from "axios";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { FeedSkeleton } from "./loaders/FeedSkeleton";
 
 export function Feed() {
@@ -13,6 +13,7 @@ export function Feed() {
   const [posts, setPosts] = useState([]);
   const [error, setError] = useState(false);
   const [imageFlag, setImageFlag] = useState(false);
+  const [pollFlag, setPollFlag] = useState(false);
 
   const navigate = useNavigate();
 
@@ -60,13 +61,15 @@ export function Feed() {
               setPosts={setPosts}
               imageFlag={imageFlag}
               setImageFlag={setImageFlag}
+              setPollFlag={setPollFlag}
+              pollFlag={pollFlag}
             />
           )}
-          <div className="create-new-post bg-white dark:bg-[#242526] px-4 py-2 rounded-lg mb-4">
+          <div className="create-new-post bg-white dark:bg-[#242526] px-4 py-2 sm:rounded-lg mb-2">
             <div className="flex items-center py-2 gap-3">
-              <a
-                href={`${APP_URL}/user/${localStorage.username}`}
-                className="hover:contrast-50"
+              <Link
+                to={`${APP_URL}/user/${localStorage.username}`}
+                className="hover:contrast-[.7]"
               >
                 <Avatar>
                   <AvatarImage src={localStorage.avatar} />
@@ -74,7 +77,7 @@ export function Feed() {
                     {localStorage.name[0]}
                   </AvatarFallback>
                 </Avatar>
-              </a>
+              </Link>
               <div
                 onClick={handleCreatePostClick}
                 className="bg-[#F0F2F5] hover:bg-[#e3e5e9] active:bg-[#dbdde0] dark:bg-[#414141] dark:active:bg-[#6e6e6e] dark:hover:bg-[#535353] rounded-lg py-3 px-4 cursor-pointer w-full"
@@ -94,7 +97,13 @@ export function Feed() {
                 <ImagePlus />
                 <span>Image</span>
               </div>
-              <div className="flex basis-1/3 items-center justify-center p-2 gap-1 cursor-pointer hover:bg-[#F0F2F5] active:bg-[#e3e5e9] dark:hover:bg-[#414141] dark:active:bg-[#535353] rounded-md">
+              <div
+                onClick={() => {
+                  setPollFlag(true);
+                  handleCreatePostClick();
+                }}
+                className="flex basis-1/3 items-center justify-center p-2 gap-1 cursor-pointer hover:bg-[#F0F2F5] active:bg-[#e3e5e9] dark:hover:bg-[#414141] dark:active:bg-[#535353] rounded-md"
+              >
                 <ListTodo />
                 <span>Poll</span>
               </div>

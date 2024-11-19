@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 
 export function EmailVerificationSuccess() {
   const navigate = useNavigate();
-  const [countdown, setCountdown] = useState(8);
+  const [countdown, setCountdown] = useState(6);
 
   useEffect(() => {
     // Set up a countdown timer

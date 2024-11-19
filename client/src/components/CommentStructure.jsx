@@ -34,7 +34,7 @@ import { useToastHandler } from "../contexts/ToastContext";
 import { ReportEditor } from "./ReportEditor";
 import { ContentEditor } from "./ContentEditor";
 import { useAuth } from "../contexts/AuthContext";
-import encryptPostId from "../utils/encryptPostId";
+import encryptId from "../utils/encryptId";
 
 export function CommentStructure({
   details,
@@ -160,22 +160,36 @@ export function CommentStructure({
 
   const handleLike = async () => {
     if (isAuthenticated) {
-      const postLink = `post/${encryptPostId(details.post_id)}`;
+      if (!isLiked) {
+        setLikes(likes + 1);
+        setIsLiked(true);
+      } else {
+        setLikes(likes - 1);
+        setIsLiked(false);
+      }
+      const postLink = `post/${encryptId(details.post_id)}`;
       try {
         const response = await axios.patch(
           `${API_URL}/post/comment/${details._id}/like`,
           { postLink, receiverId: details.user._id },
           { withCredentials: true }
         );
-        if (response.data.message.like) {
-          setLikes(likes + 1);
-          setIsLiked(true);
-        } else {
-          setLikes(likes - 1);
-          setIsLiked(false);
-        }
+        // if (response.data.message.like) {
+        //   setLikes(likes + 1);
+        //   setIsLiked(true);
+        // } else {
+        //   setLikes(likes - 1);
+        //   setIsLiked(false);
+        // }
       } catch (error) {
         console.error(error);
+        if (isLiked) {
+          setLikes(likes);
+          setIsLiked(true);
+        } else {
+          setLikes(likes);
+          setIsLiked(false);
+        }
       }
     } else {
       navigate("/login");
@@ -191,7 +205,7 @@ export function CommentStructure({
 
   const handleReply = async () => {
     if (isAuthenticated) {
-      const postLink = `post/${encryptPostId(details.post_id)}`;
+      const postLink = `post/${encryptId(details.post_id)}`;
 
       const commentContent = document.getElementById("comment").value;
       if (commentContent !== "") {
@@ -282,8 +296,10 @@ export function CommentStructure({
           </AvatarFallback>
         </Avatar>
         <div className="flex flex-col">
-          <div className="flex flex-col bg-[#f0f2f5] dark:bg-[#3a3b3c] px-3 py-2 rounded-xl min-w-44">
-            <span className="font-semibold text-sm">{details.user.name}</span>
+          <div className="flex flex-col bg-[#f0f2f5] dark:bg-[#3a3b3c] px-3 py-2 rounded-xl">
+            <span className="font-semibold text-sm pr-6">
+              {details.user.name}
+            </span>
             <span>{commentContent}</span>
           </div>
           <div className="flex text-xs gap-5 font-medium ml-2">

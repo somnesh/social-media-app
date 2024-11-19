@@ -4,6 +4,7 @@ import axios from "axios";
 import { useToastHandler } from "../contexts/ToastContext";
 import { useState } from "react";
 import { CircleCheck, CircleX } from "lucide-react";
+import { Link } from "react-router-dom";
 
 export function ProfileCard({ details, followingBack }) {
   const [isFollowingBack, setIsFollowingBack] = useState(followingBack);
@@ -107,9 +108,9 @@ export function ProfileCard({ details, followingBack }) {
       {details && (
         <div className="flex basis-1/2 flex-col gap-5 bg-white dark:bg-[#242526] px-4 py-3 transition-all drop-shadow-sm rounded-md">
           <div className="flex gap-3 items-center">
-            <a
-              href={`${APP_URL}/user/${details.username}`}
-              className="hover:contrast-50"
+            <Link
+              to={`${APP_URL}/user/${details.username}`}
+              className="hover:contrast-[.8]"
             >
               <Avatar>
                 <AvatarImage src={details?.avatar} />
@@ -117,14 +118,14 @@ export function ProfileCard({ details, followingBack }) {
                   {details?.name[0]}
                 </AvatarFallback>
               </Avatar>
-            </a>
+            </Link>
             <div className="flex flex-col justify-center">
-              <a
+              <Link
                 href={`${APP_URL}/user/${details.username}`}
                 className="hover:underline"
               >
                 <span className="font-medium ">{details?.name}</span>
-              </a>
+              </Link>
               <span className="text-sm ">@{details?.username}</span>
             </div>
           </div>

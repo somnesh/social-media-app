@@ -1,4 +1,6 @@
-import { PawPrint, TriangleAlert } from "lucide-react";
+import { TriangleAlert } from "lucide-react";
+import { Link } from "react-router-dom";
+import { Button } from "../components/ui/button";
 
 export function NotFound() {
   return (
@@ -16,6 +18,9 @@ export function NotFound() {
           know.
         </span>
       </div>
+      <Link to={"/"} className="mt-2">
+        <Button>Go to home</Button>
+      </Link>
     </div>
   );
 }

@@ -22,7 +22,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import useTheme from "../contexts/theme";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 
 export function ProfileMenu() {
@@ -41,7 +41,11 @@ export function ProfileMenu() {
   const handleLogout = async () => {
     try {
       await axios.post(`${API_URL}/auth/logout`, {}, { withCredentials: true });
-      localStorage.clear();
+      localStorage.removeItem("avatar");
+      localStorage.removeItem("avatarBg");
+      localStorage.removeItem("id");
+      localStorage.removeItem("name");
+      localStorage.removeItem("username");
       navigate("/login");
     } catch (error) {
       console.log("Error during logout: ", error);
@@ -51,9 +55,9 @@ export function ProfileMenu() {
   return (
     <DropdownMenu modal={false}>
       <DropdownMenuTrigger asChild>
-        <div className="flex items-center gap-2 cursor-pointer hover:bg-[#e3e5e9] active:bg-[#d0d2d6] dark:hover:bg-[#414141] dark:active:bg-[#313131] active:scale-95 select-none pl-3 pr-1 py-1 rounded-full">
-          <span className="dark:text-white bg-inherit hover:bg-inherit font-medium">
-            {localStorage.name}
+        <div className="flex items-center gap-2 cursor-pointer hover:bg-[#e3e5e9] active:bg-[#d0d2d6] dark:hover:bg-[#414141] dark:active:bg-[#313131] active:scale-95 select-none px-1 sm:pl-3 sm:pr-1 py-1 rounded-full">
+          <span className="dark:text-white bg-inherit hover:bg-inherit font-medium hidden sm:block">
+            {localStorage.name.split(" ")[0]}
           </span>
           <Avatar>
             <AvatarImage src={localStorage.avatar} />
@@ -66,22 +70,20 @@ export function ProfileMenu() {
 
       <DropdownMenuContent className="w-48 dark:bg-[#242526]  dark:text-white dark:border-none">
         <DropdownMenuGroup>
-          <DropdownMenuItem
-            onClick={() => {
-              navigate(`/user/${localStorage.username}`);
-            }}
-            className="dark:focus:bg-[#414141] dark:focus:text-white cursor-pointer"
-          >
-            <User className="mr-2 h-4 w-4" />
-            <span>Profile</span>
-            <DropdownMenuShortcut>⇧⌘P</DropdownMenuShortcut>
-          </DropdownMenuItem>
-
-          <DropdownMenuItem className="cursor-pointer dark:focus:bg-[#414141] dark:text-white">
-            <Settings className="mr-2 h-4 w-4" />
-            <span>Settings</span>
-            <DropdownMenuShortcut>⌘S</DropdownMenuShortcut>
-          </DropdownMenuItem>
+          <Link to={`/user/${localStorage.username}`}>
+            <DropdownMenuItem className="dark:focus:bg-[#414141] dark:focus:text-white cursor-pointer">
+              <User className="mr-2 h-4 w-4" />
+              <span>Profile</span>
+              <DropdownMenuShortcut>⇧⌘P</DropdownMenuShortcut>
+            </DropdownMenuItem>
+          </Link>
+          <Link to={"/settings"}>
+            <DropdownMenuItem className="cursor-pointer dark:focus:bg-[#414141] dark:text-white">
+              <Settings className="mr-2 h-4 w-4" />
+              <span>Settings</span>
+              <DropdownMenuShortcut>⌘S</DropdownMenuShortcut>
+            </DropdownMenuItem>
+          </Link>
         </DropdownMenuGroup>
 
         <DropdownMenuGroup>

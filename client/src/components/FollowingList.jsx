@@ -55,7 +55,7 @@ export function FollowingList() {
       {isLoading ? (
         <ProfileCardLoader />
       ) : (
-        <div className="">
+        <div className="px-2 sm:px-0">
           <div className="mb-4">
             <span className="text-2xl font-bold">Following ({totalCount})</span>
           </div>

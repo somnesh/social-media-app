@@ -3,7 +3,8 @@ import axios from "axios";
 import { debounce } from "lodash";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useAuth } from "../contexts/AuthContext";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { Search } from "lucide-react";
 
 export function SearchBar() {
   const [query, setQuery] = useState(""); // For storing the search term
@@ -72,7 +73,7 @@ export function SearchBar() {
   return (
     <div
       ref={targetDivRef}
-      className="flex flex-col w-fit transition-all relative"
+      className="flex flex-col w-fit transition-all ml-2 sm:ml-0 relative"
     >
       <div
         onClick={handleClick}
@@ -81,14 +82,17 @@ export function SearchBar() {
         } z-[1]`}
       >
         <div>
-          <span className="material-symbols-outlined flex pl-1">search</span>
+          <Search />
         </div>
         <input
-          className="outline-none px-2 bg-[#f0f2f5] dark:bg-[#3a3b3c] dark:text-white text-black"
+          className={`outline-none px-2 bg-[#f0f2f5] dark:bg-[#3a3b3c] dark:text-white text-black ${
+            !isVisible && "hidden sm:block"
+          }`}
           type="text"
           name="search"
           value={query}
           onChange={handleInputChange}
+          autoComplete="off"
           placeholder="Find people"
         />
       </div>
@@ -121,8 +125,8 @@ export function SearchBar() {
           {results.length > 0 && (
             <>
               {results.map((user) => (
-                <a
-                  href={`${APP_URL}/user/${user.username}`}
+                <Link
+                  to={`${APP_URL}/user/${user.username}`}
                   className="flex items-center cursor-pointer p-2 gap-2 text-black dark:text-white hover:bg-slate-100 dark:hover:bg-[#454647] text-sm rounded-sm"
                 >
                   <Avatar>
@@ -132,7 +136,7 @@ export function SearchBar() {
                     </AvatarFallback>
                   </Avatar>
                   <span>{user.name}</span>
-                </a>
+                </Link>
               ))}
             </>
           )}
