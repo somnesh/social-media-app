@@ -8,22 +8,12 @@ const { setupSocket } = require("./services/socket");
 const express = require("express");
 const app = express();
 
-// Socket.IO server
-const server = http.createServer(app);
-const io = setupSocket(server);
-
-// passing the io obj to req
-app.use((req, res, next) => {
-  req.io = io;
-  next();
-});
-
 // middleware
 app.use(cookieParser());
 app.use(express.static("./public"));
 app.use(express.json());
 // cors middleware
-app.use(cors({ credentials: true, origin: true }));
+app.use(cors());
 
 // app.use(express.urlencoded({ extended: true }));
 
@@ -68,10 +58,21 @@ const start = async () => {
   try {
     // establishing database connection
     await connectDB(process.env.MONGO_URI);
-    app.listen(port, console.log(`Server is listening on port ${port}...`));
+
+    // Socket.IO server
+    const server = http.createServer(app);
+    const io = setupSocket(server);
+
+    // passing the io obj to req
+    app.use((req, res, next) => {
+      req.io = io;
+      next();
+    });
+
+    server.listen(port, console.log(`Server is listening on port ${port}...`));
 
     // for socket.io
-    io.listen(process.env.SOCKET_PORT);
+    // io.listen(process.env.PORT || 9000);
   } catch (error) {
     console.log(error);
   }

@@ -1,10 +1,9 @@
 import { io } from "socket.io-client";
-const SOCKET_URL = import.meta.env.VITE_SOCKET_URL;
+
 const SERVER_URL = import.meta.env.VITE_SERVER_URL;
-console.log(SOCKET_URL);
 
 // Initialize the socket connection
-const socket = io(SOCKET_URL || SERVER_URL);
+const socket = io(SERVER_URL);
 
 socket.on("connect", () => {
   console.log("Connected to the server with socket ID:", socket.id);
