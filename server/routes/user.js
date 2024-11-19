@@ -29,7 +29,7 @@ router.route("/").get(authenticateAdmin, getAllUsers); // For admin
 
 router
   .route("/:idOrUsername")
-  .get(getUserDetails)
+  .get(auth, getUserDetails)
   .patch(auth, updateUserDetails)
   .delete(deleteUser); // need to authenticate
 
