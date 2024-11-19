@@ -322,7 +322,7 @@ export function CommentStructure({
         </div>
         <div className="flex relative gap-1 items-start">
           {likes !== 0 && (
-            <div className="absolute items-center right-0 text-xs flex px-[0.2rem] py-[0.12rem] dark:bg-slate-500 rounded-full gap-1">
+            <div className="absolute items-center right-0 text-xs flex px-[0.2rem] py-[0.12rem] bg-gray-300 dark:bg-slate-500 rounded-full gap-1">
               <span className="rounded-full bg-[#f91880] w-fit p-1 h-fit ">
                 <Heart size={10} fill="white" stroke="white" />
               </span>
