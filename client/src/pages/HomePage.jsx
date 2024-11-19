@@ -63,6 +63,9 @@ export const Home = () => {
               {currentPage === "followers" && <FollowerList />}
               {currentPage === "following" && <FollowingList />}
               {currentPage === "saved" && <SavedPosts />}
+              {currentPage === "notification" && (
+                <NotificationCentre mobileFlag={true} />
+              )}
             </section>
             {/* --------------------------------------- */}
             <section

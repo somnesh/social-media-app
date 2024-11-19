@@ -1,4 +1,4 @@
-import { Bookmark, Home, UserCheck, Users } from "lucide-react";
+import { Bell, Bookmark, Home, UserCheck, Users } from "lucide-react";
 import { useState } from "react";
 
 export function Sidebar({ variant, setCurrentPage }) {
@@ -84,6 +84,33 @@ export function Sidebar({ variant, setCurrentPage }) {
             } hidden sm:block`}
           >
             Following
+          </span>
+        </div>
+      </div>
+      <div className="flex sm:hidden">
+        <div
+          onClick={() => {
+            if (variant !== "notification") setCurrentPage("notification");
+          }}
+          className={`flex items-center gap-2 py-3 px-4 cursor-pointer rounded-full ${
+            variant !== "notification"
+              ? "hover:bg-[#e3e5e9] dark:hover:bg-[#414141]"
+              : "dark:bg-blue-950 bg-blue-200"
+          }`}
+        >
+          {variant === "notification" ? (
+            <Bell fill={selectColor} stroke={selectColor} />
+          ) : (
+            <Bell />
+          )}
+          <span
+            className={`${
+              variant === "notification"
+                ? `font-bold text-[${selectColor}]`
+                : ""
+            } hidden sm:block`}
+          >
+            Notification
           </span>
         </div>
       </div>
