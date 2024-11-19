@@ -1,5 +1,5 @@
 import CryptoJS from "crypto-js";
-const encryptPostId = (id) => {
+const encryptId = (id) => {
   const ENCRYPTION_SECRET = import.meta.env.VITE_URL_ENCRYPTION_SECRET;
   const encryptedPostID = CryptoJS.AES.encrypt(
     id,
@@ -13,4 +13,4 @@ const encryptPostId = (id) => {
   return urlSafeEncryptedPostID;
 };
 
-export default encryptPostId;
+export default encryptId;

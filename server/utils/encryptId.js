@@ -1,5 +1,5 @@
 const CryptoJS = require("crypto-js");
-const encryptPostId = (id) => {
+const encryptId = (id) => {
   const encryptedPostID = CryptoJS.AES.encrypt(
     id,
     process.env.URL_ENCRYPTION_SECRET
@@ -12,4 +12,4 @@ const encryptPostId = (id) => {
   return urlSafeEncryptedPostID;
 };
 
-module.exports = encryptPostId;
+module.exports = encryptId;
