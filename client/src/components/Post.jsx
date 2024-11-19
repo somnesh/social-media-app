@@ -569,7 +569,7 @@ export function Post({ details, setPosts, externalLinkFlag, className }) {
                     <span>Not interested</span>
                   </div>
                 )}
-                {isAuthenticated && (
+                {!isPoll && isAuthenticated && (
                   <div
                     onClick={handleSavePost}
                     className="flex hover:bg-[#f3f4f6] dark:hover:bg-[#414141] cursor-pointer px-2 py-1.5 rounded-sm items-center"
