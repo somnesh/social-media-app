@@ -50,7 +50,7 @@ const reportRoute = require("./routes/report");
 //protected routes
 app.use("/api/v1/auth", authRoute);
 app.use("/api/v1/post", authenticateUser, postRoute);
-app.use("/api/v1/user", authenticateUser, userRoute);
+app.use("/api/v1/user", userRoute); // the auth middleware used inside the routes file for specific routes
 app.use("/api/v1/auth/admin", adminRoute);
 app.use("/api/v1/admin", authenticateAdmin, adminRoute);
 app.use("/api/v1/feed", authenticateUser, feedRoute);
