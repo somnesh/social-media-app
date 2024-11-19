@@ -5,8 +5,6 @@ function setupSocket(server) {
   const io = new Server(server, {
     cors: {
       origin: process.env.CLIENT_URL, // Your frontend URL
-      methods: ["GET", "POST"],
-      credentials: true,
     },
   });
 
