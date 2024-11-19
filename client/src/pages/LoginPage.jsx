@@ -4,7 +4,8 @@ import { Link } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
 import { LoginPageImageLoader } from "../components/loaders/LoginPageImageLoader";
 import { useAuth } from "../contexts/AuthContext";
-import { Loader2 } from "lucide-react";
+import { Eye, EyeOff, Loader2 } from "lucide-react";
+import { Button } from "../components/ui/button";
 
 export function LoginPage() {
   const [bgImage, setBgImage] = useState("");
@@ -12,6 +13,7 @@ export function LoginPage() {
   const [isLoadingLogin, setIsLoadingLogin] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
   const { setIsAuthenticated, isAuthenticated } = useAuth();
 
@@ -155,11 +157,11 @@ export function LoginPage() {
                   Password
                 </label>
               </div>
-              <div>
+              <div className="relative">
                 <input
                   id="password"
                   name="password"
-                  type="password"
+                  type={showPassword ? "text" : "password"}
                   autoComplete="current-password"
                   placeholder="Enter your password"
                   title="Enter your password"
@@ -170,6 +172,22 @@ export function LoginPage() {
                     e.target.classList.remove("ring-red-600");
                   }}
                 />
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon"
+                  className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
+                  onClick={() => setShowPassword(!showPassword)}
+                >
+                  {showPassword ? (
+                    <EyeOff className="h-4 w-4 text-gray-500" />
+                  ) : (
+                    <Eye className="h-4 w-4 text-gray-500" />
+                  )}
+                  <span className="sr-only">
+                    {showPassword ? "Hide password" : "Show password"}
+                  </span>
+                </Button>
               </div>
               <span
                 id="msg"
@@ -181,7 +199,7 @@ export function LoginPage() {
 
             <div className="text-sm text-right">
               <Link
-                href="#"
+                to={"/forgot-password"}
                 className="font-semibold text-indigo-600 hover:text-indigo-500"
               >
                 Forgot Password?
