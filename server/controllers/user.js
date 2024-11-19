@@ -1,9 +1,16 @@
 const User = require("../models/User");
 const { StatusCodes } = require("http-status-codes");
-const { NotFoundError, BadRequestError } = require("../errors");
+const {
+  NotFoundError,
+  BadRequestError,
+  UnauthenticatedError,
+} = require("../errors");
 const Follower = require("../models/Follower");
 const mongoose = require("mongoose");
+const jwt = require("jsonwebtoken");
 const { sendNotification } = require("./notification");
+const sendResetEmail = require("../utils/sendResetEmail");
+const encryptId = require("../utils/encryptId");
 
 // For admin
 const getAllUsers = async (req, res) => {
@@ -37,7 +44,7 @@ const getUserDetails = async (req, res) => {
     let isFollowingUser = false;
     let userFollowingBack = false;
 
-    if (user[0]._id.toString() !== req.user._id.toString()) {
+    if (req.user && user[0]._id.toString() !== req.user._id.toString()) {
       isFollowingUser =
         (
           await Follower.find({
@@ -107,7 +114,93 @@ const uploadCoverPhoto = async (req, res) => {
 };
 
 const updateUserDetails = async (req, res) => {
-  res.send("Update user details");
+  const userId = req.params.idOrUsername;
+  console.log(userId);
+
+  const validateUser = await User.findById(userId);
+  if (validateUser._id.toString() !== userId) {
+    throw new BadRequestError("User doesn't have permission to perform this.");
+  }
+
+  const updatedUser = await User.findByIdAndUpdate(userId, req.body, {
+    runValidators: true,
+  });
+
+  res.status(200).json({ success: true });
+};
+
+const forgotPassword = async (req, res) => {
+  const { email } = req.params;
+  const user = await User.findOne({ email: email }); // User is already authenticated and available
+
+  if (!user) {
+    throw new NotFoundError(`No user is found with email id: ${email}`);
+  }
+
+  try {
+    // Step 1: Generate reset token
+    const resetToken = jwt.sign(
+      { userId: user._id },
+      process.env.RESET_PASSWORD_TOKEN_SECRET,
+      { expiresIn: process.env.RESET_PASSWORD_TOKEN_SECRET_EXPIRATION }
+    );
+
+    // Step 2: Update the user's reset token and expiration time
+    user.resetPasswordToken = resetToken;
+    user.resetPasswordExpires =
+      Date.now() + process.env.RESET_PASSWORD_TOKEN_SECRET_EXPIRATION * 1000; // Set expiration timestamp
+    await user.save();
+
+    const origin = process.env.API_URL;
+
+    const name = user.name;
+    const email = user.email;
+    await sendResetEmail({
+      name,
+      email,
+      resetToken,
+      origin,
+    });
+
+    // Step 5: Respond to the client
+    res.status(200).json({
+      message: "Password reset link has been sent to your email address.",
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+};
+
+const verifyResetPassword = async (req, res) => {
+  try {
+    const { token: resetPasswordToken, email } = req.query;
+    const user = await User.findOne({
+      email: email,
+      resetPasswordToken: resetPasswordToken,
+      resetPasswordExpires: { $gt: Date.now() },
+    });
+
+    if (!user) {
+      throw new UnauthenticatedError(
+        "Verification Failed: Invalid or expired token."
+      );
+    }
+
+    user.resetPasswordToken = undefined;
+    user.resetPasswordExpires = undefined;
+
+    await user.save();
+
+    const encryptedUserId = encryptId(user._id.toString());
+
+    res.redirect(
+      `${process.env.CLIENT_URL}/reset-password-success/${encryptedUserId}`
+    );
+  } catch (error) {
+    console.error(error);
+    res.redirect(`${process.env.CLIENT_URL}/500`);
+  }
 };
 
 const deleteUser = async (req, res) => {
@@ -314,4 +407,6 @@ module.exports = {
   removeFollower,
   searchUser,
   uploadCoverPhoto,
+  forgotPassword,
+  verifyResetPassword,
 };
