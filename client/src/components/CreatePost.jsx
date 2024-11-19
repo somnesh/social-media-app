@@ -11,9 +11,14 @@ import {
   MapPin,
   Users,
   Video,
+  Plus,
+  Trash2,
   X,
 } from "lucide-react";
 
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
 import { Button } from "./ui/button";
 
 import {
@@ -37,7 +42,7 @@ import axios from "axios";
 import { CreatePostSubmitLoader } from "./loaders/CreatePostSubmitLoader";
 // import { jwtDecode } from "jwt-decode";
 import { useToastHandler } from "../contexts/ToastContext";
-import VideoPlayer from "./VideoPlayer";
+import Poll from "./Poll";
 // import { useLocation } from "react-router-dom";
 
 export function CreatePost({
@@ -46,6 +51,8 @@ export function CreatePost({
   setPosts,
   imageFlag,
   setImageFlag,
+  setPollFlag,
+  pollFlag,
 }) {
   const toastHandler = useToastHandler();
   const [visibility, setVisibility] = useState("public");
@@ -56,6 +63,13 @@ export function CreatePost({
   const [uploadedVideo, setUploadedVideo] = useState(null);
   const [uploadVideoPopUp, setUploadVideoPopUp] = useState(false);
   const [previewUrl, setPreviewUrl] = useState(null);
+  const [openPollPopUp, setOpenPollPopUp] = useState(false);
+  // for poll
+  const [question, setQuestion] = useState("");
+  const [options, setOptions] = useState(["", ""]);
+  const [duration, setDuration] = useState("1");
+  // end poll
+
   const imageRef = useRef(null);
   const videoRef = useRef(null);
 
@@ -74,9 +88,7 @@ export function CreatePost({
     document.body.classList.remove("overflow-hidden");
   };
 
-  const handleSubmit = async (e) => {
-    setIsLoading(true);
-    e.preventDefault();
+  const createPost = async () => {
     const formData = new FormData();
 
     formData.append("content", postContent);
@@ -119,6 +131,18 @@ export function CreatePost({
     }
   };
 
+  const handleSubmit = async (e) => {
+    setIsLoading(true);
+    e.preventDefault();
+    console.log(pollFlag);
+
+    if (openPollPopUp) {
+      createPoll();
+    } else {
+      createPost();
+    }
+  };
+
   const uploadImage = () => {
     imageRef.current.click();
   };
@@ -129,14 +153,22 @@ export function CreatePost({
 
   const togglePopupUploadImage = () => {
     setUploadVideoPopUp(false);
+    setOpenPollPopUp(false);
     setUploadImagePopUp(!uploadImagePopUp);
   };
 
   const togglePopupUploadVideo = () => {
+    setOpenPollPopUp(false);
     setUploadImagePopUp(false);
     setUploadVideoPopUp(!uploadVideoPopUp);
     setUploadedVideo(null);
     setPreviewUrl(null);
+  };
+
+  const togglePopupPoll = () => {
+    setUploadImagePopUp(false);
+    setUploadVideoPopUp(false);
+    setOpenPollPopUp(!openPollPopUp);
   };
 
   useEffect(() => {
@@ -144,7 +176,12 @@ export function CreatePost({
       togglePopupUploadImage();
       setImageFlag(false);
     }
-  }, [imageFlag, setImageFlag]);
+
+    if (pollFlag) {
+      togglePopupPoll();
+      setPollFlag(false);
+    }
+  }, [imageFlag, setImageFlag, pollFlag, setPollFlag]);
 
   const handleFileChange = () => {
     const file = imageRef.current.files[0];
@@ -165,6 +202,78 @@ export function CreatePost({
       setUploadedVideo(file);
       setPreviewUrl(url);
     }
+  };
+
+  const createPoll = async () => {
+    // Basic validation
+    if (!question.trim() || options.some((option) => !option.trim())) {
+      setIsLoading(false);
+      return;
+    }
+
+    try {
+      setIsLoading(true); // Start loading state
+
+      const pollData = {
+        question,
+        options: options.filter((option) => option.trim()), // Remove empty options
+        expiresAt: parseInt(duration, 10), // Convert duration to a number
+      };
+
+      const response = await axios.post(`${API_URL}/post/polls`, pollData, {
+        withCredentials: true,
+      });
+
+      console.log("Form submitted : ", response.data);
+      closePopup();
+      setPosts((prev) => [response.data.post, ...prev]);
+
+      toastHandler(
+        <div className="flex gap-2 items-center">
+          <CircleCheck className="bg-green-600 rounded-full text-white dark:text-[#242526]" />
+          <span>Post created</span>
+        </div>,
+        false
+      );
+
+      // Reset form after successful creation
+      setQuestion("");
+      setOptions(["", ""]);
+      setDuration("1");
+    } catch (error) {
+      console.error(
+        "Error creating poll:",
+        error.response?.data || error.message
+      );
+      toastHandler(
+        <div className="flex gap-2 items-center">
+          <CircleAlert className="bg-red-600 rounded-full text-white dark:text-[#7f1d1d]" />
+          <span>Something went wrong</span>
+        </div>,
+        true
+      );
+    } finally {
+      setIsLoading(false); // End loading state
+    }
+  };
+
+  const addOption = () => {
+    if (options.length < 5) {
+      setOptions([...options, ""]);
+    }
+  };
+
+  const removeOption = (index) => {
+    if (options.length > 2) {
+      const newOptions = options.filter((_, i) => i !== index);
+      setOptions(newOptions);
+    }
+  };
+
+  const updateOption = (index, value) => {
+    const newOptions = [...options];
+    newOptions[index] = value;
+    setOptions(newOptions);
   };
 
   return (
@@ -234,17 +343,19 @@ export function CreatePost({
             </TooltipProvider>
           </div>
           <div className="my-4">
-            <textarea
-              autoFocus
-              className="min-w-full min-h-32 p-2 rounded-md border bg-[#F0F2F5] dark:bg-[#333536] resize-none outline-none"
-              name="content"
-              id=""
-              placeholder="Start writing here ..."
-              value={postContent}
-              onChange={(e) => {
-                setPostContent(e.target.value);
-              }}
-            ></textarea>
+            {!openPollPopUp && (
+              <textarea
+                autoFocus
+                className="min-w-full min-h-32 p-2 rounded-md border bg-[#F0F2F5] dark:bg-[#333536] resize-none outline-none"
+                name="content"
+                id=""
+                placeholder="Start writing here ..."
+                value={postContent}
+                onChange={(e) => {
+                  setPostContent(e.target.value);
+                }}
+              ></textarea>
+            )}
             {uploadImagePopUp && (
               <div
                 id="uploadPopUp"
@@ -322,6 +433,71 @@ export function CreatePost({
                 </div>
               </div>
             )}
+            {openPollPopUp && (
+              <div className="w-full max-w-2xl mx-auto">
+                <div className="space-y-4">
+                  <div className="space-y-2">
+                    <div>
+                      <Label>Question</Label>
+                      <Textarea
+                        placeholder="Ask a question..."
+                        className="min-h-[80px] dark:bg-[#333536]"
+                        value={question}
+                        onChange={(e) => setQuestion(e.target.value)}
+                      />
+                    </div>
+                    <Label>Poll Options</Label>
+                    {options.map((option, index) => (
+                      <div key={index} className="flex items-center space-x-2">
+                        <Input
+                          className={"dark:bg-[#333536]"}
+                          placeholder={`Option ${index + 1}`}
+                          value={option}
+                          onChange={(e) => updateOption(index, e.target.value)}
+                        />
+                        {options.length > 2 && (
+                          <Button
+                            type={"button"}
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => removeOption(index)}
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        )}
+                      </div>
+                    ))}
+                    {options.length < 5 && (
+                      <div className="flex justify-center m-auto">
+                        <Button
+                          type={"button"}
+                          variant="outline"
+                          className="bg-transparent dark:hover:bg-indigo-900 rounded-full"
+                          onClick={addOption}
+                        >
+                          <Plus className="h-4 w-4 mr-2" />
+                          Add Option
+                        </Button>
+                      </div>
+                    )}
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Poll Duration</Label>
+                    <Select value={duration} onValueChange={setDuration}>
+                      <SelectTrigger className={"dark:bg-[#333536]"}>
+                        <SelectValue placeholder="Select duration" />
+                      </SelectTrigger>
+                      <SelectContent className={"dark:bg-[#333536]"}>
+                        <SelectItem value="1">1 Day</SelectItem>
+                        <SelectItem value="3">3 Days</SelectItem>
+                        <SelectItem value="7">1 Week</SelectItem>
+                        <SelectItem value="14">2 Weeks</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
           <div className="flex justify-between my-4 items-center">
             <div className="w-full flex justify-between items-center border border-[#ced0d4] dark:border-[#3e4042] pl-3 pr-2 py-1 mr-2 rounded-md">
@@ -358,6 +534,7 @@ export function CreatePost({
                   </Tooltip>
                   <Tooltip>
                     <TooltipTrigger
+                      onClick={() => togglePopupPoll()}
                       type="button"
                       className="p-2 rounded-full hover:bg-[#d3d5d8] dark:hover:bg-[#414141]"
                     >

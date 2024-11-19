@@ -51,7 +51,10 @@ const PostSchema = new mongoose.Schema(
       type: mongoose.Types.ObjectId,
       ref: "Post",
     },
-
+    poll_id: {
+      type: mongoose.Types.ObjectId,
+      ref: "Poll",
+    },
     media_type: {
       type: String,
     },

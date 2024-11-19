@@ -72,13 +72,14 @@ import { CommentsLoader } from "./loaders/CommentsLoader";
 import { CommentStructure } from "./CommentStructure";
 import { LikeSkeleton } from "./loaders/LikeSkeleton";
 import { Button } from "./ui/button";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { ContentEditor } from "./ContentEditor";
 import { PostVisibilityEditor } from "./PostVisibilityEditor";
 import { ReportEditor } from "./ReportEditor";
 import { useAuth } from "../contexts/AuthContext";
-import encryptPostId from "../utils/encryptPostId";
+import encryptId from "../utils/encryptId";
 import VideoPlayer from "./VideoPlayer";
+import Poll from "./Poll";
 
 export function Post({ details, setPosts, externalLinkFlag, className }) {
   const [isLoading, setIsLoading] = useState(false);
@@ -107,6 +108,8 @@ export function Post({ details, setPosts, externalLinkFlag, className }) {
     useState(false);
   const [postCaption, setPostCaption] = useState(details.content);
   const [commentContent, setCommentContent] = useState("");
+
+  const [isPoll, setIsPoll] = useState(details.poll_id ? true : false);
 
   const limit = 4; // comment load limit
 
@@ -203,7 +206,7 @@ export function Post({ details, setPosts, externalLinkFlag, className }) {
 
       if (commentContent !== "") {
         try {
-          const postLink = `post/${encryptPostId(details._id)}`;
+          const postLink = `post/${encryptId(details._id)}`;
 
           const response = await axios.post(
             `${API_URL}/post/comment/${details._id}`,
@@ -293,7 +296,14 @@ export function Post({ details, setPosts, externalLinkFlag, className }) {
   const handleLike = async () => {
     if (isAuthenticated) {
       try {
-        const postLink = `post/${encryptPostId(details._id)}`;
+        if (!isLiked) {
+          setLikes(likes + 1);
+          setIsLiked(true);
+        } else {
+          setLikes(likes - 1);
+          setIsLiked(false);
+        }
+        const postLink = `post/${encryptId(details._id)}`;
 
         const response = await axios.patch(
           `${API_URL}/post/like/${details._id}`,
@@ -303,14 +313,21 @@ export function Post({ details, setPosts, externalLinkFlag, className }) {
           }
         );
 
-        if (response.data.message.like) {
-          setLikes(likes + 1);
+        // if (response.data.message.like) {
+        //   setLikes(likes + 1);
+        //   setIsLiked(true);
+        // } else {
+        //   setLikes(likes - 1);
+        //   setIsLiked(false);
+        // }
+      } catch (error) {
+        if (isLiked) {
+          setLikes(likes);
           setIsLiked(true);
         } else {
-          setLikes(likes - 1);
+          setLikes(likes);
           setIsLiked(false);
         }
-      } catch (error) {
         console.error(error);
       }
     } else {
@@ -425,7 +442,7 @@ export function Post({ details, setPosts, externalLinkFlag, className }) {
   const handleCopyLink = async () => {
     try {
       // encrypt the post id
-      const encryptedId = encryptPostId(details._id);
+      const encryptedId = encryptId(details._id);
 
       // adding the link to the clipboard
       await navigator.clipboard.writeText(`${APP_URL}/post/${encryptedId}`);
@@ -498,14 +515,15 @@ export function Post({ details, setPosts, externalLinkFlag, className }) {
         </div>
       )}
       <div
-        className={`bg-white dark:bg-[#242526] px-4 py-2 ${className} ${
-          details.recommended ? "rounded-b-lg" : "rounded-lg"
-        } mb-4 relative transition-all drop-shadow-sm`}
+        className={`bg-white dark:bg-[#242526] pb-3 ${className} ${
+          details.recommended ? "sm:rounded-b-lg" : "sm:rounded-lg"
+        } sm:mb-4 mb-1 relative transition-all drop-shadow-sm`}
       >
-        <div className="flex items-center gap-3 pt-2">
-          <a
-            href={`${APP_URL}/user/${details.user_id.username}`}
-            className="hover:contrast-50"
+        {/* Post header */}
+        <div className="flex items-center gap-3 pt-4 px-4">
+          <Link
+            to={`${APP_URL}/user/${details.user_id.username}`}
+            className="hover:contrast-[.7]"
           >
             <Avatar>
               <AvatarImage src={details.user_id.avatar} />
@@ -513,14 +531,14 @@ export function Post({ details, setPosts, externalLinkFlag, className }) {
                 {details.user_id.name[0]}
               </AvatarFallback>
             </Avatar>
-          </a>
+          </Link>
           <div className="">
-            <a
-              href={`${APP_URL}/user/${details.user_id.username}`}
+            <Link
+              to={`${APP_URL}/user/${details.user_id.username}`}
               className="font-medium hover:underline"
             >
               {details.user_id.name}
-            </a>
+            </Link>
             <div className="flex gap-1 items-center text-sm">
               <span>
                 {visibility === "public" ? (
@@ -562,20 +580,24 @@ export function Post({ details, setPosts, externalLinkFlag, className }) {
                 )}
                 {localStorage.id === details.user_id._id && (
                   <>
-                    <div
-                      onClick={handleEditPost}
-                      className="flex hover:bg-[#f3f4f6] dark:hover:bg-[#414141] cursor-pointer p-2 py-1.5 rounded-sm items-center"
-                    >
-                      <FilePenLine className="mr-2 h-5 w-5" />
-                      <span>Edit</span>
-                    </div>
-                    <div
-                      onClick={handleChangeVisibility}
-                      className="flex hover:bg-[#f3f4f6] dark:hover:bg-[#414141] cursor-pointer p-2 py-1.5 rounded-sm items-center"
-                    >
-                      <UserCog className="mr-2 h-5 w-5" />
-                      <span>Change visibility</span>
-                    </div>
+                    {!isPoll && (
+                      <>
+                        <div
+                          onClick={handleEditPost}
+                          className="flex hover:bg-[#f3f4f6] dark:hover:bg-[#414141] cursor-pointer p-2 py-1.5 rounded-sm items-center"
+                        >
+                          <FilePenLine className="mr-2 h-5 w-5" />
+                          <span>Edit</span>
+                        </div>
+                        <div
+                          onClick={handleChangeVisibility}
+                          className="flex hover:bg-[#f3f4f6] dark:hover:bg-[#414141] cursor-pointer p-2 py-1.5 rounded-sm items-center"
+                        >
+                          <UserCog className="mr-2 h-5 w-5" />
+                          <span>Change visibility</span>
+                        </div>
+                      </>
+                    )}
 
                     <AlertDialog>
                       <AlertDialogTrigger className="outline-none">
@@ -643,61 +665,88 @@ export function Post({ details, setPosts, externalLinkFlag, className }) {
             />
           )}
         </div>
-        <div className="flex flex-col py-2">
-          <div className="pb-2">{postCaption}</div>
-          {details.parent && (
-            <a
-              href={`${APP_URL}/post/${encryptPostId(details.parent._id)}`}
-              className="border border-[#e4e6eb] dark:border-[#3a3b3c] py-2 px-3 rounded-lg cursor-pointer hover:bg-[#e5e5e6] dark:hover:bg-[#404142]"
-            >
-              <div className="flex text-sm mb-2 gap-2">
-                <Avatar>
-                  <AvatarImage src={details.parent.user_id.avatar} />
-                  <AvatarFallback className={details.parent.user_id.avatarBg}>
-                    {details.parent.user_id.name[0]}
-                  </AvatarFallback>
-                </Avatar>
 
-                <div className="">
-                  <h2 className="font-medium">{details.parent.user_id.name}</h2>
-                  <div className="flex gap-1 items-center text-sm">
-                    <span>
-                      {details.parent.visibility === "public" ? (
-                        <Globe size={16} strokeWidth={1.25} />
-                      ) : details.parent.visibility === "friends" ? (
-                        <Users size={16} strokeWidth={1.25} />
-                      ) : (
-                        <Lock size={16} strokeWidth={1.25} />
-                      )}
-                    </span>
-                    <span>
-                      {" "}
-                      ·{" "}
-                      {calculatePostDuration(
-                        new Date(details.parent.createdAt)
-                      )}
-                    </span>
+        {/* Post body */}
+        <div className={`flex flex-col py-2 ${isPoll && "items-center"}`}>
+          {isPoll ? (
+            <Poll details={details.poll_id} />
+          ) : (
+            <>
+              <div className="pb-2 px-4">{postCaption}</div>
+              {details.parent && (
+                <Link
+                  to={`${APP_URL}/post/${encryptId(details.parent._id)}`}
+                  className="border mx-2 border-[#e4e6eb] dark:border-[#3a3b3c] py-2 px-3 rounded-lg cursor-pointer hover:bg-[#e5e5e6] dark:hover:bg-[#404142]"
+                >
+                  <div className="flex text-sm mb-2 gap-2">
+                    <Avatar>
+                      <AvatarImage src={details.parent.user_id.avatar} />
+                      <AvatarFallback
+                        className={details.parent.user_id.avatarBg}
+                      >
+                        {details.parent.user_id.name[0]}
+                      </AvatarFallback>
+                    </Avatar>
+
+                    <div className="">
+                      <h2 className="font-medium">
+                        {details.parent.user_id.name}
+                      </h2>
+                      <div className="flex gap-1 items-center text-sm">
+                        <span>
+                          {details.parent.visibility === "public" ? (
+                            <Globe size={16} strokeWidth={1.25} />
+                          ) : details.parent.visibility === "friends" ? (
+                            <Users size={16} strokeWidth={1.25} />
+                          ) : (
+                            <Lock size={16} strokeWidth={1.25} />
+                          )}
+                        </span>
+                        <span>
+                          {" "}
+                          ·{" "}
+                          {calculatePostDuration(
+                            new Date(details.parent.createdAt)
+                          )}
+                        </span>
+                      </div>
+                    </div>
                   </div>
-                </div>
-              </div>
-              <div className="pb-1">{details.parent.content}</div>
-              {details.parent.image_url && (
-                <img
-                  src={details.parent.image_url}
-                  alt="photo"
-                  className="rounded-md mb-1 w-full"
-                />
+                  <div className="pb-1">{details.parent.content}</div>
+
+                  {details.parent.image_url &&
+                    (details.parent.media_type &&
+                    details.parent.media_type === "video" ? (
+                      <VideoPlayer videoUrl={details.parent.image_url} />
+                    ) : (
+                      <div className="max-h-[50rem] flex justify-center w-auto overflow-hidden">
+                        <img
+                          src={details.parent.image_url}
+                          className="rounded-md mb-1 border dark:border-[#1f2937] border-gray-200 object-contain w-full h-full"
+                          alt="photo"
+                        />
+                      </div>
+                    ))}
+                </Link>
               )}
-            </a>
+              {details.image_url &&
+                (details.media_type && details.media_type === "video" ? (
+                  <VideoPlayer videoUrl={details.image_url} />
+                ) : (
+                  <div className="max-h-[50rem] flex justify-center w-auto overflow-hidden">
+                    <img
+                      src={details.image_url}
+                      className="border dark:border-[#1f2937] border-gray-200 object-contain w-full h-full"
+                      alt="photo"
+                    />
+                  </div>
+                ))}
+            </>
           )}
-          {details.image_url &&
-            (details.media_type && details.media_type === "video" ? (
-              <VideoPlayer videoUrl={details.image_url} />
-            ) : (
-              <img src={details.image_url} alt="photo" />
-            ))}
         </div>
-        <div className="flex justify-between mb-1 text-sm">
+
+        {/* Post counters */}
+        <div className="flex justify-between mb-1 px-3 text-sm">
           <div className="flex items-center gap-1">
             {likes !== 0 ? (
               <>
@@ -762,7 +811,9 @@ export function Post({ details, setPosts, externalLinkFlag, className }) {
             </div>
           </div>
         </div>
-        <div className="flex py-1 border-y dark:dark:border-y-[#3a3b3c]">
+
+        {/* Post footer */}
+        <div className="flex py-1 mx-4  border-y dark:dark:border-y-[#3a3b3c]">
           <div
             className={`flex active:scale-95 basis-1/3 justify-center transition gap-1 p-2 hover:bg-[#f9188110] hover:text-[#f91880] cursor-pointer rounded-md ${
               isLiked ? "text-[#f91880] font-semibold" : ""
@@ -812,27 +863,29 @@ export function Post({ details, setPosts, externalLinkFlag, className }) {
                   </Button>
                   <span className="text-sm">Copy link</span>
                 </div>
-                <div
-                  onClick={() => {
-                    if (isAuthenticated) {
-                      setOpenShareEditor(true);
-                      setOpenMain(false);
-                    } else {
-                      navigate("/login");
-                    }
-                  }}
-                  className="flex flex-col gap-1 "
-                >
-                  <Button
-                    type="submit"
-                    size="sm"
-                    className="px-3 bg-transparent border hover:bg-slate-200 dark:bg-white dark:hover:bg-slate-200"
+                {!isPoll && (
+                  <div
+                    onClick={() => {
+                      if (isAuthenticated) {
+                        setOpenShareEditor(true);
+                        setOpenMain(false);
+                      } else {
+                        navigate("/login");
+                      }
+                    }}
+                    className="flex flex-col gap-1 "
                   >
-                    <span className="sr-only">share as a post</span>
-                    <FileSymlink className="h-4 w-4 text-black" />
-                  </Button>
-                  <span className="text-sm text-center">Share as a post</span>
-                </div>
+                    <Button
+                      type="submit"
+                      size="sm"
+                      className="px-3 bg-transparent border hover:bg-slate-200 dark:bg-white dark:hover:bg-slate-200"
+                    >
+                      <span className="sr-only">share as a post</span>
+                      <FileSymlink className="h-4 w-4 text-black" />
+                    </Button>
+                    <span className="text-sm text-center">Share as a post</span>
+                  </div>
+                )}
               </div>
             </DialogContent>
           </Dialog>
@@ -922,9 +975,8 @@ export function Post({ details, setPosts, externalLinkFlag, className }) {
             </Dialog>
           )}
         </div>
-        {/* {commentBoxReplies && (
-      
-      )} */}
+
+        {/* Comment section */}
         <div>
           {isLoading ? (
             <CommentsLoader />
@@ -961,7 +1013,7 @@ export function Post({ details, setPosts, externalLinkFlag, className }) {
         </div>
         {commentBoxPopup && (
           <div>
-            <div className="flex mt-2 py-1 pl-3 pr-1 justify-between bg-[#f0f2f5] dark:bg-[#414141] rounded-md items-center">
+            <div className="flex mt-2 py-1 pl-3 pr-1 justify-between bg-[#f0f2f5] dark:bg-[#414141] rounded-md items-center mx-2">
               <input
                 autoFocus
                 type="text"
