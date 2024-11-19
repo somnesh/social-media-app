@@ -522,7 +522,7 @@ export function Post({ details, setPosts, externalLinkFlag, className }) {
         {/* Post header */}
         <div className="flex items-center gap-3 pt-4 px-4">
           <Link
-            to={`${APP_URL}/user/${details.user_id.username}`}
+            to={`${APP_URL || ""}/user/${details.user_id.username}`}
             className="hover:contrast-[.7]"
           >
             <Avatar>
@@ -534,7 +534,7 @@ export function Post({ details, setPosts, externalLinkFlag, className }) {
           </Link>
           <div className="">
             <Link
-              to={`${APP_URL}/user/${details.user_id.username}`}
+              to={`${APP_URL || ""}/user/${details.user_id.username}`}
               className="font-medium hover:underline"
             >
               {details.user_id.name}
@@ -675,7 +675,7 @@ export function Post({ details, setPosts, externalLinkFlag, className }) {
               <div className="pb-2 px-4">{postCaption}</div>
               {details.parent && (
                 <Link
-                  to={`${APP_URL}/post/${encryptId(details.parent._id)}`}
+                  to={`${APP_URL || ""}/post/${encryptId(details.parent._id)}`}
                   className="border mx-2 border-[#e4e6eb] dark:border-[#3a3b3c] py-2 px-3 rounded-lg cursor-pointer hover:bg-[#e5e5e6] dark:hover:bg-[#404142]"
                 >
                   <div className="flex text-sm mb-2 gap-2">

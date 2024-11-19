@@ -109,7 +109,7 @@ export function ProfileCard({ details, followingBack }) {
         <div className="flex basis-1/2 flex-col gap-5 bg-white dark:bg-[#242526] px-4 py-3 transition-all drop-shadow-sm rounded-md">
           <div className="flex gap-3 items-center">
             <Link
-              to={`${APP_URL}/user/${details.username}`}
+              to={`${APP_URL || ""}/user/${details.username}`}
               className="hover:contrast-[.8]"
             >
               <Avatar>
@@ -121,7 +121,7 @@ export function ProfileCard({ details, followingBack }) {
             </Link>
             <div className="flex flex-col justify-center">
               <Link
-                href={`${APP_URL}/user/${details.username}`}
+                to={`${APP_URL || ""}/user/${details.username}`}
                 className="hover:underline"
               >
                 <span className="font-medium ">{details?.name}</span>

@@ -68,7 +68,7 @@ export function Feed() {
           <div className="create-new-post bg-white dark:bg-[#242526] px-4 py-2 sm:rounded-lg mb-2">
             <div className="flex items-center py-2 gap-3">
               <Link
-                to={`${APP_URL}/user/${localStorage.username}`}
+                to={`${APP_URL || ""}/user/${localStorage.username}`}
                 className="hover:contrast-[.7]"
               >
                 <Avatar>

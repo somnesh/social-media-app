@@ -126,7 +126,7 @@ export function SearchBar() {
             <>
               {results.map((user) => (
                 <Link
-                  to={`${APP_URL}/user/${user.username}`}
+                  to={`${APP_URL || ""}/user/${user.username}`}
                   className="flex items-center cursor-pointer p-2 gap-2 text-black dark:text-white hover:bg-slate-100 dark:hover:bg-[#454647] text-sm rounded-sm"
                 >
                   <Avatar>
