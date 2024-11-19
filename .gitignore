@@ -2,4 +2,3 @@ server/node_modules
 server/.env
 settings.json
 index.html
-dump.txt
