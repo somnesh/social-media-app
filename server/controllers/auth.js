@@ -206,11 +206,56 @@ const logout = async (req, res) => {
 };
 
 const changePassword = async (req, res) => {
-  res.post("");
+  const { currentPassword, newPassword } = req.body;
+  console.log(currentPassword, newPassword);
+
+  if (!currentPassword || !newPassword) {
+    throw new BadRequestError("Current password or new password is required");
+  }
+
+  const user = await User.findOne({ email: req.user.email });
+
+  const isPasswordCorrect = await user.comparePassword(currentPassword);
+
+  if (!isPasswordCorrect) {
+    throw new UnauthenticatedError(
+      "Incorrect current password. Please ensure it's correct and try again"
+    );
+  }
+
+  user.password = newPassword;
+  await user.save();
+
+  res.status(StatusCodes.OK).json({
+    success: true,
+    msg: "Your password has been successfully changed",
+  });
 };
 
 const resetPassword = async (req, res) => {
-  res.post("");
+  const { id: userId } = req.params;
+  const { password } = req.body;
+
+  if (!password) {
+    return res.status(400).json({
+      success: false,
+      msg: "Password is required",
+    });
+  }
+
+  const user = await User.findById(userId);
+  if (!user) {
+    return res.status(404).json({ success: false, msg: "User not found" });
+  }
+
+  user.password = password;
+  user.refreshToken = null;
+
+  await user.save();
+
+  res
+    .status(StatusCodes.OK)
+    .json({ success: true, msg: "Password reset successful" });
 };
 
 module.exports = {
@@ -219,4 +264,6 @@ module.exports = {
   verifyEmail,
   refreshAccessToken,
   logout,
+  resetPassword,
+  changePassword,
 };
