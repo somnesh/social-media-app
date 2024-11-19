@@ -95,7 +95,7 @@ export function ProfilePage() {
         );
       } catch (error) {
         console.error(error);
-        navigate("/404");
+        navigate("/login");
         setIsLoading(false);
       }
     })();
@@ -159,6 +159,7 @@ export function ProfilePage() {
       navigate("/login");
     }
   };
+  console.log(details);
 
   return (
     <>

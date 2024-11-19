@@ -1020,7 +1020,7 @@ export function Post({ details, setPosts, externalLinkFlag, className }) {
                 name="comment"
                 id="comment"
                 placeholder="Write a comment"
-                className="w-full bg-transparent outline-none text-gray-50"
+                className="w-full bg-transparent outline-none dark:text-gray-50"
                 value={commentContent}
                 onChange={(e) => setCommentContent(e.target.value)}
               />

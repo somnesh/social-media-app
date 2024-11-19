@@ -450,7 +450,7 @@ export function CommentStructure({
         </div>
       )}
       {replyBoxPopup && (
-        <div className="mt-2">
+        <div className="mt-2 mx-2">
           <div className="flex justify-between items-center text-sm font-semibold py-1 px-2 bg-[#f0f2f5] dark:bg-[#5a5a5a] rounded-t-md">
             <span className="px-1">
               replying to{" "}
@@ -472,7 +472,7 @@ export function CommentStructure({
               name="comment"
               id="comment"
               placeholder="Write a comment"
-              className="w-full bg-transparent outline-none text-gray-50"
+              className="w-full bg-transparent outline-none dark:text-gray-50"
             />
             <div
               onClick={handleReply}
