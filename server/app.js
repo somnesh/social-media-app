@@ -15,6 +15,15 @@ app.use(express.json());
 // cors middleware
 app.use(cors({ credentials: true, origin: process.env.CLIENT_URL }));
 
+// Socket.IO server
+const server = http.createServer(app);
+const io = setupSocket(server);
+
+// passing the io obj to req
+app.use((req, res, next) => {
+  req.io = io;
+  next();
+});
 // app.use(express.urlencoded({ extended: true }));
 
 // database connection handler
@@ -58,16 +67,6 @@ const start = async () => {
   try {
     // establishing database connection
     await connectDB(process.env.MONGO_URI);
-
-    // Socket.IO server
-    const server = http.createServer(app);
-    const io = setupSocket(server);
-
-    // passing the io obj to req
-    app.use((req, res, next) => {
-      req.io = io;
-      next();
-    });
 
     server.listen(port, console.log(`Server is listening on port ${port}...`));
 
