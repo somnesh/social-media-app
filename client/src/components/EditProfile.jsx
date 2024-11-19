@@ -32,7 +32,7 @@ export default function EditProfile({ details, setDetails }) {
     gender: details.user[0].gender,
     username: details.user[0].username,
     phone_no: details.user[0].phone_no,
-    profileBio: details.user[0].profile_bio,
+    profile_bio: details.user[0].profile_bio,
   });
 
   const toastHandler = useToastHandler();
@@ -173,11 +173,11 @@ export default function EditProfile({ details, setDetails }) {
             <Label htmlFor="profile_bio">Profile Bio</Label>
             <Textarea
               id="profile_bio"
-              value={form.profileBio}
+              value={form.profile_bio}
               onChange={(e) => {
                 setForm({
                   ...form,
-                  profileBio: e.target.value,
+                  profile_bio: e.target.value,
                 });
               }}
               placeholder="Tell us about yourself..."
