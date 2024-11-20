@@ -103,12 +103,12 @@ export function ProfilePage() {
 
   const handleUnfollow = async () => {
     try {
+      setUserFollowingBack(false);
       const response = await axios.delete(
         `${API_URL}/user/unfollow/${details.user[0]._id}`,
         { withCredentials: true }
       );
 
-      setUserFollowingBack(false);
       toastHandler(
         <div className="flex gap-2 items-center">
           <CircleCheck className="bg-green-600 rounded-full text-white dark:text-[#242526]" />
@@ -117,6 +117,7 @@ export function ProfilePage() {
         false
       );
     } catch (error) {
+      setUserFollowingBack(true);
       console.error("Unfollow Failed: ", error);
       toastHandler(
         <div className="flex gap-2 items-center">
@@ -130,6 +131,7 @@ export function ProfilePage() {
 
   const handleFollow = async () => {
     if (isAuthenticated) {
+      setUserFollowingBack(true);
       try {
         const response = await axios.post(
           `${API_URL}/user/follow/${details.user[0]._id}`,
@@ -137,7 +139,6 @@ export function ProfilePage() {
           { withCredentials: true }
         );
 
-        setUserFollowingBack(true);
         toastHandler(
           <div className="flex gap-2 items-center">
             <CircleCheck className="bg-green-600 rounded-full text-white dark:text-[#242526]" />
@@ -146,6 +147,7 @@ export function ProfilePage() {
           false
         );
       } catch (error) {
+        setUserFollowingBack(false);
         console.error("Follow Failed: ", error);
         toastHandler(
           <div className="flex gap-2 items-center">

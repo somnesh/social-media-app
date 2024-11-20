@@ -517,9 +517,9 @@ export function Post({ details, setPosts, externalLinkFlag, className }) {
         </div>
       )}
       <div
-        className={`bg-white dark:bg-[#242526] pb-3 ${className} ${
+        className={`bg-white dark:bg-[#242526] pb-2 ${className} ${
           details.recommended ? "sm:rounded-b-lg" : "sm:rounded-lg"
-        } sm:mb-4 mb-1 relative transition-all drop-shadow-sm`}
+        } sm:mb-2 mb-1 relative transition-all drop-shadow-sm`}
       >
         {/* Post header */}
         <div className="flex items-center gap-3 pt-4 px-4">

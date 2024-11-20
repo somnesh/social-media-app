@@ -12,7 +12,6 @@ import useNotifications from "./hooks/useNotifications";
 
 export function NotificationCentre({ mobileFlag }) {
   const notifications = useNotifications();
-  console.log(notifications);
 
   return (
     <div>
