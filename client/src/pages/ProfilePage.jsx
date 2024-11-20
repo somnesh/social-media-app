@@ -218,8 +218,8 @@ export function ProfilePage() {
               )}
             </div>
             {/* Profile Section */}
-            <div className="px-4 pb-4 pt-0 md:px-6 relative">
-              <div className="flex flex-col items-start gap-4 md:flex-row md:items-center md:gap-6">
+            <div className="pb-4 pt-0 md:px-6 relative">
+              <div className="flex flex-col items-start mx-4 sm:mx-0 gap-4 md:flex-row md:items-center md:gap-6">
                 {/* Profile Picture */}
                 <div className="relative -mt-12 h-32 w-32 ">
                   <div
@@ -362,7 +362,7 @@ export function ProfilePage() {
               </div>
 
               {/* Stats */}
-              <div className="mt-4 flex gap-4 text-sm text-muted-foreground">
+              <div className="mt-4 mx-4 sm:mx-0 flex gap-4 text-sm text-muted-foreground">
                 <div className="flex gap-1">
                   <span className="font-semibold text-foreground">{`${details.totalFollowers}`}</span>{" "}
                   followers
@@ -374,7 +374,7 @@ export function ProfilePage() {
               </div>
 
               {/* Bio */}
-              <div className="mt-4 text-sm">
+              <div className="mt-4 mx-4 sm:mx-0 text-sm">
                 <p className="text-muted-foreground">
                   {`${
                     details.user[0].profile_bio !== null
@@ -386,7 +386,7 @@ export function ProfilePage() {
 
               <div className="mt-6 flex flex-col md:flex-row gap-6">
                 {/* About section - left column */}
-                <Card className="md:w-1/3 h-fit sticky top-0 p-4 bg-background/80 backdrop-blur-sm rounded-xl">
+                <Card className="md:w-1/3 mx-4 sm:mx-0 h-fit sticky top-0 p-4 bg-background/80 backdrop-blur-sm rounded-xl">
                   <h2 className="text-xl font-semibold mb-4 text-inherit">
                     About
                   </h2>
@@ -417,7 +417,7 @@ export function ProfilePage() {
                 {/* Posts section - right column */}
                 <div className="md:w-2/3">
                   <Tabs defaultValue="posts">
-                    <TabsList className="w-full justify-start rounded-none border-b bg-transparent p-0 sticky h-auto">
+                    <TabsList className="w-full justify-start mx-4 sm:mx-0 rounded-none border-b bg-transparent p-0 sticky h-auto">
                       <TabsTrigger
                         value="posts"
                         className="rounded-none border-b-2 border-transparent px-4 pb-2 pt-2 font-semibold data-[state=active]:border-primary"

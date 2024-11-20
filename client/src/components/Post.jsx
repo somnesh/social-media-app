@@ -441,11 +441,13 @@ export function Post({ details, setPosts, externalLinkFlag, className }) {
 
   const handleCopyLink = async () => {
     try {
+      const DOMAIN = "https://social-media-app-five-tawny.vercel.app";
+
       // encrypt the post id
       const encryptedId = encryptId(details._id);
 
       // adding the link to the clipboard
-      await navigator.clipboard.writeText(`${APP_URL}/post/${encryptedId}`);
+      await navigator.clipboard.writeText(`${DOMAIN}/post/${encryptedId}`);
       setCopyLinkSuccess(true);
       setTimeout(() => {
         setCopyLinkSuccess(false);

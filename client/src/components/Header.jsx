@@ -37,7 +37,7 @@ export function Header() {
   }, [navigate]);
   return (
     <header className="flex justify-end sm:justify-normal py-1 pl-3 pr-2 bg-white dark:bg-[#242526] items-center sm:sticky top-0 transition-colors duration-500 shadow-md z-40">
-      <section className="basis-1/4 absolute left-0 sm:relative">
+      <section className="basis-1/4 absolute left-0 sm:relative z-[11] sm:z-auto">
         <SearchBar />
       </section>
       <section className="basis-1/2 text-center">
