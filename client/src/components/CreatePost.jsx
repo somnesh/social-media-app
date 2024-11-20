@@ -53,6 +53,7 @@ export function CreatePost({
   setImageFlag,
   setPollFlag,
   pollFlag,
+  setUploadProgress,
 }) {
   const toastHandler = useToastHandler();
   const [visibility, setVisibility] = useState("public");
@@ -69,6 +70,8 @@ export function CreatePost({
   const [options, setOptions] = useState(["", ""]);
   const [duration, setDuration] = useState("1");
   // end poll
+  const [cloudinaryURL, setCloudinaryURL] = useState("");
+  const [cloudinaryResourceType, setCloudinaryResourceType] = useState("");
 
   const imageRef = useRef(null);
   const videoRef = useRef(null);
@@ -80,6 +83,41 @@ export function CreatePost({
   // const decodedToken = jwtDecode(authToken);
 
   const API_URL = import.meta.env.VITE_API_URL;
+  const CLOUD_API = import.meta.env.VITE_CLOUDINARY_CLOUD_API;
+
+  const uploadToCloudinary = async (file) => {
+    // Step 1: Get the upload signature from the backend
+    const signatureResponse = await axios.get(
+      `${API_URL}/cloudinary/cloudinary-signature`
+    );
+    const { signature, timestamp, cloudName } = signatureResponse.data;
+
+    // Step 2: Create a FormData object with the file and upload details
+    const formData = new FormData();
+    formData.append("file", file);
+    formData.append("api_key", CLOUD_API);
+    formData.append("timestamp", timestamp);
+    formData.append("signature", signature);
+
+    // Step 3: Upload the file to Cloudinary
+    const response = await axios.post(
+      `https://api.cloudinary.com/v1_1/${cloudName}/auto/upload`,
+      formData,
+      {
+        onUploadProgress: (progressEvent) => {
+          const percentCompleted = Math.round(
+            (progressEvent.loaded * 100) / progressEvent.total
+          );
+          setUploadProgress(percentCompleted); // Update progress bar
+        },
+      }
+    );
+
+    setCloudinaryURL(response.data.secure_url); // Store the uploaded file URL
+    setCloudinaryResourceType(response.data.resource_type);
+    console.log("File uploaded successfully:", response.data);
+    return response.data;
+  };
 
   const closePopup = () => {
     if (createPostPopUp) {
@@ -89,25 +127,32 @@ export function CreatePost({
   };
 
   const createPost = async () => {
-    const formData = new FormData();
+    const postFormData = new FormData();
+    closePopup();
 
-    formData.append("content", postContent);
-    formData.append("visibility", visibility);
-
-    if (uploadedImage) {
-      formData.append("files", imageRef.current.files[0]);
-    }
+    postFormData.append("content", postContent);
+    postFormData.append("visibility", visibility);
+    console.log(visibility, postContent);
 
     try {
-      const response = await axios.post(`${API_URL}/post`, formData, {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
+      if (uploadedImage) {
+        const file = imageRef.current.files[0];
+        const cloudinaryResponse = await uploadToCloudinary(file);
+        postFormData.append("image_url", cloudinaryResponse.secure_url);
+        postFormData.append("media_type", cloudinaryResponse.resource_type);
+      }
+      if (uploadedVideo) {
+        const file = videoRef.current.files[0];
+        const cloudinaryResponse = await uploadToCloudinary(file);
+        postFormData.append("image_url", cloudinaryResponse.secure_url);
+        postFormData.append("media_type", cloudinaryResponse.resource_type);
+      }
+
+      const response = await axios.post(`${API_URL}/post`, postFormData, {
         withCredentials: true,
       });
 
       console.log("Form submitted : ", response.data);
-      closePopup();
       setPosts((prev) => [response.data.post, ...prev]);
 
       toastHandler(
@@ -128,6 +173,7 @@ export function CreatePost({
       );
     } finally {
       setIsLoading(false);
+      setUploadProgress(0);
     }
   };
 

@@ -45,6 +45,7 @@ const adminRoute = require("./routes/admin");
 const feedRoute = require("./routes/feed");
 const unprotectedPostRoute = require("./routes/UnprotectedPostRoutes");
 const reportRoute = require("./routes/report");
+const cloudinaryRoutes = require("./routes/cloudinary");
 
 //protected routes
 app.use("/api/v1/auth", authRoute);
@@ -57,6 +58,7 @@ app.use("/api/v1/report", authenticateUser, reportRoute);
 
 // unprotected routes
 app.use("/api/v1/post", unprotectedPostRoute);
+app.use("/api/v1/cloudinary", cloudinaryRoutes);
 
 // error handler middleware
 app.use(notFoundMiddleware);

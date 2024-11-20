@@ -102,16 +102,10 @@ const getAllPost = async (req, res) => {
 };
 
 const createPost = async (req, res) => {
-  const cloudinaryResponse = req.body.cloudinaryRes;
-  // console.log(cloudinaryResponse.resource_type);
-
-  if (!cloudinaryResponse && req.body.content == "") {
+  if (!req.body.image_url && req.body.content == "") {
     throw new BadRequestError("Both content and image field cannot be empty!");
   }
-  if (cloudinaryResponse) {
-    req.body.image_url = cloudinaryResponse.secure_url;
-    req.body.media_type = cloudinaryResponse.resource_type;
-  }
+
   req.body.user_id = req.user.userId;
 
   let post = await Post.create(req.body);

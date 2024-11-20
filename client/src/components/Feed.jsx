@@ -6,6 +6,7 @@ import axios from "axios";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Link, useNavigate } from "react-router-dom";
 import { FeedSkeleton } from "./loaders/FeedSkeleton";
+import { Progress } from "./ui/progress";
 
 export function Feed() {
   const [createPostPopUp, setCreatePostPopUp] = useState(false);
@@ -14,6 +15,7 @@ export function Feed() {
   const [error, setError] = useState(false);
   const [imageFlag, setImageFlag] = useState(false);
   const [pollFlag, setPollFlag] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState(0);
 
   const navigate = useNavigate();
 
@@ -63,6 +65,7 @@ export function Feed() {
               setImageFlag={setImageFlag}
               setPollFlag={setPollFlag}
               pollFlag={pollFlag}
+              setUploadProgress={setUploadProgress}
             />
           )}
           <div className="create-new-post bg-white dark:bg-[#242526] px-4 py-2 sm:rounded-lg mb-2">
@@ -117,6 +120,13 @@ export function Feed() {
             </div>
           </div>
 
+          <div className="px-2">
+            {uploadProgress > 0 && (
+              <div className="w-full mb-2">
+                <Progress value={uploadProgress} />
+              </div>
+            )}
+          </div>
           {/* Main feed starts from here */}
           {posts.length === 0 ? (
             <div className="mt-16 text-center flex flex-col justify-center items-center font-semibold">

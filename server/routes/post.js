@@ -1,8 +1,10 @@
 const express = require("express");
 const router = express.Router();
 
-const upload = require("../middleware/multer-middleware");
-const { uploadFile } = require("../middleware/uploadFile");
+// const upload = require("../middleware/multer-middleware");
+// const { uploadFile } = require("../middleware/uploadFile");
+const multer = require("multer");
+const upload = multer();
 
 const {
   getAllPost,
@@ -23,7 +25,8 @@ const { vote, getPoll, createPoll } = require("../controllers/Poll");
 
 router.route("/all/:id").get(getAllPost); // ":id" -> userId
 
-router.route("/").post(upload.single("files"), uploadFile, createPost);
+// router.route("/").post(upload.single("files"), uploadFile, createPost);
+router.route("/").post(upload.none(), createPost);
 
 router.route("/:id").patch(updatePost).delete(deletePost);
 
