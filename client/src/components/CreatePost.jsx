@@ -457,7 +457,7 @@ export function CreatePost({
                 />
 
                 {uploadedVideo ? (
-                  <video width="440" height="300" controls>
+                  <video width="440" className="sm:max-h-96 max-h-60" controls>
                     <source src={previewUrl} type="video/mp4" />
                     Your browser does not support the video tag.
                   </video>
