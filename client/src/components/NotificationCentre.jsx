@@ -17,7 +17,7 @@ export function NotificationCentre({ mobileFlag }) {
   return (
     <div>
       {mobileFlag && (
-        <div className="mb-4 ml-2">
+        <div className="my-4 ml-2">
           <span className="text-2xl font-bold">Notifications</span>
         </div>
       )}

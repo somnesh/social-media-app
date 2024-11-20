@@ -32,7 +32,7 @@ export function SavedPosts() {
         <SavePostLoader />
       ) : (
         <div className="flex flex-col sm:w-full px-2 sm:px-0">
-          <div className="mb-4">
+          <div className="sm:mb-4 my-4">
             <span className="text-2xl font-bold">
               Saved Posts ({savedPosts.length})
             </span>
