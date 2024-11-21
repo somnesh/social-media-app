@@ -15,7 +15,7 @@ A social media app inspired by Twitter. It is a full-stack web application that 
 ## Features
 
 - Users can create an account and existing users can login to their account.
-- The user can create a post, it can be only text or with a photo.
+- The user can create posts, which can be only, text, photos, or videos.
 - User can edit their posts after publishing.
 - Users can like and comment on other posts posted by other users.
 - Users can check their profile and other people's profile as well.
@@ -69,7 +69,7 @@ There are 2 individual setups required:
 
 ### Client Setup
 
-For setting up the frontend part, you need to install some packages. Before that make sure to change the directory in your terminal,
+For setting up the client side, you need to install some packages. Before that make sure to change the directory in your terminal,
 
 ```bash
 cd client
@@ -93,15 +93,38 @@ If everything is good then you should see:
 
 ### Server Setup:
 
-Before you do anything in the server setup, you need to set up the `.env` file. The `.env` file should contain 3 things for at least now,
+Before you do anything in the server setup, you must set up the `.env` file. In the backend, the `.env` file should contain the following,
 
 1. `MONGO_URI`
 2. `JWT_SECRET`
-3. `JWT_LIFESPAN`
+3. `JWT_REFRESH_SECRET`
+4. `JWT_LIFESPAN`
+5. `JWT_REFRESH_LIFESPAN`
+6. `CLOUDINARY_CLOUD_NAME`
+7. `CLOUDINARY_CLOUD_API`
+8. `CLOUDINARY_CLOUD_API_SECRET`
+9. `CLOUDINARY_URL`
+10. `NODEMAILER_EMAIL`
+11. `NODEMAILER_PASSWORD`
+12. `NODEMAILER_SERVICE`
+13. `URL_ENCRYPTION_SECRET`
+14. `API_URL`
+15. `CLIENT_URL`
+16. `RESET_PASSWORD_TOKEN_SECRET`
+17. `RESET_PASSWORD_TOKEN_SECRET_EXPIRATION`
 
 The `MONGO_URI` is your `MongoDB atlas` database connection string.
 The `JWT_SECRET` contains an Encryption key, you need to create an Encryption key 256bit. You can use this website for the key generation: https://acte.ltd/utils/randomkeygen.
-You can set `JWT_LIFESPAN` as long as you want but `30d` is recommended.
+
+On the client side, the `.env` file should contain the following,
+
+1. `VITE_API_URL`
+2. `VITE_UNSPLASH_API`
+3. `VITE_APP_URL`
+4. `VITE_SERVER_URL`
+5. `VITE_URL_ENCRYPTION_SECRET`
+6. `VITE_CLOUDINARY_CLOUD_NAME`
+7. `VITE_CLOUDINARY_CLOUD_API`
 
 After setting all this up, again make sure to change the directory in your terminal,
 
@@ -116,7 +139,7 @@ npm install
 This will install all the necessary packages. Then you can start the server by running the following command,
 
 ```bash
-npm start
+npm test
 ```
 
 If you can see a log in the terminal that says,
