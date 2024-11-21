@@ -39,10 +39,8 @@ export const Home = () => {
           setPageLoading(false);
         }
       }
-    })();
-    document.fonts.load("1rem 'Material Symbols Outlined'").then(() => {
       setPageLoading(false);
-    });
+    })();
   }, []);
 
   useEffect(() => {

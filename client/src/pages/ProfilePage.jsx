@@ -163,6 +163,9 @@ export function ProfilePage() {
   };
   console.log(details);
 
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [navigate]);
   return (
     <>
       <Header />
