@@ -19,6 +19,7 @@ import UserSettingsPage from "./pages/UserSettingsPage";
 import ResetPassword from "./pages/ResetPassword";
 import ForgotPassword from "./pages/ForgotPassword";
 import { SpeedInsights } from "@vercel/speed-insights/react";
+import { Analytics } from "@vercel/analytics/react";
 
 const router = createBrowserRouter([
   {
@@ -104,15 +105,18 @@ function App() {
   }, [theme]);
 
   return (
-    <AuthProvider>
-      <ThemeProvider value={{ theme, darkTheme, lightTheme }}>
-        <ToastHandlerProvider>
-          <Toaster />
-          <RouterProvider router={router} />
-          <SpeedInsights />
-        </ToastHandlerProvider>
-      </ThemeProvider>
-    </AuthProvider>
+    <>
+      <SpeedInsights />
+      <Analytics />
+      <AuthProvider>
+        <ThemeProvider value={{ theme, darkTheme, lightTheme }}>
+          <ToastHandlerProvider>
+            <Toaster />
+            <RouterProvider router={router} />
+          </ToastHandlerProvider>
+        </ThemeProvider>
+      </AuthProvider>
+    </>
   );
 }
 
