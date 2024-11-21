@@ -14,6 +14,7 @@ import {
   Heart,
   Loader2,
   Lock,
+  LockIcon,
   MessageCircle,
   Repeat2,
   SendHorizonal,
@@ -99,7 +100,7 @@ export function Post({ details, setPosts, externalLinkFlag, className }) {
   const [copyLinkSuccess, setCopyLinkSuccess] = useState(false);
   const [postContent, setPostContent] = useState("");
   const [openMain, setOpenMain] = useState(false); // for shadcn dialog
-  const [visibility, setVisibility] = useState("public"); // share post visibility
+  const [visibility, setVisibility] = useState(details.visibility); // share post visibility
   const [openShareEditor, setOpenShareEditor] = useState(false);
   const [openPostMenu, setOpenPostMenu] = useState(false);
   const [openPostEditor, setOpenPostEditor] = useState(false);
@@ -110,6 +111,9 @@ export function Post({ details, setPosts, externalLinkFlag, className }) {
   const [commentContent, setCommentContent] = useState("");
 
   const [isPoll, setIsPoll] = useState(details.poll_id ? true : false);
+
+  const [shareLoading, setShareLoading] = useState(false);
+  const [postCommentLoading, setPostCommentLoading] = useState(false);
 
   const limit = 4; // comment load limit
 
@@ -203,8 +207,8 @@ export function Post({ details, setPosts, externalLinkFlag, className }) {
   const postComment = async () => {
     if (isAuthenticated) {
       // const commentContent = document.getElementById("comment").value;
-
       if (commentContent !== "") {
+        setPostCommentLoading(true);
         try {
           const postLink = `post/${encryptId(details._id)}`;
 
@@ -240,6 +244,8 @@ export function Post({ details, setPosts, externalLinkFlag, className }) {
             </div>,
             true
           );
+        } finally {
+          setPostCommentLoading(false);
         }
       }
     } else {
@@ -354,6 +360,7 @@ export function Post({ details, setPosts, externalLinkFlag, className }) {
   const handleShare = async (e) => {
     e.preventDefault();
     if (isAuthenticated) {
+      setShareLoading(true);
       try {
         const content = postContent;
         const response = await axios.post(
@@ -399,6 +406,8 @@ export function Post({ details, setPosts, externalLinkFlag, className }) {
           </div>,
           true
         );
+      } finally {
+        setShareLoading(false);
       }
     } else {
       navigate("/login");
@@ -676,60 +685,79 @@ export function Post({ details, setPosts, externalLinkFlag, className }) {
             <>
               <div className="pb-2 px-4">{postCaption}</div>
               {details.parent && (
-                <Link
-                  to={`${APP_URL || ""}/post/${encryptId(details.parent._id)}`}
-                  className="border mx-2 border-[#e4e6eb] dark:border-[#3a3b3c] py-2 px-3 rounded-lg cursor-pointer hover:bg-[#e5e5e6] dark:hover:bg-[#404142]"
-                >
-                  <div className="flex text-sm mb-2 gap-2">
-                    <Avatar>
-                      <AvatarImage src={details.parent.user_id.avatar} />
-                      <AvatarFallback
-                        className={details.parent.user_id.avatarBg}
-                      >
-                        {details.parent.user_id.name[0]}
-                      </AvatarFallback>
-                    </Avatar>
+                <div className="border mx-2 border-[#e4e6eb] dark:border-[#3a3b3c] py-2 px-3 rounded-lg">
+                  {details.parent?._id !== "111111111111111111111111" ? (
+                    <Link
+                      to={`${APP_URL || ""}/post/${encryptId(
+                        details.parent._id
+                      )}`}
+                      className="cursor-pointer hover:bg-[#e5e5e6] dark:hover:bg-[#404142]"
+                    >
+                      <div className="flex text-sm mb-2 gap-2">
+                        <Avatar>
+                          <AvatarImage src={details.parent.user_id.avatar} />
+                          <AvatarFallback
+                            className={details.parent.user_id.avatarBg}
+                          >
+                            {details.parent.user_id.name[0]}
+                          </AvatarFallback>
+                        </Avatar>
 
-                    <div className="">
-                      <h2 className="font-medium">
-                        {details.parent.user_id.name}
-                      </h2>
-                      <div className="flex gap-1 items-center text-sm">
-                        <span>
-                          {details.parent.visibility === "public" ? (
-                            <Globe size={16} strokeWidth={1.25} />
-                          ) : details.parent.visibility === "friends" ? (
-                            <Users size={16} strokeWidth={1.25} />
-                          ) : (
-                            <Lock size={16} strokeWidth={1.25} />
-                          )}
+                        <div className="">
+                          <h2 className="font-medium">
+                            {details.parent.user_id.name}
+                          </h2>
+                          <div className="flex gap-1 items-center text-sm">
+                            <span>
+                              {details.parent.visibility === "public" ? (
+                                <Globe size={16} strokeWidth={1.25} />
+                              ) : details.parent.visibility === "friends" ? (
+                                <Users size={16} strokeWidth={1.25} />
+                              ) : (
+                                <Lock size={16} strokeWidth={1.25} />
+                              )}
+                            </span>
+                            <span>
+                              {" "}
+                              ·{" "}
+                              {calculatePostDuration(
+                                new Date(details.parent.createdAt)
+                              )}
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+                      <div className="pb-1">{details.parent.content}</div>
+
+                      {details.parent.image_url &&
+                        (details.parent.media_type &&
+                        details.parent.media_type === "video" ? (
+                          <VideoPlayer videoUrl={details.parent.image_url} />
+                        ) : (
+                          <div className="max-h-[50rem] flex justify-center w-auto overflow-hidden">
+                            <img
+                              src={details.parent.image_url}
+                              className="rounded-md mb-1 border dark:border-[#1f2937] border-gray-200 object-contain w-full h-full"
+                              alt="photo"
+                            />
+                          </div>
+                        ))}
+                    </Link>
+                  ) : (
+                    <div className="flex items-center gap-2">
+                      <LockIcon size={24} />
+                      <div className="flex flex-col">
+                        <span className="font-medium">
+                          This content isn't available right now
                         </span>
-                        <span>
-                          {" "}
-                          ·{" "}
-                          {calculatePostDuration(
-                            new Date(details.parent.createdAt)
-                          )}
+                        <span className="text-xs">
+                          When this happens, it's usually because the owner
+                          changed who can see it, or it's been deleted.
                         </span>
                       </div>
                     </div>
-                  </div>
-                  <div className="pb-1">{details.parent.content}</div>
-
-                  {details.parent.image_url &&
-                    (details.parent.media_type &&
-                    details.parent.media_type === "video" ? (
-                      <VideoPlayer videoUrl={details.parent.image_url} />
-                    ) : (
-                      <div className="max-h-[50rem] flex justify-center w-auto overflow-hidden">
-                        <img
-                          src={details.parent.image_url}
-                          className="rounded-md mb-1 border dark:border-[#1f2937] border-gray-200 object-contain w-full h-full"
-                          alt="photo"
-                        />
-                      </div>
-                    ))}
-                </Link>
+                  )}
+                </div>
               )}
               {details.image_url &&
                 (details.media_type && details.media_type === "video" ? (
@@ -967,8 +995,16 @@ export function Post({ details, setPosts, externalLinkFlag, className }) {
                       <Button
                         onClick={(e) => handleShare(e)}
                         className="bg-indigo-500 dark:text-white  dark:hover:bg-indigo-600 px-4"
+                        disabled={shareLoading}
                       >
-                        Share now
+                        {shareLoading ? (
+                          <>
+                            <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                            Posting...
+                          </>
+                        ) : (
+                          <>Share now</>
+                        )}
                       </Button>
                     </div>
                   </div>
@@ -1028,9 +1064,17 @@ export function Post({ details, setPosts, externalLinkFlag, className }) {
               />
               <div
                 onClick={postComment}
-                className="active:scale-95 cursor-pointer p-2 bg-indigo-500 hover:bg-indigo-600 active:bg-slate-500 rounded-md transition"
+                className={`p-2 ${
+                  !postCommentLoading
+                    ? "active:scale-95 cursor-pointer bg-indigo-500 hover:bg-indigo-600 active:bg-slate-500"
+                    : "bg-indigo-400"
+                } rounded-md transition`}
               >
-                <SendHorizonal size={18} stroke="white" />
+                {postCommentLoading ? (
+                  <Loader2 className="w-4 h-4  animate-spin" />
+                ) : (
+                  <SendHorizonal size={18} stroke="white" />
+                )}
               </div>
             </div>
           </div>

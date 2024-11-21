@@ -9,17 +9,21 @@ const API_URL = import.meta.env.VITE_API_URL;
 
 const useNotifications = () => {
   const [notifications, setNotifications] = useState([]);
+  const [loading, setLoading] = useState(false);
   const toastHandler = useToastHandler();
 
   useEffect(() => {
     const fetchInitialNotifications = async () => {
       try {
+        setLoading(true);
         const response = await axios.get(`${API_URL}/user/fetch/notification`, {
           withCredentials: true,
         });
         setNotifications(response.data.notificationDetails);
       } catch (error) {
         console.error("useNotification: failed to fetch notification :", error);
+      } finally {
+        setLoading(false);
       }
     };
     fetchInitialNotifications();
@@ -46,7 +50,7 @@ const useNotifications = () => {
     };
   }, [toastHandler]);
 
-  return notifications;
+  return { notifications, loading };
 };
 
 const notify = (message, toastHandler) => {

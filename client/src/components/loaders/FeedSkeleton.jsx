@@ -7,14 +7,14 @@ export function FeedSkeleton() {
         {/* <SkeletonLoader width="680px" height="137px" className="" /> */}
         <div className="flex gap-3">
           <SkeletonLoader
-            width="50px"
+            width="12%"
             height="50px"
             className="rounded-full dark:bg-[#59595e]"
           />
           <SkeletonLoader
             width="100%"
             height="48px"
-            className="dark:bg-[#59595e]"
+            className="dark:bg-[#59595e] w-fit"
           />
         </div>
         <div className="flex gap-2">

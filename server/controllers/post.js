@@ -18,6 +18,7 @@ const { sendNotification } = require("./notification");
 const encryptId = require("../utils/encryptId");
 const { getPoll } = require("./Poll");
 const Poll = require("../models/Poll");
+const cloudinary = require("cloudinary").v2;
 
 const getAllPost = async (req, res) => {
   const userId = req.params.id;
@@ -62,6 +63,22 @@ const getAllPost = async (req, res) => {
 
   if (!posts) {
     throw new NotFoundError(`No post found`);
+  }
+
+  for (const post of posts) {
+    if (post.parent) {
+      if (post.parent.visibility === "private") {
+        post.parent = { _id: "111111111111111111111111" };
+      } else if (post.parent.visibility === "friends") {
+        const isFollower = await Follower.exists({
+          follower: req.user, // Current user
+          followed: post.parent.user_id._id, // Parent post's user
+        });
+        if (!isFollower) {
+          post.parent = { _id: "111111111111111111111111" };
+        }
+      }
+    }
   }
 
   const postIds = [...posts.map((post) => post._id.toString())];
@@ -156,8 +173,34 @@ const getPostDetails = async (req, res) => {
     throw new NotFoundError(`No post with id: ${postId}`);
   }
 
-  if (!req.user && post.visibility !== "public") {
+  if (
+    !req.user &&
+    (post.visibility !== "public" || post.parent.visibility !== "public")
+  ) {
     throw new UnauthenticatedError("You need to login first.");
+  }
+
+  if (
+    post.visibility === "private" &&
+    post.user_id._id.toString() !== req.user._id.toString()
+  ) {
+    throw new UnauthenticatedError(
+      "User doesn't have permission to perform this action."
+    );
+  }
+
+  if (contentType === "post" && post.parent) {
+    if (post.parent.visibility === "private") {
+      post.parent = { _id: "111111111111111111111111" };
+    } else if (post.parent.visibility === "friends") {
+      const isFollower = await Follower.exists({
+        follower: req.user, // Current user
+        followed: post.parent.user_id._id, // Parent post's user
+      });
+      if (!isFollower) {
+        post.parent = { _id: "111111111111111111111111" };
+      }
+    }
   }
 
   res.status(StatusCodes.OK).json({
@@ -195,13 +238,74 @@ const deletePost = async (req, res) => {
     user: { userId },
   } = req;
 
-  const post = await Post.findOneAndDelete({ _id: postId, user_id: userId });
-  if (!post) {
-    throw new NotFoundError(
-      `The user ${req.user.name} has no post with id: ${postId}`
+  // start a transaction
+  const session = await mongoose.startSession();
+  session.startTransaction();
+
+  try {
+    const post = await Post.findOneAndDelete({ _id: postId, user_id: userId });
+    if (!post) {
+      throw new NotFoundError(
+        `The user ${req.user.name} has no post with id: ${postId}`
+      );
+    }
+
+    if (post.poll_id) {
+      await Poll.findByIdAndDelete(post.poll_id);
+    }
+
+    // delete likes along with their notifications
+    const likesToDelete = await Like.find({ post_id: postId });
+    const likeIdsToDelete = likesToDelete.map((like) => like._id) || [];
+
+    let notificationToDelete =
+      likesToDelete.map((like) => like.notification_id) || [];
+
+    await Like.deleteMany({ _id: { $in: likeIdsToDelete } }, { session });
+    // delete comments along with their notifications
+    const commentsToDelete = await Comment.find({ post_id: postId });
+    const commentIdsToDelete =
+      commentsToDelete.map((comment) => comment._id) || [];
+
+    const commentNotificationIds =
+      commentsToDelete.map((comment) => comment.notification_id) || [];
+
+    await Comment.deleteMany({ _id: { $in: commentIdsToDelete } }, { session });
+
+    notificationToDelete = [...notificationToDelete, ...commentNotificationIds];
+
+    await Notification.deleteMany(
+      { _id: { $in: notificationToDelete } },
+      { session }
     );
+
+    // add a flag to parent field of the posts where the parent post is this post
+    await Post.updateMany(
+      { parent: post._id },
+      { parent: "111111111111111111111111" },
+      { session }
+    );
+
+    // delete media from cloudinary if any
+    if (post.media_type && post.image_url) {
+      const publicId = post.image_url.split("/").slice(-2)[1].split(".")[0];
+
+      await cloudinary.uploader.destroy(publicId, {
+        resource_type: post.media_type,
+      });
+    }
+    // commit the transaction
+    await session.commitTransaction();
+    session.endSession();
+    res.status(StatusCodes.OK).json({ post });
+  } catch (error) {
+    // if any failure occurs abort the transaction
+    await session.abortTransaction();
+    session.endSession();
+
+    console.error("Transaction failed, rolling back changes", error);
+    res.status(500).json({ success: false, message: "Failed to delete post" });
   }
-  res.status(StatusCodes.OK).json({ post });
 };
 
 // this function handles the counters and its associated records by incrementing or decrementing appropriate counters and deleting or creating additional records
@@ -210,17 +314,19 @@ const updatePostInteraction = async (
   postId,
   interactionType, // type: string, ["like", "comment", "share"]
   incr, // type: boolean, true: increment | false: decrement
-  session
+  session,
+  count = 1
 ) => {
   // Check if interactionType is valid
   if (!["like", "comment", "share"].includes(interactionType)) {
     throw new BadRequestError("Invalid interaction type");
   }
+  const incValue = incr ? count : -count;
 
   // Update the interaction count
   const post = await Post.updateOne(
     { _id: postId }, // Find the post by its ID
-    { $inc: { [`interactions.${interactionType}`]: incr ? 1 : -1 } }, // Increment or decrement the specified interaction
+    { $inc: { [`interactions.${interactionType}`]: incValue } }, // Increment or decrement the specified interaction
     { session }
   );
 
@@ -425,7 +531,7 @@ const getComments = async (req, res) => {
   const userId = req.user;
 
   const comments = await Comment.find({ post_id: postId, parent: null })
-    .populate("user_id", "name avatar")
+    .populate("user_id", "name avatar username")
     .skip(parseInt(skip))
     .limit(parseInt(limit))
     .lean();
@@ -492,7 +598,7 @@ const replyComment = async (req, res) => {
     const reply = await Comment.create(data, { session });
 
     // Populate the user_id field with name and avatar
-    await reply[0].populate("user_id", "name avatar");
+    await reply[0].populate("user_id", "name avatar username");
 
     await updatePostInteraction(
       userId,
@@ -580,8 +686,17 @@ const deleteComment = async (req, res) => {
   session.startTransaction();
 
   try {
-    // delete the comment
-    const comment = await Comment.findByIdAndDelete(commentId, { session });
+    const commentsToDelete = await Comment.find({ parent: commentId });
+
+    const commentIdsToDelete =
+      commentsToDelete.map((comment) => comment._id) || [];
+
+    commentIdsToDelete.push(commentId); // Include the parent comment
+
+    // Delete all the found comments
+    const totalDeleted = commentIdsToDelete.length;
+
+    await Comment.deleteMany({ _id: { $in: commentIdsToDelete } }, { session });
 
     if (isCommentExists.parent) {
       await Comment.findByIdAndUpdate(
@@ -598,16 +713,44 @@ const deleteComment = async (req, res) => {
       isCommentExists.post_id,
       "comment",
       false,
-      session
+      session,
+      totalDeleted
+    );
+    let notificationToDelete = commentsToDelete.map((c) => c.notification_id);
+
+    const likeCommentsToDelete = await LikeComment.find({
+      comment_id: { $in: commentIdsToDelete },
+    });
+
+    const likeCommentsIdsToDelete =
+      likeCommentsToDelete.map((likeComment) => likeComment._id) || [];
+
+    const likeCommentsNotificationIds =
+      likeCommentsToDelete.map((likeComment) => likeComment.notification_id) ||
+      [];
+
+    notificationToDelete = [
+      ...notificationToDelete,
+      ...likeCommentsNotificationIds,
+    ];
+    await LikeComment.deleteMany(
+      { _id: { $in: likeCommentsIdsToDelete } },
+      { session }
     );
 
-    await Notification.deleteOne({ _id: comment.notification_id }, { session });
+    await Notification.deleteMany(
+      { _id: { $in: notificationToDelete } },
+      { session }
+    );
 
     // commit the transaction
     await session.commitTransaction();
     session.endSession();
 
-    res.status(StatusCodes.OK).json({ success: true, comment });
+    res.status(StatusCodes.OK).json({
+      success: true,
+      comment: { _id: commentId, totalDeleted: totalDeleted },
+    });
   } catch (error) {
     // if any failure occurs abort the transaction
     await session.abortTransaction();

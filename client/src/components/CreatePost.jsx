@@ -113,9 +113,6 @@ export function CreatePost({
       }
     );
 
-    setCloudinaryURL(response.data.secure_url); // Store the uploaded file URL
-    setCloudinaryResourceType(response.data.resource_type);
-    console.log("File uploaded successfully:", response.data);
     return response.data;
   };
 
@@ -127,60 +124,59 @@ export function CreatePost({
   };
 
   const createPost = async () => {
-    const postFormData = new FormData();
-    closePopup();
+    if (postContent !== "") {
+      const postFormData = new FormData();
+      closePopup();
 
-    postFormData.append("content", postContent);
-    postFormData.append("visibility", visibility);
-    console.log(visibility, postContent);
+      postFormData.append("content", postContent);
+      postFormData.append("visibility", visibility);
 
-    try {
-      if (uploadedImage) {
-        const file = imageRef.current.files[0];
-        const cloudinaryResponse = await uploadToCloudinary(file);
-        postFormData.append("image_url", cloudinaryResponse.secure_url);
-        postFormData.append("media_type", cloudinaryResponse.resource_type);
+      try {
+        if (uploadedImage) {
+          const file = imageRef.current.files[0];
+          const cloudinaryResponse = await uploadToCloudinary(file);
+          postFormData.append("image_url", cloudinaryResponse.secure_url);
+          postFormData.append("media_type", cloudinaryResponse.resource_type);
+        }
+        if (uploadedVideo) {
+          const file = videoRef.current.files[0];
+          const cloudinaryResponse = await uploadToCloudinary(file);
+          postFormData.append("image_url", cloudinaryResponse.secure_url);
+          postFormData.append("media_type", cloudinaryResponse.resource_type);
+        }
+
+        const response = await axios.post(`${API_URL}/post`, postFormData, {
+          withCredentials: true,
+        });
+
+        setPosts((prev) => [response.data.post, ...prev]);
+
+        toastHandler(
+          <div className="flex gap-2 items-center">
+            <CircleCheck className="bg-green-600 rounded-full text-white dark:text-[#242526]" />
+            <span>Post created</span>
+          </div>,
+          false
+        );
+      } catch (error) {
+        console.log("Form submission failed : ", error);
+        toastHandler(
+          <div className="flex gap-2 items-center">
+            <CircleAlert className="bg-red-600 rounded-full text-white dark:text-[#7f1d1d]" />
+            <span>Something went wrong</span>
+          </div>,
+          true
+        );
+      } finally {
+        setIsLoading(false);
+        setUploadProgress(0);
       }
-      if (uploadedVideo) {
-        const file = videoRef.current.files[0];
-        const cloudinaryResponse = await uploadToCloudinary(file);
-        postFormData.append("image_url", cloudinaryResponse.secure_url);
-        postFormData.append("media_type", cloudinaryResponse.resource_type);
-      }
-
-      const response = await axios.post(`${API_URL}/post`, postFormData, {
-        withCredentials: true,
-      });
-
-      console.log("Form submitted : ", response.data);
-      setPosts((prev) => [response.data.post, ...prev]);
-
-      toastHandler(
-        <div className="flex gap-2 items-center">
-          <CircleCheck className="bg-green-600 rounded-full text-white dark:text-[#242526]" />
-          <span>Post created</span>
-        </div>,
-        false
-      );
-    } catch (error) {
-      console.log("Form submission failed : ", error);
-      toastHandler(
-        <div className="flex gap-2 items-center">
-          <CircleAlert className="bg-red-600 rounded-full text-white dark:text-[#7f1d1d]" />
-          <span>Something went wrong</span>
-        </div>,
-        true
-      );
-    } finally {
-      setIsLoading(false);
-      setUploadProgress(0);
     }
   };
 
   const handleSubmit = async (e) => {
     setIsLoading(true);
     e.preventDefault();
-    console.log(pollFlag);
 
     if (openPollPopUp) {
       createPoll();
@@ -270,7 +266,6 @@ export function CreatePost({
         withCredentials: true,
       });
 
-      console.log("Form submitted : ", response.data);
       closePopup();
       setPosts((prev) => [response.data.post, ...prev]);
 

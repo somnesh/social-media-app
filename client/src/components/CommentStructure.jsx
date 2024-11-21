@@ -35,6 +35,7 @@ import { ReportEditor } from "./ReportEditor";
 import { ContentEditor } from "./ContentEditor";
 import { useAuth } from "../contexts/AuthContext";
 import encryptId from "../utils/encryptId";
+import { Link } from "react-router-dom";
 
 export function CommentStructure({
   details,
@@ -57,8 +58,10 @@ export function CommentStructure({
   );
   const [replySkip, setReplySkip] = useState(0);
   const [replyBoxPopup, setReplyBoxPopup] = useState(false);
+  const [postCommentLoading, setPostCommentLoading] = useState(false);
 
   const API_URL = import.meta.env.VITE_API_URL;
+  const APP_URL = import.meta.env.VITE_APP_URL;
   console.log("CommentStructure.jsx: details: ", details);
 
   const toastHandler = useToastHandler();
@@ -130,7 +133,7 @@ export function CommentStructure({
         { withCredentials: true }
       );
 
-      setCommentCounter((prev) => prev - 1);
+      setCommentCounter((prev) => prev - response.data.comment.totalDeleted);
       setComments((comments) =>
         comments.filter((comment) => comment._id !== response.data.comment._id)
       );
@@ -209,6 +212,7 @@ export function CommentStructure({
 
       const commentContent = document.getElementById("comment").value;
       if (commentContent !== "") {
+        setPostCommentLoading(true);
         try {
           const response = await axios.post(
             `${API_URL}/post/comment/${
@@ -248,6 +252,8 @@ export function CommentStructure({
             </div>,
             true
           );
+        } finally {
+          setPostCommentLoading(false);
         }
       }
     } else {
@@ -289,16 +295,26 @@ export function CommentStructure({
         onMouseLeave={handleMouseLeave}
         className="flex gap-2 m-2"
       >
-        <Avatar>
-          <AvatarImage src={details.user.avatar} />
-          <AvatarFallback className={details.user.avatarBg}>
-            {details.user.name[0]}
-          </AvatarFallback>
-        </Avatar>
+        <Link
+          to={`${APP_URL || ""}/user/${details.user.username}`}
+          className="hover:contrast-[.7]"
+        >
+          <Avatar>
+            <AvatarImage src={details.user.avatar} />
+            <AvatarFallback className={details.user.avatarBg}>
+              {details.user.name[0]}
+            </AvatarFallback>
+          </Avatar>
+        </Link>
         <div className="flex flex-col">
           <div className="flex flex-col bg-[#f0f2f5] dark:bg-[#3a3b3c] px-3 py-2 rounded-xl">
             <span className="font-semibold text-sm pr-6">
-              {details.user.name}
+              <Link
+                to={`${APP_URL || ""}/user/${details.user.username}`}
+                className="font-medium hover:underline"
+              >
+                {details.user.name}
+              </Link>
             </span>
             <span>{commentContent}</span>
           </div>
@@ -474,11 +490,20 @@ export function CommentStructure({
               placeholder="Write a comment"
               className="w-full bg-transparent outline-none dark:text-gray-50"
             />
+
             <div
               onClick={handleReply}
-              className="active:scale-95 cursor-pointer p-2 bg-indigo-500 hover:bg-indigo-600 active:bg-slate-500 rounded-md transition"
+              className={`p-2 ${
+                !postCommentLoading
+                  ? "active:scale-95 cursor-pointer bg-indigo-500 hover:bg-indigo-600 active:bg-slate-500"
+                  : "bg-indigo-400"
+              } rounded-md transition`}
             >
-              <SendHorizonal size={18} stroke="white" />
+              {postCommentLoading ? (
+                <Loader2 className="w-4 h-4  animate-spin" />
+              ) : (
+                <SendHorizonal size={18} stroke="white" />
+              )}
             </div>
           </div>
         </div>

@@ -69,9 +69,9 @@ export function ContentEditor({
       <DialogTrigger asChild></DialogTrigger>
       <DialogContent className="sm:max-w-md dark:bg-[#242526] dark:border-[#3a3b3c]">
         <DialogHeader>
-          <DialogTitle>Edit post caption</DialogTitle>
+          <DialogTitle>Make changes </DialogTitle>
           <DialogDescription>
-            Make changes to your post here. Click save changes when you're done.
+            Edit things here. Click save changes when you're done.
           </DialogDescription>
         </DialogHeader>
 
@@ -97,7 +97,7 @@ export function ContentEditor({
             onClick={handleEdit}
             type="submit"
             size="sm"
-            className="px-3 bg-transparent border hover:bg-slate-200 dark:bg-white dark:hover:bg-slate-200"
+            className="px-3 bg-indigo-500 border hover:bg-indigo-400 dark:bg-white dark:hover:bg-slate-200"
           >
             Save changes
           </Button>

@@ -33,7 +33,7 @@ export function PostView() {
         setIsLoading(false);
       }
     })();
-  }, []);
+  }, [navigate]);
 
   return (
     <div>
