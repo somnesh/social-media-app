@@ -54,7 +54,7 @@ export const Home = () => {
         <WholePageLoader />
       ) : (
         <>
-          <Header />
+          <Header setPageLoading={setPageLoading} />
           <main className="flex flex-col sm:flex-row relative sm:justify-between lg:px-2 sm:py-4 md:pr-2 bg-[#f0f2f5] dark:bg-black min-h-screen dark:text-[#e2e4e9] transition-colors duration-500 sm:gap-3">
             <Sidebar variant={currentPage} setCurrentPage={setCurrentPage} />
             {/* --------------------------------------- */}

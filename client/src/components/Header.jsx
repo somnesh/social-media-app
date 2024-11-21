@@ -7,7 +7,7 @@ import axios from "axios";
 import { useAuth } from "../contexts/AuthContext";
 import { SkeletonLoader } from "./loaders/SkeletonLoader";
 
-export function Header() {
+export function Header({ setPageLoading }) {
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
   const { setIsAuthenticated, isAuthenticated } = useAuth();
@@ -56,7 +56,7 @@ export function Header() {
             className="dark:bg-[#fafafa] rounded-full"
           />
         ) : isAuthenticated ? (
-          <ProfileMenu />
+          <ProfileMenu setPageLoading={setPageLoading} />
         ) : (
           <div className="flex gap-2 py-1">
             <Button

@@ -25,7 +25,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 
-export function ProfileMenu() {
+export function ProfileMenu({ setPageLoading }) {
   const { theme, darkTheme, lightTheme } = useTheme();
 
   const navigate = useNavigate();
@@ -40,7 +40,9 @@ export function ProfileMenu() {
   const API_URL = import.meta.env.VITE_API_URL;
   const handleLogout = async () => {
     try {
+      setPageLoading(true);
       await axios.post(`${API_URL}/auth/logout`, {}, { withCredentials: true });
+      setPageLoading(false);
       localStorage.removeItem("avatar");
       localStorage.removeItem("avatarBg");
       localStorage.removeItem("id");
