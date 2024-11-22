@@ -92,7 +92,7 @@ const calculateAndStoreSimilarity = async () => {
   console.log("Similarity data inserted successfully.");
 };
 
-const recommendPosts = async (userId, viewedPostIds) => {
+const recommendPosts = async (userId, viewedPostIds, skip, limit) => {
   try {
     // Step 1: Retrieve disliked posts by the user
     const dislikedPosts = await Dislike.find({ user_id: userId }).select(
@@ -136,20 +136,23 @@ const recommendPosts = async (userId, viewedPostIds) => {
       _id: { $in: Array.from(recommendedPostIds) },
       user_id: { $ne: userId },
       visibility: "public",
-    }).populate([
-      {
-        path: "user_id", // Populate user details from the user_id field
-        select: "name avatar avatarBg username", // Only select name and avatar from the user
-      },
-      {
-        path: "parent", // Populate the parent post if it exists
-        select: "content image_url user_id visibility createdAt", // Select relevant fields from the parent post
-        populate: {
-          path: "user_id", // Populate user details of the parent post
-          select: "name avatar avatarBg username", // Select name and avatar for the parent post's user
+    })
+      .populate([
+        {
+          path: "user_id", // Populate user details from the user_id field
+          select: "name avatar avatarBg username", // Only select name and avatar from the user
         },
-      },
-    ]);
+        {
+          path: "parent", // Populate the parent post if it exists
+          select: "content image_url user_id visibility createdAt", // Select relevant fields from the parent post
+          populate: {
+            path: "user_id", // Populate user details of the parent post
+            select: "name avatar avatarBg username", // Select name and avatar for the parent post's user
+          },
+        },
+      ])
+      .skip(skip)
+      .limit(limit);
 
     recommendedPosts = recommendedPosts.map((post) => ({
       ...post.toObject(), // Convert the Mongoose document to a plain object

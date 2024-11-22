@@ -16,33 +16,83 @@ export function Feed() {
   const [imageFlag, setImageFlag] = useState(false);
   const [pollFlag, setPollFlag] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
+  const [page, setPage] = useState(1);
+  const [hasMore, setHasMore] = useState(true);
+  const [loadingMorePosts, setLoadingMorePosts] = useState(false);
 
   const navigate = useNavigate();
 
   const API_URL = import.meta.env.VITE_API_URL;
   const APP_URL = import.meta.env.VITE_APP_URL;
 
+  const fetchPosts = async (page) => {
+    try {
+      setLoadingMorePosts(true);
+      const response = await axios.get(`${API_URL}/feed/`, {
+        params: { page, limit: 3 },
+        withCredentials: true,
+      });
+      const newPosts = [
+        ...response.data.followedPosts,
+        ...response.data.recommendedPosts,
+      ];
+      const shuffledPosts = shuffleArray(newPosts);
+
+      setPosts((prevPosts) => [...prevPosts, ...shuffledPosts]);
+
+      setHasMore(response.data.hasMore);
+
+      setIsLoading(false);
+      setLoadingMorePosts(false);
+    } catch (error) {
+      setError(true);
+      console.error(error);
+      setIsLoading(false);
+      setLoadingMorePosts(false);
+    }
+  };
+
   useEffect(() => {
-    (async () => {
-      try {
-        setIsLoading(true);
-        const response = await axios.get(`${API_URL}/feed/`, {
-          withCredentials: true,
-        });
-        const posts = [
-          ...response.data.followedPosts,
-          ...response.data.recommendedPosts,
-        ];
-        const shuffledPosts = shuffleArray(posts);
-        setPosts(shuffledPosts);
-        setIsLoading(false);
-      } catch (error) {
-        setError(true);
-        console.error(error);
-        setIsLoading(false);
-      }
-    })();
-  }, []);
+    fetchPosts(page);
+  }, [page]);
+
+  const handleScroll = () => {
+    if (
+      window.innerHeight + document.documentElement.scrollTop >=
+        document.documentElement.offsetHeight / 2 &&
+      !loadingMorePosts &&
+      hasMore
+    ) {
+      setPage((prevPage) => prevPage + 1);
+    }
+  };
+
+  useEffect(() => {
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, [isLoading, hasMore]);
+
+  // useEffect(() => {
+  //   (async () => {
+  //     try {
+  //       setIsLoading(true);
+  //       const response = await axios.get(`${API_URL}/feed/`, {
+  //         withCredentials: true,
+  //       });
+  //       const posts = [
+  //         ...response.data.followedPosts,
+  //         ...response.data.recommendedPosts,
+  //       ];
+  //       const shuffledPosts = shuffleArray(posts);
+  //       setPosts(shuffledPosts);
+  //       setIsLoading(false);
+  //     } catch (error) {
+  //       setError(true);
+  //       console.error(error);
+  //       setIsLoading(false);
+  //     }
+  //   })();
+  // }, []);
 
   const handleCreatePostClick = () => {
     setCreatePostPopUp(true);
@@ -137,10 +187,18 @@ export function Feed() {
               </span>
             </div>
           ) : (
-            <div>
-              {posts.map((post) => (
-                <Post key={post._id} details={post} setPosts={setPosts} />
-              ))}
+            <>
+              <div>
+                {posts.map((post) => (
+                  <Post key={post._id} details={post} setPosts={setPosts} />
+                ))}
+              </div>
+              {loadingMorePosts && <span>loading...</span>}
+            </>
+          )}
+          {!hasMore && (
+            <div className="text-center">
+              Looks like you reached the end! 😄
             </div>
           )}
         </>

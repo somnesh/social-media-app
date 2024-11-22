@@ -59,7 +59,7 @@ export function ProfileMenu({ setPageLoading }) {
       <DropdownMenuTrigger asChild>
         <div className="flex items-center gap-2 cursor-pointer hover:bg-[#e3e5e9] active:bg-[#d0d2d6] dark:hover:bg-[#414141] dark:active:bg-[#313131] active:scale-95 select-none px-1 sm:pl-3 sm:pr-1 py-1 rounded-full">
           <span className="dark:text-white bg-inherit hover:bg-inherit font-medium hidden sm:block">
-            {localStorage.name.split(" ")[0]}
+            {localStorage.name?.split(" ")[0] || ""}
           </span>
           <Avatar>
             <AvatarImage src={localStorage.avatar} />
