@@ -40,11 +40,9 @@ export function Header({ setPageLoading }) {
       <section className="basis-1/4 absolute left-0 sm:relative z-[11] sm:z-auto">
         <SearchBar />
       </section>
-      <section className="basis-1/2 text-center">
+      <section className="basis-1/2 flex justify-center">
         <Link to={"/"}>
-          <span className="material-symbols-outlined dark:text-white">
-            token
-          </span>
+          <img src="/icons/favicon.ico" alt="logo" className="h-9" />
         </Link>
       </section>
 

@@ -47,7 +47,8 @@
     "socket.io-client": "^4.8.1",
     "tailwind-merge": "^2.5.2",
     "tailwindcss-animate": "^1.0.7",
-    "video.js": "^8.19.1"
+    "video.js": "^8.19.1",
+    "vite-plugin-pwa": "^0.21.0"
   },
   "devDependencies": {
     "@eslint/js": "^9.9.0",
