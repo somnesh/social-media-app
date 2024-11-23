@@ -3,6 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { LoginPageImageLoader } from "../components/loaders/LoginPageImageLoader";
 import axios from "axios";
 import { Loader2 } from "lucide-react";
+import { Alert, AlertDescription } from "../components/ui/alert";
 
 export function SignupPage() {
   const [bgImage, setBgImage] = useState("");
@@ -17,6 +18,8 @@ export function SignupPage() {
     email: "",
     password: "",
   });
+
+  const [error, setError] = useState("");
   const navigate = useNavigate();
 
   const UNSPLASH_API = import.meta.env.VITE_UNSPLASH_API;
@@ -65,6 +68,13 @@ export function SignupPage() {
       setIsLoadingSubmit(false);
     } catch (error) {
       console.error("Failed to sign up: ", error);
+      if (error.status === 500) {
+        setError(
+          "An error occurred while creating your account. Please try again."
+        );
+      } else if (error.status === 400) {
+        setError(error.response.data.msg);
+      }
       e.target.classList.add("hover:bg-indigo-700");
       e.target.classList.remove("disabled:opacity-50");
       setIsLoadingSubmit(false);
@@ -262,6 +272,11 @@ export function SignupPage() {
                 className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6 p-2"
               />
             </div>
+            {error && (
+              <Alert variant="destructive" className={"text-red-500"}>
+                <AlertDescription>{error}</AlertDescription>
+              </Alert>
+            )}
 
             <div>
               <button

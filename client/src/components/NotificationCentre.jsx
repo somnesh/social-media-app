@@ -15,7 +15,7 @@ export function NotificationCentre({ mobileFlag }) {
   const { notifications, loading } = useNotifications();
   return (
     <div>
-      {loading ? (
+      {mobileFlag && loading ? (
         <NotificationsSkeleton />
       ) : (
         <>

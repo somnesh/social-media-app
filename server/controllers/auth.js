@@ -18,21 +18,22 @@ const registerUser = async (req, res) => {
   const { name, username, email } = req.body;
   let { phone_no } = req.body;
 
-  const emailAlreadyExists = await User.findOne({ email });
-  if (emailAlreadyExists) {
-    throw new BadRequestError("Email already exists");
-  }
-
-  if (!isUsernameUnique(username)) {
+  const uniqueUsername = await isUsernameUnique(username);
+  if (!uniqueUsername) {
     throw new BadRequestError("Username already exists");
   }
 
   phone_no = Number(phone_no);
   const phoneNoAlreadyExists = await User.findOne({ phone_no });
   if (phoneNoAlreadyExists) {
-    throw new BadRequestError("Phone No. already exists");
+    throw new BadRequestError("Phone number already exists");
   }
   req.body.phone_no = phone_no;
+
+  const emailAlreadyExists = await User.findOne({ email });
+  if (emailAlreadyExists) {
+    throw new BadRequestError("Email already exists");
+  }
 
   const refreshToken = jwt.sign({}, process.env.JWT_REFRESH_SECRET, {
     expiresIn: process.env.JWT_REFRESH_LIFESPAN,

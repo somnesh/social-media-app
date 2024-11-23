@@ -3,14 +3,14 @@ import { SkeletonLoader } from "./SkeletonLoader";
 export function SavePostLoader() {
   return (
     <div>
-      <div className="">
+      <div className="mt-4">
         <SkeletonLoader
           width="12rem"
           height="1.7rem"
           className="dark:bg-[#59595e]"
         />
       </div>
-      <div className="flex flex-col mt-3 gap-3 dark:bg-[#282828] bg-gray-200 p-4 rounded-md">
+      <div className="flex flex-col mt-4 gap-3 dark:bg-[#282828] bg-gray-200 p-4 sm:rounded-md">
         <div className="flex gap-3">
           <SkeletonLoader
             width="50px"
@@ -58,7 +58,7 @@ export function SavePostLoader() {
           />
         </div>
       </div>
-      <div className="flex flex-col gap-3 mt-4 dark:bg-[#282828] bg-gray-200 p-4 rounded-md">
+      <div className="flex flex-col gap-3 mt-4 dark:bg-[#282828] bg-gray-200 p-4 sm:rounded-md">
         <div className="flex gap-3">
           <SkeletonLoader
             width="50px"

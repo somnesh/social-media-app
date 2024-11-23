@@ -133,7 +133,7 @@ export function Feed() {
               </Link>
               <div
                 onClick={handleCreatePostClick}
-                className="bg-[#F0F2F5] hover:bg-[#e3e5e9] active:bg-[#dbdde0] dark:bg-[#414141] dark:active:bg-[#6e6e6e] dark:hover:bg-[#535353] rounded-lg py-3 px-4 cursor-pointer w-full"
+                className="bg-[#F0F2F5] hover:bg-[#e3e5e9] active:bg-[#dbdde0] dark:bg-[#414141] dark:active:bg-[#6e6e6e] dark:hover:bg-[#535353] rounded-full py-2 px-4 cursor-pointer w-full"
               >
                 what's happening?
               </div>

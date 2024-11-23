@@ -5,6 +5,7 @@ import {
   Ellipsis,
   FilePenLine,
   Heart,
+  Loader2,
   MessageCircleWarning,
   Minus,
   SendHorizonal,
