@@ -15,7 +15,7 @@ export function SavedPosts() {
         const response = await axios.get(`${API_URL}/post/fetch/save`, {
           withCredentials: true,
         });
-        console.log("SavedPost.jsx : response.data: ", response.data);
+        // console.log("SavedPost.jsx : response.data: ", response.data);
         setSavedPosts([...response.data]);
         setIsLoading(false);
       } catch (error) {
@@ -24,7 +24,7 @@ export function SavedPosts() {
       }
     })();
   }, []);
-  console.log("savedPosts: ", savedPosts);
+  // console.log("savedPosts: ", savedPosts);
 
   return (
     <>

@@ -8,9 +8,7 @@ import {
   ImagePlus,
   ListTodo,
   Lock,
-  MapPin,
   Users,
-  Video,
   Plus,
   Trash2,
   X,
@@ -40,10 +38,7 @@ import {
 import { useEffect, useRef, useState } from "react";
 import axios from "axios";
 import { CreatePostSubmitLoader } from "./loaders/CreatePostSubmitLoader";
-// import { jwtDecode } from "jwt-decode";
 import { useToastHandler } from "../contexts/ToastContext";
-import Poll from "./Poll";
-// import { useLocation } from "react-router-dom";
 
 export function CreatePost({
   createPostPopUp,
@@ -70,8 +65,6 @@ export function CreatePost({
   const [options, setOptions] = useState(["", ""]);
   const [duration, setDuration] = useState("1");
   // end poll
-  const [cloudinaryURL, setCloudinaryURL] = useState("");
-  const [cloudinaryResourceType, setCloudinaryResourceType] = useState("");
 
   const imageRef = useRef(null);
   const videoRef = useRef(null);
@@ -159,7 +152,7 @@ export function CreatePost({
           false
         );
       } catch (error) {
-        console.log("Form submission failed : ", error);
+        console.error("Form submission failed : ", error);
         toastHandler(
           <div className="flex gap-2 items-center">
             <CircleAlert className="bg-red-600 rounded-full text-white dark:text-[#7f1d1d]" />

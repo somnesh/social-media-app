@@ -208,7 +208,7 @@ const logout = async (req, res) => {
 
 const changePassword = async (req, res) => {
   const { currentPassword, newPassword } = req.body;
-  console.log(currentPassword, newPassword);
+  // console.log(currentPassword, newPassword);
 
   if (!currentPassword || !newPassword) {
     throw new BadRequestError("Current password or new password is required");

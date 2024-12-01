@@ -101,7 +101,7 @@ export default function CoverPhotoUpload({
         );
         setIsLoading(false);
       } catch (error) {
-        console.log("Form submission failed : ", error);
+        console.error("Form submission failed : ", error);
         toastHandler(
           <div className="flex gap-2 items-center">
             <CircleAlert className="bg-red-600 rounded-full text-white dark:text-[#7f1d1d]" />

@@ -2,13 +2,15 @@ import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { LoginPageImageLoader } from "../components/loaders/LoginPageImageLoader";
 import axios from "axios";
-import { Loader2 } from "lucide-react";
+import { Eye, EyeOff, Loader2 } from "lucide-react";
 import { Alert, AlertDescription } from "../components/ui/alert";
+import { Button } from "../components/ui/button";
 
 export function SignupPage() {
   const [bgImage, setBgImage] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [isLoadingSubmit, setIsLoadingSubmit] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
   const [form, setForm] = useState({
     name: "",
     date_of_birth: "",
@@ -51,8 +53,42 @@ export function SignupPage() {
     fetchImage();
   }, []);
 
+  const validateForm = () => {
+    if (!form.name.match(/^[a-zA-Z\s]+$/)) {
+      setError("Name can only contain letters and spaces.");
+      return false;
+    }
+    if (!form.date_of_birth) {
+      setError("Date of birth is required.");
+      return false;
+    }
+    if (!form.username.match(/^[a-zA-Z0-9_]+$/)) {
+      setError("Username can only contain letters, numbers, and underscores.");
+      return false;
+    }
+    if (!form.gender) {
+      setError("Please select a gender.");
+      return false;
+    }
+    if (!form.phone_no.match(/^\d{10,15}$/)) {
+      setError("Phone number must contain 10 to 15 digits.");
+      return false;
+    }
+    if (!form.email.match(/^\S+@\S+\.\S+$/)) {
+      setError("Please enter a valid email address.");
+      return false;
+    }
+    if (form.password.length < 4) {
+      setError("Password must be at least 4 characters long.");
+      return false;
+    }
+    setError(null);
+    return true;
+  };
+
   const handleSignUp = async (e) => {
     e.preventDefault();
+    if (!validateForm()) return;
     e.target.classList.remove("hover:bg-indigo-700");
     e.target.classList.add("disabled:opacity-50");
     try {
@@ -102,7 +138,7 @@ export function SignupPage() {
         </div>
 
         <div className="sm:mx-auto sm:w-full sm:max-w-sm">
-          <form className="space-y-4" action="#" method="POST">
+          <form className="space-y-4" method="POST">
             <div>
               <label
                 htmlFor="name"
@@ -161,9 +197,14 @@ export function SignupPage() {
               <input
                 value={form.username}
                 onChange={(e) => {
+                  // Allow only alphanumeric characters and underscores
+                  const filteredValue = e.target.value.replace(
+                    /[^a-zA-Z0-9_]/g,
+                    ""
+                  );
                   setForm({
                     ...form,
-                    username: e.target.value,
+                    username: filteredValue,
                   });
                 }}
                 id="username"
@@ -255,22 +296,40 @@ export function SignupPage() {
               >
                 Password
               </label>
-              <input
-                value={form.password}
-                onChange={(e) => {
-                  setForm({
-                    ...form,
-                    password: e.target.value,
-                  });
-                }}
-                id="password"
-                name="password"
-                type="password"
-                autoComplete="new-password"
-                placeholder="Create a password"
-                required
-                className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6 p-2"
-              />
+              <div className="relative">
+                <input
+                  value={form.password}
+                  onChange={(e) => {
+                    setForm({
+                      ...form,
+                      password: e.target.value,
+                    });
+                  }}
+                  id="password"
+                  name="password"
+                  type={showPassword ? "text" : "password"}
+                  autoComplete="new-password"
+                  placeholder="Create a password"
+                  required
+                  className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6 p-2"
+                />
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon"
+                  className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
+                  onClick={() => setShowPassword(!showPassword)}
+                >
+                  {showPassword ? (
+                    <EyeOff className="h-4 w-4 text-gray-500" />
+                  ) : (
+                    <Eye className="h-4 w-4 text-gray-500" />
+                  )}
+                  <span className="sr-only">
+                    {showPassword ? "Hide password" : "Show password"}
+                  </span>
+                </Button>
+              </div>
             </div>
             {error && (
               <Alert variant="destructive" className={"text-red-500"}>

@@ -55,7 +55,7 @@ const vote = async (req, res) => {
   const { pollId } = req.params;
   const { selectedOptionIndex } = req.body;
   const userId = req.user._id; // Assume user authentication is set up
-  console.log("selectedOptionIndex: ", selectedOptionIndex);
+  // console.log("selectedOptionIndex: ", selectedOptionIndex);
 
   const poll = await Poll.findById(pollId);
   if (!poll) {

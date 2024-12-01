@@ -29,14 +29,14 @@ export function FollowerList() {
 
         setTotalCount(response.data.totalCount);
 
-        console.log(
-          "FollowerList.jsx : response.data: ",
-          response.data.followers
-        );
+        // console.log(
+        //   "FollowerList.jsx : response.data: ",
+        //   response.data.followers
+        // );
         setFollowerListSkip((prev) => prev + response.data.length);
 
         const followerChunks = chunkArray(response.data.followers, 2);
-        console.log("followerChunks: ", followerChunks);
+        // console.log("followerChunks: ", followerChunks);
 
         setFollowerList(followerChunks);
         setIsLoading(false);

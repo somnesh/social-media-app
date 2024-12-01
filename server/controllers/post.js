@@ -403,7 +403,6 @@ const likePost = async (req, res) => {
         "liked your post.",
         session
       );
-      console.log("notificationDetails: ", notificationDetails);
 
       await Like.create(
         [
@@ -644,7 +643,7 @@ const getCommentReplies = async (req, res) => {
 
   // Fetch replies with pagination
   const replies = await Comment.find({ parent: commentId })
-    .populate("user_id", "name avatar")
+    .populate("user_id", "name avatar username")
     .skip(parseInt(skip))
     .limit(parseInt(limit))
     .lean();

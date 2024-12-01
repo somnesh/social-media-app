@@ -45,7 +45,7 @@ export const Home = () => {
 
   useEffect(() => {
     window.scrollTo(0, 0);
-  }, [currentPage, navigate]);
+  }, [currentPage, navigate, pageLoading]);
   return (
     <>
       {pageLoading ? (

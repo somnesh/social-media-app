@@ -77,8 +77,8 @@ export default function UserSettingsPage() {
       setIsLoading(false);
       return;
     }
-    console.log(currentPassword);
-    console.log(newPassword);
+    // console.log(currentPassword);
+    // console.log(newPassword);
 
     try {
       await axios.post(

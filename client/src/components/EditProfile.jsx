@@ -18,12 +18,11 @@ import {
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { useToastHandler } from "../contexts/ToastContext";
-import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { CircleAlert, CircleCheck, Loader2 } from "lucide-react";
 
 export default function EditProfile({ details, setDetails }) {
-  console.log(details);
+  // console.log(details);
 
   const [isLoading, setIsLoading] = useState(false);
   const [form, setForm] = useState({
@@ -37,16 +36,15 @@ export default function EditProfile({ details, setDetails }) {
 
   const toastHandler = useToastHandler();
   const API_URL = import.meta.env.VITE_API_URL;
-  const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsLoading(true);
 
-    console.log("Form submitted: ", form);
+    // console.log("Form submitted: ", form);
 
     try {
-      const response = await axios.patch(
+      await axios.patch(
         `${API_URL}/user/${details.user[0]._id}`,
         { ...form },
         {

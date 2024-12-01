@@ -22,7 +22,7 @@ export function LoginPage() {
 
   useEffect(() => {
     const refreshAuthToken = async () => {
-      console.log("login page");
+      // console.log("login page");
 
       try {
         await axios.post(
@@ -45,10 +45,10 @@ export function LoginPage() {
         const response = await fetch(UNSPLASH_API);
         const data = await response.json();
         const img = new Image();
-        img.src = data.urls.full; // Set the image source to the fetched URL
+        img.src = data.urls.regular; // Set the image source to the fetched URL
 
         img.onload = () => {
-          setBgImage(data.urls.full); // Update the background once the image has loaded
+          setBgImage(data.urls.regular); // Update the background once the image has loaded
           setIsLoading(false);
         };
 
@@ -89,7 +89,7 @@ export function LoginPage() {
         },
         { withCredentials: true }
       );
-      console.log("login page: result: ", result);
+      // console.log("login page: result: ", result);
 
       localStorage.setItem("name", result.data.user.name);
       localStorage.setItem("id", result.data.user.id);

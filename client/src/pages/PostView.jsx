@@ -24,7 +24,7 @@ export function PostView() {
         });
         setPosts(response.data.post);
 
-        console.log("PostView response: ", response.data);
+        // console.log("PostView response: ", response.data);
       } catch (error) {
         console.error(error);
         setIsAuthenticated(false);

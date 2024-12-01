@@ -5,6 +5,42 @@ const Post = require("../models/Post");
 const Similarity = require("../models/Similarity");
 const Dislike = require("../models/Dislike");
 const PostView = require("../models/PostView");
+const Follower = require("../models/Follower");
+const { default: mongoose } = require("mongoose");
+
+const getFollowerAndFollowingIds = async (userId) => {
+  try {
+    const results = await Follower.aggregate([
+      // Match all records where the user is the follower
+      {
+        $match: {
+          follower: userId._id,
+        },
+      },
+      // Lookup to find mutual follow relationships
+      {
+        $lookup: {
+          from: "followers", // Collection name for FollowerSchema
+          localField: "followed",
+          foreignField: "follower",
+          as: "mutualFollow",
+        },
+      },
+      // Project to identify whether the relationship is mutual
+      {
+        $project: {
+          followedId: "$followed",
+        },
+      },
+    ]);
+
+    // Flatten to extract all IDs in a single array
+    return results.map((item) => item.followedId.toString());
+  } catch (error) {
+    console.error("Error fetching follower/following IDs:", error);
+    throw error;
+  }
+};
 
 const calculateAndStoreSimilarity = async () => {
   const posts = await Post.find({ visibility: { $ne: "private" } }).select(
@@ -116,6 +152,9 @@ const recommendPosts = async (userId, viewedPostIds, skip, limit) => {
       post_id: { $in: viewedPostIds },
     });
 
+    const idsToExclude = await getFollowerAndFollowingIds(userId);
+    // console.log(idsToExclude);
+
     // Step 4: Filter similar posts
     const recommendedPostIds = new Set();
     similarPosts.forEach((doc) => {
@@ -154,10 +193,12 @@ const recommendPosts = async (userId, viewedPostIds, skip, limit) => {
       .skip(skip)
       .limit(limit);
 
-    recommendedPosts = recommendedPosts.map((post) => ({
-      ...post.toObject(), // Convert the Mongoose document to a plain object
-      recommended: true,
-    }));
+    recommendedPosts = recommendedPosts
+      .map((post) => ({
+        ...post.toObject(),
+        recommended: true,
+      }))
+      .filter((post) => !idsToExclude.includes(post.user_id._id.toString()));
 
     return { recommendedPosts, recommendedPostIds };
   } catch (error) {

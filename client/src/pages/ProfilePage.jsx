@@ -161,7 +161,7 @@ export function ProfilePage() {
       navigate("/login");
     }
   };
-  console.log(details);
+  // console.log(details);
 
   useEffect(() => {
     window.scrollTo(0, 0);

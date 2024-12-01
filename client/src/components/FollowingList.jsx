@@ -32,14 +32,14 @@ export function FollowingList() {
 
         setTotalCount(response.data.totalCount);
 
-        console.log(
-          "FollowerList.jsx : response.data: ",
-          response.data.following
-        );
+        // console.log(
+        //   "FollowerList.jsx : response.data: ",
+        //   response.data.following
+        // );
         setFollowingListSkip((prev) => prev + response.data.length);
 
         const followingChunks = chunkArray(response.data.following, 2);
-        console.log("followingChunks: ", followingChunks);
+        // console.log("followingChunks: ", followingChunks);
 
         setFollowingList(followingChunks);
         setIsLoading(false);

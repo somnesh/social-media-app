@@ -57,7 +57,7 @@ export function ProfileMenu({ setPageLoading }) {
       localStorage.removeItem("username");
       navigate("/login");
     } catch (error) {
-      console.log("Error during logout: ", error);
+      console.error("Error during logout: ", error);
     }
   };
 

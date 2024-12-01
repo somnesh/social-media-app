@@ -34,7 +34,7 @@ const useNotifications = () => {
 
     // Listen for notifications
     socket.on("receiveNotification", (notification) => {
-      console.log("useNotification: ", notification);
+      // console.log("useNotification: ", notification);
 
       // Show toast notification
       notify(notification.message, toastHandler);

@@ -424,7 +424,7 @@ export function Post({ details, setPosts, externalLinkFlag, className }) {
         }
       );
 
-      console.log(response.data);
+      // console.log(response.data);
       setPosts((prev) =>
         prev.filter((post) => post._id !== response.data.postId)
       );
@@ -1015,7 +1015,7 @@ export function Post({ details, setPosts, externalLinkFlag, className }) {
         </div>
 
         {/* Comment section */}
-        <div>
+        <div className="p-2">
           {isLoading ? (
             <CommentsLoader />
           ) : (

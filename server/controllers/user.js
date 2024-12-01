@@ -115,7 +115,7 @@ const uploadCoverPhoto = async (req, res) => {
 
 const updateUserDetails = async (req, res) => {
   const userId = req.params.idOrUsername;
-  console.log(userId);
+  // console.log(userId);
 
   const validateUser = await User.findById(userId);
   if (validateUser._id.toString() !== userId) {

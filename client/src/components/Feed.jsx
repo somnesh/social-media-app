@@ -68,9 +68,18 @@ export function Feed() {
   };
 
   useEffect(() => {
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, [isLoading, hasMore]);
+    const debounceScroll = () => {
+      let timer;
+      return () => {
+        clearTimeout(timer);
+        timer = setTimeout(() => handleScroll(), 200); // Adjust debounce delay as needed
+      };
+    };
+
+    const debouncedHandleScroll = debounceScroll();
+    window.addEventListener("scroll", debouncedHandleScroll);
+    return () => window.removeEventListener("scroll", debouncedHandleScroll);
+  }, [handleScroll]);
 
   // useEffect(() => {
   //   (async () => {
