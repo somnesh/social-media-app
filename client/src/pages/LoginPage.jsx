@@ -122,7 +122,7 @@ export function LoginPage() {
         </div>
 
         <div className="mt-10 sm:mx-auto sm:w-full sm:max-w-sm">
-          <form className="space-y-6" method="POST">
+          <form method="POST">
             <div>
               <label
                 htmlFor="email"
@@ -139,7 +139,7 @@ export function LoginPage() {
                   placeholder="Email address"
                   title="Enter your email"
                   required
-                  className="block w-full rounded-md border-0 p-2 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6 dark:bg-[#f0f0f0]"
+                  className="block w-full rounded-md border-0 p-2 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6 dark:bg-[#f0f0f0] text-sm"
                   onChange={(e) => {
                     setEmail(e.target.value);
                     e.target.classList.remove("ring-red-600");
@@ -148,7 +148,7 @@ export function LoginPage() {
               </div>
             </div>
 
-            <div>
+            <div className="mt-6">
               <div className="flex items-center justify-between">
                 <label
                   htmlFor="password"
@@ -166,7 +166,7 @@ export function LoginPage() {
                   placeholder="Enter your password"
                   title="Enter your password"
                   required
-                  className="block w-full rounded-md border-0 p-2 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+                  className="block w-full rounded-md border-0 p-2 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6 text-sm"
                   onChange={(e) => {
                     setPassword(e.target.value);
                     e.target.classList.remove("ring-red-600");
@@ -197,16 +197,16 @@ export function LoginPage() {
               </span>
             </div>
 
-            <div className="text-sm text-right">
+            <div className="text-sm text-right mt-1">
               <Link
                 to={"/forgot-password"}
-                className="font-semibold text-indigo-600 hover:text-indigo-500"
+                className="font-semibold text-indigo-500 hover:text-indigo-400"
               >
                 Forgot Password?
               </Link>
             </div>
 
-            <div>
+            <div className="mt-6">
               <button
                 type="submit"
                 className="flex w-full justify-center items-center gap-1 rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-indigo-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 focus:bg-indigo-800"
@@ -224,7 +224,7 @@ export function LoginPage() {
             Don't you have an account?{" "}
             <Link
               to={"/signup"}
-              className="font-semibold leading-6 text-indigo-600 hover:text-indigo-500"
+              className="font-semibold leading-6 text-indigo-500 hover:text-indigo-400"
             >
               Sign up
             </Link>

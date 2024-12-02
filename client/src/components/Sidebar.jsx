@@ -6,7 +6,7 @@ export function Sidebar({ variant, setCurrentPage }) {
   const [isSidebarVisible, setIsSidebarVisible] = useState(false);
   return (
     <section
-      className={`flex sm:flex-col justify-around sm:justify-normal sticky z-10 sm:z-0 top-0 p-2 sm:p-0 bg-white border-b shadow-sm dark:bg-black sm:bg-inherit basis-1/4 sm:h-screen lg:sticky sm:top-[4.5rem] overflow-y-auto sm:rounded-md gap-1 sm:max-w-80 transition-transform ${
+      className={`flex sm:flex-col justify-around sm:justify-normal sticky z-10 sm:z-0 top-0 p-2 sm:p-0 bg-white sm:border-none border-b shadow-sm dark:bg-black sm:bg-inherit basis-1/4 sm:h-screen lg:sticky sm:top-[4.5rem] overflow-y-auto sm:rounded-md gap-1 sm:max-w-80 transition-transform ${
         isSidebarVisible ? "translate-x-0" : "-translate-x-0"
       } lg:translate-x-0`}
     >

@@ -30,7 +30,6 @@ export const Home = () => {
               withCredentials: true,
             }
           );
-          // setPageLoading(false);
           setIsAuthenticated(true);
         } catch (error) {
           console.error(error);

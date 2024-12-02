@@ -1,6 +1,7 @@
 import { MailQuestion } from "lucide-react";
 import { useEffect } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
+import { Button } from "../components/ui/button";
 
 export function EmailVerification() {
   const navigate = useNavigate();
@@ -28,6 +29,9 @@ export function EmailVerification() {
         <span>Go to your inbox and verify your email</span>
         <span>You can close this tab.</span>
       </div>
+      <Link to={"/login"} className="mt-2">
+        <Button>Login</Button>
+      </Link>
     </div>
   );
 }

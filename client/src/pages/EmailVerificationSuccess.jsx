@@ -22,14 +22,17 @@ export function EmailVerificationSuccess() {
   }, [countdown, navigate]);
 
   return (
-    <div className="h-screen w-screen flex flex-col justify-center items-center gap-2">
-      <div className="flex text-3xl gap-2 items-center justify-center">
+    <div className="h-screen w-screen p-4 flex flex-col justify-center items-center gap-2">
+      <div className="flex text-2xl gap-2 items-center justify-center">
         <MailCheck size={34} />
         <span>Email Verified Successfully!</span>
       </div>
-      <div>
+      <div className="text-sm">
         <span>You will be redirected to the login page in </span>
-        <span className="text-indigo-300">{countdown} seconds</span>
+        <span className="text-indigo-300">
+          {countdown}
+          {countdown > 1 ? " seconds" : " second"}
+        </span>
       </div>
       <div className="text-sm text-gray-400 flex flex-col items-center gap-2">
         <span>Thank you for verifying your email.</span>

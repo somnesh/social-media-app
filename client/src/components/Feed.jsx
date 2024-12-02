@@ -7,6 +7,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Link, useNavigate } from "react-router-dom";
 import { FeedSkeleton } from "./loaders/FeedSkeleton";
 import { Progress } from "./ui/progress";
+import { Skeleton } from "./ui/skeleton";
 
 export function Feed() {
   const [createPostPopUp, setCreatePostPopUp] = useState(false);
@@ -202,7 +203,20 @@ export function Feed() {
                   <Post key={post._id} details={post} setPosts={setPosts} />
                 ))}
               </div>
-              {loadingMorePosts && <span>loading...</span>}
+              {loadingMorePosts && (
+                <div className="px-4 pb-3 pt-4 space-y-4 mb-2 sm:rounded-lg dark:bg-[#282828] bg-gray-200">
+                  <div className="flex items-center space-x-4">
+                    <Skeleton className="h-12 w-12 rounded-full dark:bg-[#59595e]" />
+                    <div className="space-y-2">
+                      <Skeleton className="h-4 w-[200px] dark:bg-[#59595e]" />
+                      <Skeleton className="h-4 w-[150px] dark:bg-[#59595e]" />
+                    </div>
+                  </div>
+                  <Skeleton className="h-4 w-full dark:bg-[#59595e]" />
+                  <Skeleton className="h-4 w-full dark:bg-[#59595e]" />
+                  <Skeleton className="h-40 w-full dark:bg-[#59595e]" />
+                </div>
+              )}
             </>
           )}
           {!hasMore && (
