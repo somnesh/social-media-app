@@ -1015,7 +1015,7 @@ export function Post({ details, setPosts, externalLinkFlag, className }) {
         </div>
 
         {/* Comment section */}
-        <div className="p-2">
+        <div>
           {isLoading ? (
             <CommentsLoader />
           ) : (
