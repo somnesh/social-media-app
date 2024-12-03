@@ -13,6 +13,7 @@ import {
   CircleCheck,
   CircleX,
   Globe,
+  Loader2,
   Lock,
   Users,
 } from "lucide-react";
@@ -30,9 +31,11 @@ export function PostVisibilityEditor({
 }) {
   const API_URL = import.meta.env.VITE_API_URL;
   const [postVisibility, setPostVisibility] = useState(visibility);
+  const [isLoading, setIsLoading] = useState(false);
   const toastHandler = useToastHandler();
 
   const handlePostVisibilityChange = async () => {
+    setIsLoading(true);
     try {
       if (postVisibility !== visibility) {
         const response = await axios.patch(
@@ -74,6 +77,7 @@ export function PostVisibilityEditor({
       );
     } finally {
       setOpenPostVisibilityEditor(false);
+      setIsLoading(false);
     }
   };
 
@@ -136,7 +140,13 @@ export function PostVisibilityEditor({
             size="sm"
             className="px-4 bg-transparent border bg-slate-100 text-black hover:bg-slate-200 dark:bg-white dark:hover:bg-slate-200"
           >
-            Save changes
+            {!isLoading && <span>Save changes</span>}
+            {isLoading && (
+              <>
+                <span>Saving...</span>
+                <Loader2 size={14} className="ml-1 animate-spin" />
+              </>
+            )}
           </Button>
         </DialogFooter>
       </DialogContent>

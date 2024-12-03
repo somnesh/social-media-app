@@ -117,53 +117,51 @@ export function CreatePost({
   };
 
   const createPost = async () => {
-    if (postContent !== "") {
-      const postFormData = new FormData();
-      closePopup();
+    const postFormData = new FormData();
+    closePopup();
 
-      postFormData.append("content", postContent);
-      postFormData.append("visibility", visibility);
+    postFormData.append("content", postContent);
+    postFormData.append("visibility", visibility);
 
-      try {
-        if (uploadedImage) {
-          const file = imageRef.current.files[0];
-          const cloudinaryResponse = await uploadToCloudinary(file);
-          postFormData.append("image_url", cloudinaryResponse.secure_url);
-          postFormData.append("media_type", cloudinaryResponse.resource_type);
-        }
-        if (uploadedVideo) {
-          const file = videoRef.current.files[0];
-          const cloudinaryResponse = await uploadToCloudinary(file);
-          postFormData.append("image_url", cloudinaryResponse.secure_url);
-          postFormData.append("media_type", cloudinaryResponse.resource_type);
-        }
-
-        const response = await axios.post(`${API_URL}/post`, postFormData, {
-          withCredentials: true,
-        });
-
-        setPosts((prev) => [response.data.post, ...prev]);
-
-        toastHandler(
-          <div className="flex gap-2 items-center">
-            <CircleCheck className="bg-green-600 rounded-full text-white dark:text-[#242526]" />
-            <span>Post created</span>
-          </div>,
-          false
-        );
-      } catch (error) {
-        console.error("Form submission failed : ", error);
-        toastHandler(
-          <div className="flex gap-2 items-center">
-            <CircleAlert className="bg-red-600 rounded-full text-white dark:text-[#7f1d1d]" />
-            <span>Something went wrong</span>
-          </div>,
-          true
-        );
-      } finally {
-        setIsLoading(false);
-        setUploadProgress(0);
+    try {
+      if (uploadedImage) {
+        const file = imageRef.current.files[0];
+        const cloudinaryResponse = await uploadToCloudinary(file);
+        postFormData.append("image_url", cloudinaryResponse.secure_url);
+        postFormData.append("media_type", cloudinaryResponse.resource_type);
       }
+      if (uploadedVideo) {
+        const file = videoRef.current.files[0];
+        const cloudinaryResponse = await uploadToCloudinary(file);
+        postFormData.append("image_url", cloudinaryResponse.secure_url);
+        postFormData.append("media_type", cloudinaryResponse.resource_type);
+      }
+
+      const response = await axios.post(`${API_URL}/post`, postFormData, {
+        withCredentials: true,
+      });
+
+      setPosts((prev) => [response.data.post, ...prev]);
+
+      toastHandler(
+        <div className="flex gap-2 items-center">
+          <CircleCheck className="bg-green-600 rounded-full text-white dark:text-[#242526]" />
+          <span>Post created</span>
+        </div>,
+        false
+      );
+    } catch (error) {
+      console.error("Form submission failed : ", error);
+      toastHandler(
+        <div className="flex gap-2 items-center">
+          <CircleAlert className="bg-red-600 rounded-full text-white dark:text-[#7f1d1d]" />
+          <span>Something went wrong</span>
+        </div>,
+        true
+      );
+    } finally {
+      setIsLoading(false);
+      setUploadProgress(0);
     }
   };
 
