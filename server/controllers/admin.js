@@ -30,7 +30,17 @@ const adminLogin = async (req, res) => {
 
   //   when both credentials are correct a Json token is created for the session
   const token = user.createJWT();
-  res.status(StatusCodes.OK).json({ user: { name: user.name }, token });
+  res.status(StatusCodes.OK).json({
+    user: {
+      name: user.name,
+      username: user.username,
+      email: user.email,
+      role: user.role,
+      avatar: user.avatar,
+      avatarBg: user.avatarBg,
+    },
+    token,
+  });
 };
 
 module.exports = { adminLogin };
