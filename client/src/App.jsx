@@ -21,6 +21,7 @@ import ForgotPassword from "./pages/ForgotPassword";
 import { SpeedInsights } from "@vercel/speed-insights/react";
 import { Analytics } from "@vercel/analytics/react";
 import AdminLogin from "./admin/pages/AdminLogin";
+import AdminDashboard from "./admin/pages/AdminDashboard";
 
 const router = createBrowserRouter([
   {
@@ -32,8 +33,12 @@ const router = createBrowserRouter([
     element: <LoginPage />,
   },
   {
-    path: "admin/login",
+    path: "admin",
     element: <AdminLogin />,
+  },
+  {
+    path: "admin/:page",
+    element: <AdminDashboard />,
   },
   {
     path: "/signup",

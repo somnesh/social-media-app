@@ -6,6 +6,7 @@ import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { LockIcon, MailIcon } from "lucide-react";
 import axios from "axios";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { useNavigate } from "react-router-dom";
 
 export default function AdminLogin() {
   const [email, setEmail] = useState("");
@@ -13,7 +14,7 @@ export default function AdminLogin() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
   const [isInvalid, setIsInvalid] = useState(false);
-
+  const navigate = useNavigate();
   const API_URL = import.meta.env.VITE_API_URL;
 
   const handleSubmit = async (e) => {
@@ -26,7 +27,7 @@ export default function AdminLogin() {
         email: email,
         password: password,
       });
-
+      navigate("/admin/dashboard");
       console.log(result);
     } catch (err) {
       console.error(err);
