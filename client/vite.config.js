@@ -29,6 +29,9 @@ export default defineConfig({
           },
         ],
       },
+      workbox: {
+        maximumFileSizeToCacheInBytes: 3000000,
+      },
     }),
     react(),
   ],
