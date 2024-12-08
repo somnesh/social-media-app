@@ -23,12 +23,22 @@ export default function AdminLogin() {
     setIsInvalid(false);
 
     try {
-      const result = await axios.post(`${API_URL}/admin/login`, {
-        email: email,
-        password: password,
-      });
+      const result = await axios.post(
+        `${API_URL}/admin/login`,
+        {
+          email: email,
+          password: password,
+        },
+        { withCredentials: true }
+      );
+      console.log(result.data);
+      localStorage.setItem("name", result.data.user.name);
+      localStorage.setItem("id", result.data.user.id);
+      localStorage.setItem("avatar", result.data.user.avatar);
+      localStorage.setItem("avatarBg", result.data.user.avatarBg);
+      localStorage.setItem("username", result.data.user.username);
+      localStorage.setItem("email", result.data.user.email);
       navigate("/admin/dashboard");
-      console.log(result);
     } catch (err) {
       console.error(err);
 

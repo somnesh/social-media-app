@@ -24,7 +24,7 @@ const getUserDetails = async (req, res) => {
 
   if (mongoose.Types.ObjectId.isValid(idOrUsername)) {
     user = await User.findById(idOrUsername).select(
-      "-password -refreshToken -isVerified -verified -role -__v"
+      "-password -refreshToken -verified -__v"
     );
 
     res.status(StatusCodes.OK).json(user);

@@ -18,10 +18,12 @@ function AdminSidebar({ open, onClose, currentPage, setCurrentPage }) {
     <div
       className={`${
         open ? "translate-x-0" : "-translate-x-full"
-      } fixed inset-y-0 left-0 z-50 w-64 bg-white border-r transform transition-transform duration-200 ease-in-out lg:translate-x-0 lg:static lg:inset-0`}
+      } fixed inset-y-0 left-0 z-50 w-64 bg-white dark:bg-black border-r transform transition-transform duration-200 ease-in-out lg:translate-x-0 lg:static lg:inset-0`}
     >
       <div className="flex items-center justify-between px-4 py-5 border-b lg:justify-center">
-        <span className="text-2xl font-semibold">Admin Dashboard</span>
+        <span className="text-lg sm:text-2xl font-semibold">
+          Admin Dashboard
+        </span>
         <Button
           variant="ghost"
           size="icon"
@@ -36,10 +38,10 @@ function AdminSidebar({ open, onClose, currentPage, setCurrentPage }) {
           <li>
             <Link to="/admin/dashboard">
               <span
-                className={`flex items-center p-2 text-gray-700 ${
+                className={`flex items-center p-2 text-gray-700 dark:text-white rounded ${
                   currentPage === "dashboard"
-                    ? `bg-[${primaryColour}]`
-                    : "hover:bg-gray-100 rounded"
+                    ? `bg-[${primaryColour}] dark:bg-[#333943]`
+                    : "hover:bg-gray-100 dark:hover:bg-slate-800"
                 }`}
               >
                 <Home className="w-5 h-5 mr-3" />
@@ -50,10 +52,10 @@ function AdminSidebar({ open, onClose, currentPage, setCurrentPage }) {
           <li>
             <Link to="/admin/users">
               <span
-                className={`flex items-center p-2 text-gray-700  ${
+                className={`flex items-center p-2 text-gray-700 dark:text-white rounded ${
                   currentPage === "users"
-                    ? `bg-[${primaryColour}]`
-                    : "hover:bg-gray-100 rounded"
+                    ? `bg-[${primaryColour}] dark:bg-[#333943]`
+                    : "hover:bg-gray-100 dark:hover:bg-slate-800"
                 } `}
               >
                 <Users className="w-5 h-5 mr-3" />
@@ -64,10 +66,10 @@ function AdminSidebar({ open, onClose, currentPage, setCurrentPage }) {
           <li>
             <Link to="/admin/settings">
               <span
-                className={`flex items-center p-2 text-gray-700 ${
+                className={`flex items-center p-2 text-gray-700 dark:text-white rounded ${
                   currentPage === "settings"
-                    ? `bg-[${primaryColour}]`
-                    : "hover:bg-gray-100 rounded"
+                    ? `bg-[${primaryColour}] dark:bg-[#333943]`
+                    : "hover:bg-gray-100 dark:hover:bg-slate-800"
                 }`}
               >
                 <Settings className="w-5 h-5 mr-3" />
@@ -78,10 +80,10 @@ function AdminSidebar({ open, onClose, currentPage, setCurrentPage }) {
           <li>
             <Link to="/admin/reports">
               <span
-                className={`flex items-center p-2 text-gray-700 ${
+                className={`flex items-center p-2 text-gray-700 dark:text-white rounded ${
                   currentPage === "reports"
-                    ? `bg-[${primaryColour}]`
-                    : "hover:bg-gray-100 rounded"
+                    ? `bg-[${primaryColour}] dark:bg-[#333943]`
+                    : "hover:bg-gray-100 dark:hover:bg-slate-800"
                 }`}
               >
                 <AlertCircle className="w-5 h-5 mr-3" />

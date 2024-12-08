@@ -148,9 +148,6 @@ UserSchema.pre("save", async function (next) {
 //    "userId": some id
 //    "name": user's display name
 //    "role": admin or user
-//    "avatar": profile picture
-//    "iat": when the token issued
-//    "exp": when the token expires
 // }
 
 // creating a Json WebToken

@@ -16,7 +16,14 @@ import {
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
 
-function DataTable({ columns, data }) {
+function DataTable({
+  columns,
+  data,
+  onSortingChange,
+  currentPage,
+  totalPages,
+  onPageChange,
+}) {
   const [sorting, setSorting] = useState([]);
 
   const table = useReactTable({
@@ -24,7 +31,10 @@ function DataTable({ columns, data }) {
     columns,
     getCoreRowModel: getCoreRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
-    onSortingChange: setSorting,
+    onSortingChange: (newSorting) => {
+      setSorting(newSorting);
+      onSortingChange(newSorting); // Notify parent of sorting changes
+    },
     getSortedRowModel: getSortedRowModel(),
     state: {
       sorting,
@@ -85,16 +95,16 @@ function DataTable({ columns, data }) {
         <Button
           variant="outline"
           size="sm"
-          onClick={() => table.previousPage()}
-          disabled={!table.getCanPreviousPage()}
+          onClick={() => onPageChange(currentPage - 1)}
+          disabled={currentPage <= 1}
         >
           Previous
         </Button>
         <Button
           variant="outline"
           size="sm"
-          onClick={() => table.nextPage()}
-          disabled={!table.getCanNextPage()}
+          onClick={() => onPageChange(currentPage + 1)}
+          disabled={currentPage >= totalPages}
         >
           Next
         </Button>

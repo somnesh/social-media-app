@@ -24,6 +24,15 @@ const ReportSchema = new mongoose.Schema(
       maxlength: 100,
       require: true,
     },
+    status: {
+      type: String,
+      enum: {
+        values: ["Pending", "Under Review", "Resolved"],
+        message: "{VALUE} is not supported",
+      },
+      require: [true, "please provide status"],
+      default: "Pending",
+    },
   },
   { timestamps: true }
 );
