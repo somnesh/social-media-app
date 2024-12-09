@@ -22,6 +22,7 @@ import { SpeedInsights } from "@vercel/speed-insights/react";
 import { Analytics } from "@vercel/analytics/react";
 import AdminLogin from "./admin/pages/AdminLogin";
 import AdminDashboard from "./admin/pages/AdminDashboard";
+import Maintenance from "./admin/pages/Maintenance";
 
 const router = createBrowserRouter([
   {
@@ -75,6 +76,10 @@ const router = createBrowserRouter([
   {
     path: "/500",
     element: <SomethingWentWrong />,
+  },
+  {
+    path: "/503",
+    element: <Maintenance />,
   },
   {
     path: "/404",

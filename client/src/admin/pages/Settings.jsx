@@ -1,6 +1,8 @@
+import { useEffect } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
+import axios from "axios"; // Import axios
 import { Button } from "@/components/ui/button";
 import {
   Form,
@@ -14,6 +16,8 @@ import {
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
+
+const API_URL = import.meta.env.VITE_API_URL;
 
 // Validation schema
 const settingsSchema = z.object({
@@ -39,6 +43,37 @@ export default function SettingsPage() {
       maxUploadSize: 5,
     },
   });
+
+  // Fetch initial maintenance status
+  useEffect(() => {
+    async function fetchMaintenanceStatus() {
+      try {
+        const response = await axios.get(`${API_URL}/admin/maintenance`);
+        form.setValue("maintenanceMode", response.data.maintenance);
+        console.log(
+          "Initial maintenance status fetched:",
+          response.data.maintenance
+        );
+      } catch (error) {
+        console.error("Error fetching maintenance status:", error);
+      }
+    }
+    fetchMaintenanceStatus();
+  }, [form]);
+
+  // Toggle maintenance mode
+  async function handleMaintenanceToggle(value) {
+    try {
+      await axios.post(
+        `${API_URL}/admin/maintenance`,
+        { value },
+        { withCredentials: true }
+      );
+      console.log("Maintenance mode updated:", value);
+    } catch (error) {
+      console.error("Error updating maintenance mode:", error);
+    }
+  }
 
   // Form submit handler
   function onSubmit(data) {
@@ -100,7 +135,10 @@ export default function SettingsPage() {
                 <FormControl>
                   <Switch
                     checked={field.value}
-                    onCheckedChange={field.onChange}
+                    onCheckedChange={(value) => {
+                      field.onChange(value); // Update form state
+                      handleMaintenanceToggle(value); // Trigger API call
+                    }}
                   />
                 </FormControl>
               </FormItem>

@@ -20,47 +20,61 @@ export function LoginPage() {
   const API_URL = import.meta.env.VITE_API_URL;
   const UNSPLASH_API = import.meta.env.VITE_UNSPLASH_API;
 
-  useEffect(() => {
-    const refreshAuthToken = async () => {
-      // console.log("login page");
+  const refreshAuthToken = async () => {
+    // console.log("login page");
 
-      try {
-        await axios.post(
-          `${API_URL}/auth/refresh-token`,
-          {},
-          { withCredentials: true }
-        );
-        setIsAuthenticated(true);
-        navigate("/");
-      } catch (error) {
-        setIsAuthenticated(false);
-        console.error("Error refreshing auth token:", error);
-        fetchImage();
-      }
-    };
+    try {
+      await axios.post(
+        `${API_URL}/auth/refresh-token`,
+        {},
+        { withCredentials: true }
+      );
+      setIsAuthenticated(true);
+      navigate("/");
+    } catch (error) {
+      setIsAuthenticated(false);
+      console.error("Error refreshing auth token:", error);
+      fetchImage();
+    }
+  };
 
-    const fetchImage = async () => {
-      try {
-        setIsLoading(true);
-        const response = await fetch(UNSPLASH_API);
-        const data = await response.json();
-        const img = new Image();
-        img.src = data.urls.regular; // Set the image source to the fetched URL
+  const fetchImage = async () => {
+    try {
+      setIsLoading(true);
+      const response = await fetch(UNSPLASH_API);
+      const data = await response.json();
+      const img = new Image();
+      img.src = data.urls.regular; // Set the image source to the fetched URL
 
-        img.onload = () => {
-          setBgImage(data.urls.regular); // Update the background once the image has loaded
-          setIsLoading(false);
-        };
-
-        img.onerror = () => {
-          console.error("Error loading image");
-          setIsLoading(false);
-        };
-      } catch (error) {
-        console.error("Error fetching image:", error);
+      img.onload = () => {
+        setBgImage(data.urls.regular); // Update the background once the image has loaded
         setIsLoading(false);
+      };
+
+      img.onerror = () => {
+        console.error("Error loading image");
+        setIsLoading(false);
+      };
+    } catch (error) {
+      console.error("Error fetching image:", error);
+      setIsLoading(false);
+    }
+  };
+
+  const checkMaintenanceMode = async () => {
+    try {
+      const response = await axios.get(`${API_URL}/admin/maintenance`);
+
+      if (response.data.maintenance) {
+        navigate("/503");
       }
-    };
+    } catch (error) {
+      console.error("Error checking maintenance status:", error);
+    }
+  };
+
+  useEffect(() => {
+    checkMaintenanceMode();
     refreshAuthToken();
   }, []);
 

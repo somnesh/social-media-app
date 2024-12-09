@@ -18,28 +18,46 @@ export const Home = () => {
   const navigate = useNavigate();
 
   const API_URL = import.meta.env.VITE_API_URL;
+  // Check maintenance status on app load
+  const checkMaintenanceMode = async () => {
+    try {
+      const response = await axios.get(`${API_URL}/admin/maintenance`);
+
+      if (response.data.maintenance) {
+        navigate("/503");
+      }
+    } catch (error) {
+      console.error("Error checking maintenance status:", error);
+    }
+  };
+
+  const getRefreshToken = async () => {
+    if (!isAuthenticated) {
+      try {
+        await axios.post(
+          `${API_URL}/auth/refresh-token`,
+          {},
+          {
+            withCredentials: true,
+          }
+        );
+        setIsAuthenticated(true);
+      } catch (error) {
+        console.error(error);
+        setIsAuthenticated(false);
+        navigate("/login");
+        setPageLoading(false);
+      }
+    }
+  };
+
   useEffect(() => {
     setPageLoading(true);
-    (async () => {
-      if (!isAuthenticated) {
-        try {
-          await axios.post(
-            `${API_URL}/auth/refresh-token`,
-            {},
-            {
-              withCredentials: true,
-            }
-          );
-          setIsAuthenticated(true);
-        } catch (error) {
-          console.error(error);
-          setIsAuthenticated(false);
-          navigate("/login");
-          setPageLoading(false);
-        }
-      }
-      setPageLoading(false);
-    })();
+
+    checkMaintenanceMode();
+    getRefreshToken();
+
+    setPageLoading(false);
   }, []);
 
   useEffect(() => {

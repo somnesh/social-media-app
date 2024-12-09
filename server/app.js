@@ -32,6 +32,7 @@ const connectDB = require("./db/connect");
 // authentication middlewares
 const authenticateUser = require("./middleware/authentication");
 // const authenticateAdmin = require("./middleware/admin-auth");
+const maintenanceMiddleware = require("./middleware/maintenanceMiddleware");
 
 // error handlers
 const notFoundMiddleware = require("./middleware/not-found");
@@ -48,10 +49,12 @@ const reportRoute = require("./routes/report");
 const cloudinaryRoutes = require("./routes/cloudinary");
 
 //protected routes
+app.use("/api/v1/admin", adminRoute);
+
+app.use(maintenanceMiddleware);
 app.use("/api/v1/auth", authRoute);
 app.use("/api/v1/post", authenticateUser, postRoute);
 app.use("/api/v1/user", userRoute); // the auth middleware used inside the routes file for specific routes
-app.use("/api/v1/admin", adminRoute);
 app.use("/api/v1/feed", authenticateUser, feedRoute);
 app.use("/api/v1/report", authenticateUser, reportRoute);
 

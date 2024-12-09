@@ -12,8 +12,6 @@ import {
 import { Button } from "@/components/ui/button";
 
 function AdminSidebar({ open, onClose, currentPage, setCurrentPage }) {
-  const primaryColour = "#D8E6FD";
-
   return (
     <div
       className={`${
@@ -40,7 +38,7 @@ function AdminSidebar({ open, onClose, currentPage, setCurrentPage }) {
               <span
                 className={`flex items-center p-2 text-gray-700 dark:text-white rounded ${
                   currentPage === "dashboard"
-                    ? `bg-[${primaryColour}] dark:bg-[#333943]`
+                    ? `bg-[#D8E6FD] dark:bg-[#333943]`
                     : "hover:bg-gray-100 dark:hover:bg-slate-800"
                 }`}
               >
@@ -54,7 +52,7 @@ function AdminSidebar({ open, onClose, currentPage, setCurrentPage }) {
               <span
                 className={`flex items-center p-2 text-gray-700 dark:text-white rounded ${
                   currentPage === "users"
-                    ? `bg-[${primaryColour}] dark:bg-[#333943]`
+                    ? `bg-[#D8E6FD] dark:bg-[#333943]`
                     : "hover:bg-gray-100 dark:hover:bg-slate-800"
                 } `}
               >
@@ -68,7 +66,7 @@ function AdminSidebar({ open, onClose, currentPage, setCurrentPage }) {
               <span
                 className={`flex items-center p-2 text-gray-700 dark:text-white rounded ${
                   currentPage === "settings"
-                    ? `bg-[${primaryColour}] dark:bg-[#333943]`
+                    ? `bg-[#D8E6FD] dark:bg-[#333943]`
                     : "hover:bg-gray-100 dark:hover:bg-slate-800"
                 }`}
               >
@@ -82,7 +80,7 @@ function AdminSidebar({ open, onClose, currentPage, setCurrentPage }) {
               <span
                 className={`flex items-center p-2 text-gray-700 dark:text-white rounded ${
                   currentPage === "reports"
-                    ? `bg-[${primaryColour}] dark:bg-[#333943]`
+                    ? `bg-[#D8E6FD] dark:bg-[#333943]`
                     : "hover:bg-gray-100 dark:hover:bg-slate-800"
                 }`}
               >
