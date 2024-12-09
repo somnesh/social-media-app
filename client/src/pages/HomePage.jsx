@@ -25,6 +25,7 @@ export const Home = () => {
 
       if (response.data.maintenance) {
         navigate("/503");
+        setPageLoading(false);
       }
     } catch (error) {
       console.error("Error checking maintenance status:", error);
@@ -56,8 +57,6 @@ export const Home = () => {
 
     checkMaintenanceMode();
     getRefreshToken();
-
-    setPageLoading(false);
   }, []);
 
   useEffect(() => {
