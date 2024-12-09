@@ -15,15 +15,38 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Menu, Moon, Sun, SunMoon } from "lucide-react";
 import useTheme from "@/contexts/theme";
+import { useNavigate } from "react-router-dom";
+import axios from "axios";
 
-export function AdminHeader({ onMenuButtonClick }) {
+export function AdminHeader({ onMenuButtonClick, setPageLoading }) {
   const { theme, darkTheme, lightTheme } = useTheme();
+  const navigate = useNavigate();
+
+  const API_URL = import.meta.env.VITE_API_URL;
 
   const switchTheme = (e) => {
     if (theme === "white") {
       darkTheme(e);
     } else {
       lightTheme(e);
+    }
+  };
+
+  const handleLogout = async () => {
+    setPageLoading(true);
+    localStorage.clear();
+
+    try {
+      await axios.post(
+        `${API_URL}/admin/logout`,
+        {},
+        { withCredentials: true }
+      );
+    } catch (error) {
+      console.error(error);
+    } finally {
+      navigate("/admin/login");
+      setPageLoading(false);
     }
   };
 
@@ -44,9 +67,11 @@ export function AdminHeader({ onMenuButtonClick }) {
           <DropdownMenuTrigger asChild>
             <Button variant="ghost" className="relative w-10 rounded-full">
               <Avatar className="h-8 w-8">
-                <AvatarImage src={localStorage.avatar} />
-                <AvatarFallback className={localStorage.avatarBg}>
-                  {localStorage.name[0]}
+                <AvatarImage src={localStorage?.avatar || ""} />
+                <AvatarFallback
+                  className={localStorage.avatarBg || "bg-purple-500"}
+                >
+                  {localStorage.name ? localStorage.name[0] : "#"}
                 </AvatarFallback>
               </Avatar>
             </Button>
@@ -55,10 +80,10 @@ export function AdminHeader({ onMenuButtonClick }) {
             <DropdownMenuLabel className="font-normal">
               <div className="flex flex-col space-y-1">
                 <p className="text-sm font-medium leading-none">
-                  {localStorage.name}
+                  {localStorage.name || "#"}
                 </p>
                 <p className="text-xs leading-none text-muted-foreground">
-                  {localStorage.email}
+                  {localStorage.email || "#"}
                 </p>
               </div>
             </DropdownMenuLabel>
@@ -111,7 +136,7 @@ export function AdminHeader({ onMenuButtonClick }) {
               </DropdownMenuPortal>
             </DropdownMenuSub>
             <DropdownMenuSeparator />
-            <DropdownMenuItem>
+            <DropdownMenuItem onClick={handleLogout}>
               Log out
               <DropdownMenuShortcut>⇧⌘Q</DropdownMenuShortcut>
             </DropdownMenuItem>

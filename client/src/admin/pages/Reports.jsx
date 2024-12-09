@@ -12,6 +12,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import axios from "axios";
+import ReportSkeleton from "../loaders/ReportSkeleton";
 
 const API_URL = import.meta.env.VITE_API_URL;
 
@@ -82,30 +83,34 @@ const columns = [
   },
 ];
 
-async function fetchReports({ page, limit, sortField, sortOrder }) {
-  try {
-    const response = await axios.get(`${API_URL}/report`, {
-      params: {
-        page,
-        limit,
-        sortField,
-        sortOrder,
-      },
-      withCredentials: true,
-    });
-    console.log(response.data);
-
-    return response.data;
-  } catch (error) {
-    console.error(error);
-  }
-}
-
 export default function ReportsPage() {
   const [reports, setReports] = useState([]);
   const [totalPages, setTotalPages] = useState(1);
   const [currentPage, setCurrentPage] = useState(1);
   const [sorting, setSorting] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  async function fetchReports({ page, limit, sortField, sortOrder }) {
+    try {
+      setLoading(true);
+      const response = await axios.get(`${API_URL}/report`, {
+        params: {
+          page,
+          limit,
+          sortField,
+          sortOrder,
+        },
+        withCredentials: true,
+      });
+      console.log(response.data);
+
+      return response.data;
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setLoading(false);
+    }
+  }
 
   const fetchData = async (page, sorting) => {
     const sortField = sorting[0]?.id || "createdAt"; // Default sorting field
@@ -133,16 +138,22 @@ export default function ReportsPage() {
   };
 
   return (
-    <div className="p-6 space-y-6">
-      <h1 className="text-3xl font-semibold">Reports</h1>
-      <DataTable
-        columns={columns}
-        data={reports}
-        onSortingChange={handleSortingChange}
-        currentPage={currentPage}
-        totalPages={totalPages}
-        onPageChange={(newPage) => setCurrentPage(newPage)}
-      />
-    </div>
+    <>
+      {loading ? (
+        <ReportSkeleton />
+      ) : (
+        <div className="p-6 space-y-6">
+          <h1 className="text-3xl font-semibold">Reports</h1>
+          <DataTable
+            columns={columns}
+            data={reports}
+            onSortingChange={handleSortingChange}
+            currentPage={currentPage}
+            totalPages={totalPages}
+            onPageChange={(newPage) => setCurrentPage(newPage)}
+          />
+        </div>
+      )}
+    </>
   );
 }

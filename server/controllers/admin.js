@@ -56,6 +56,19 @@ const adminLogin = async (req, res) => {
     });
 };
 
+const logout = async (req, res) => {
+  const cookieOptions = {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: process.env.NODE_ENV === "production" ? "none" : "Lax",
+  };
+
+  res
+    .status(StatusCodes.OK)
+    .clearCookie("accessToken", cookieOptions)
+    .json({ status: "success" });
+};
+
 const getDashboard = async (req, res) => {
   try {
     const now = new Date();
@@ -245,4 +258,4 @@ const userManagement = async (req, res) => {
 
 const deleteUser = async (req, res) => {};
 
-module.exports = { adminLogin, getDashboard, userManagement };
+module.exports = { adminLogin, getDashboard, userManagement, logout };
