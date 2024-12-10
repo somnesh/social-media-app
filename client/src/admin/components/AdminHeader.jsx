@@ -45,7 +45,7 @@ export function AdminHeader({ onMenuButtonClick, setPageLoading }) {
     } catch (error) {
       console.error(error);
     } finally {
-      navigate("/admin/login");
+      navigate("/admin");
       setPageLoading(false);
     }
   };

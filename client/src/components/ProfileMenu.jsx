@@ -65,13 +65,13 @@ export function ProfileMenu({ setPageLoading }) {
     try {
       setPageLoading(true);
       await axios.post(`${API_URL}/auth/logout`, {}, { withCredentials: true });
-      setPageLoading(false);
       localStorage.removeItem("avatar");
       localStorage.removeItem("avatarBg");
       localStorage.removeItem("id");
       localStorage.removeItem("name");
       localStorage.removeItem("username");
       navigate("/login");
+      setPageLoading(false);
     } catch (error) {
       console.error("Error during logout: ", error);
     }

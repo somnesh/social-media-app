@@ -41,7 +41,7 @@ export function PostView() {
         <WholePageLoader />
       ) : (
         <>
-          <Header />
+          <Header setPageLoading={setIsLoading} />
           <main className="flex px-2 py-4 bg-[#f0f2f5] dark:bg-[#18191a] min-h-screen dark:text-[#e2e4e9] transition-colors duration-500 justify-center gap-3">
             <section className="sm:basis-1/2 w-full sm:w-auto">
               <Post

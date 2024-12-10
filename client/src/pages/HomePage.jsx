@@ -47,9 +47,11 @@ export const Home = () => {
         console.error(error);
         setIsAuthenticated(false);
         navigate("/login");
+      } finally {
         setPageLoading(false);
       }
     }
+    setPageLoading(false);
   };
 
   useEffect(() => {
