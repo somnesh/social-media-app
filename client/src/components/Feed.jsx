@@ -6,8 +6,8 @@ import axios from "axios";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Link, useNavigate } from "react-router-dom";
 import { FeedSkeleton } from "./loaders/FeedSkeleton";
-import { Progress } from "./ui/progress";
 import { Skeleton } from "./ui/skeleton";
+import CircularProgressBar from "./CircularProgressBar";
 
 export function Feed() {
   const [createPostPopUp, setCreatePostPopUp] = useState(false);
@@ -180,10 +180,11 @@ export function Feed() {
             </div>
           </div>
 
-          <div className="px-2">
+          <div className="">
             {uploadProgress > 0 && (
-              <div className="w-full mb-2">
-                <Progress value={uploadProgress} />
+              <div className="flex justify-between items-center bg-white dark:bg-[#242526] w-full px-2 mb-2 rounded-lg h-12">
+                <span className="pl-3 text-sm">Posting...</span>
+                <CircularProgressBar progress={uploadProgress} />
               </div>
             )}
           </div>

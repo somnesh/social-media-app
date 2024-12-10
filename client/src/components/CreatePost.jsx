@@ -79,6 +79,7 @@ export function CreatePost({
   const CLOUD_API = import.meta.env.VITE_CLOUDINARY_CLOUD_API;
 
   const uploadToCloudinary = async (file) => {
+    setUploadProgress(1);
     // Step 1: Get the upload signature from the backend
     const signatureResponse = await axios.get(
       `${API_URL}/cloudinary/cloudinary-signature`
