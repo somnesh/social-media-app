@@ -1,6 +1,7 @@
 import axios from "axios";
 import {
   BookmarkPlus,
+  BookmarkX,
   Check,
   CircleCheck,
   CircleX,
@@ -81,6 +82,7 @@ import { useAuth } from "../contexts/AuthContext";
 import encryptId from "../utils/encryptId";
 import VideoPlayer from "./VideoPlayer";
 import Poll from "./Poll";
+import { Skeleton } from "./ui/skeleton";
 
 export function Post({ details, setPosts, externalLinkFlag, className }) {
   const [isLoading, setIsLoading] = useState(false);
@@ -114,6 +116,7 @@ export function Post({ details, setPosts, externalLinkFlag, className }) {
 
   const [shareLoading, setShareLoading] = useState(false);
   const [postCommentLoading, setPostCommentLoading] = useState(false);
+  const [imageLoading, setImageLoading] = useState(true);
 
   const limit = 4; // comment load limit
 
@@ -499,6 +502,38 @@ export function Post({ details, setPosts, externalLinkFlag, className }) {
     }
   };
 
+  const handleDeleteSavePost = async () => {
+    try {
+      const response = await axios.delete(
+        `${API_URL}/post/save/${details._id}`,
+        { withCredentials: true }
+      );
+
+      toastHandler(
+        <div className="flex gap-2 items-center">
+          <CircleCheck className="bg-green-600 rounded-full text-white dark:text-[#242526]" />
+          <span>Post Removed</span>
+        </div>,
+        false
+      );
+    } catch (error) {
+      let msg = "";
+      if (error.response) {
+        msg = error.response.data.msg;
+      }
+
+      toastHandler(
+        <div className="flex gap-2 items-center">
+          <CircleX className="bg-red-600 rounded-full text-white dark:text-[#7f1d1d]" />
+          <span>{msg || "Something went wrong"}</span>
+        </div>,
+        true
+      );
+    } finally {
+      setOpenPostMenu(false);
+    }
+  };
+
   const handleEditPost = async () => {
     setOpenPostMenu(false);
     setOpenPostEditor(true);
@@ -581,13 +616,25 @@ export function Post({ details, setPosts, externalLinkFlag, className }) {
                   </div>
                 )}
                 {!isPoll && isAuthenticated && (
-                  <div
-                    onClick={handleSavePost}
-                    className="flex hover:bg-[#f3f4f6] dark:hover:bg-[#414141] cursor-pointer px-2 py-1.5 rounded-sm items-center"
-                  >
-                    <BookmarkPlus className="mr-2 h-5 w-5" />
-                    <span>Save post</span>
-                  </div>
+                  <>
+                    {details.savedPost ? (
+                      <div
+                        onClick={handleDeleteSavePost}
+                        className="flex hover:bg-[#f3f4f6] dark:hover:bg-[#414141] cursor-pointer px-2 py-1.5 rounded-sm items-center"
+                      >
+                        <BookmarkX className="mr-2 h-5 w-5" />
+                        <span>Remove</span>
+                      </div>
+                    ) : (
+                      <div
+                        onClick={handleSavePost}
+                        className="flex hover:bg-[#f3f4f6] dark:hover:bg-[#414141] cursor-pointer px-2 py-1.5 rounded-sm items-center"
+                      >
+                        <BookmarkPlus className="mr-2 h-5 w-5" />
+                        <span>Save post</span>
+                      </div>
+                    )}
+                  </>
                 )}
                 {localStorage.id === details.user_id._id && (
                   <>
@@ -734,11 +781,23 @@ export function Post({ details, setPosts, externalLinkFlag, className }) {
                         details.parent.media_type === "video" ? (
                           <VideoPlayer videoUrl={details.parent.image_url} />
                         ) : (
-                          <div className="max-h-[50rem] flex justify-center w-auto overflow-hidden">
+                          <div className="max-h-[50rem] flex justify-center w-auto overflow-hidden relative">
+                            {imageLoading && (
+                              <div className="absolute inset-0 flex items-center justify-center rounded-md">
+                                <Skeleton
+                                  className={
+                                    "h-full w-full bg-gray-300 dark:bg-[#59595e]"
+                                  }
+                                />
+                              </div>
+                            )}
                             <img
                               src={details.parent.image_url}
-                              className="rounded-md mb-1 border dark:border-[#1f2937] border-gray-200 object-contain w-full h-full"
+                              className={`rounded-md mb-1 border dark:border-[#1f2937] border-gray-200 object-contain w-full h-full ${
+                                imageLoading ? "opacity-0" : "opacity-100"
+                              } transition-opacity duration-300`}
                               alt="photo"
+                              onLoad={() => setImageLoading(false)}
                             />
                           </div>
                         ))}
@@ -763,13 +822,37 @@ export function Post({ details, setPosts, externalLinkFlag, className }) {
                 (details.media_type && details.media_type === "video" ? (
                   <VideoPlayer videoUrl={details.image_url} />
                 ) : (
-                  <div className="max-h-[50rem] flex justify-center w-auto overflow-hidden">
-                    <img
-                      src={details.image_url}
-                      className="border dark:border-[#1f2937] border-gray-200 object-contain w-full h-full"
-                      alt="photo"
-                    />
-                  </div>
+                  <>
+                    <Dialog>
+                      <DialogTrigger asChild>
+                        <div className="max-h-[50rem] flex justify-center w-auto overflow-hidden relative cursor-pointer">
+                          {imageLoading && (
+                            <div className="absolute inset-0 flex items-center justify-center">
+                              <Skeleton className="h-full w-full bg-gray-300 dark:bg-[#59595e] rounded-none" />
+                            </div>
+                          )}
+                          <img
+                            src={details.image_url}
+                            className={`border dark:border-[#1f2937] border-gray-200 object-contain w-full h-full ${
+                              imageLoading ? "opacity-0" : "opacity-100"
+                            } transition-opacity duration-300`}
+                            alt="photo"
+                            onLoad={() => setImageLoading(false)}
+                          />
+                        </div>
+                      </DialogTrigger>
+
+                      <DialogContent className="sm:max-w-[53vh] max-h-[90%] p-4">
+                        <div className="flex justify-center items-center max-h-[80vh] w-full">
+                          <img
+                            src={details.image_url}
+                            alt="Full photo"
+                            className="max-h-full max-w-full object-contain"
+                          />
+                        </div>
+                      </DialogContent>
+                    </Dialog>
+                  </>
                 ))}
             </>
           )}
