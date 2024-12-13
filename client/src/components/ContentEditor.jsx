@@ -29,7 +29,7 @@ export function ContentEditor({
   const handleEdit = async () => {
     try {
       const response = await axios.patch(
-        `${API_URL}/${contentType === "post" ? "post" : "post/comment"}/${
+        `${API_URL}/${contentType === "comment" ? "post/comment" : "post"}/${
           details._id
         }`,
         { content: newContent },
@@ -41,7 +41,7 @@ export function ContentEditor({
         <div className="flex gap-2 items-center">
           <CircleCheck className="bg-green-600 rounded-full text-white dark:text-[#242526]" />
           <span>{`${
-            contentType === "post" ? "post" : "comment"
+            contentType === "comment" ? "comment" : "post"
           } updated`}</span>
         </div>,
         false
@@ -84,12 +84,6 @@ export function ContentEditor({
           value={newContent}
           onChange={(e) => {
             setNewContent(e.target.value);
-          }}
-          ref={(textarea) => {
-            if (textarea) {
-              // Set the cursor to the end of the content
-              textarea.setSelectionRange(newContent.length, newContent.length);
-            }
           }}
         ></textarea>
         <DialogFooter>

@@ -659,6 +659,7 @@ const getCommentReplies = async (req, res) => {
       ...reply,
       user: reply.user_id, // Rename 'user_id' to 'user'
       user_id: undefined, // remove the original 'user_id' field
+      contentType: "comment",
     };
   });
 
