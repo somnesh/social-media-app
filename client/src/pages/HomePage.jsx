@@ -71,7 +71,7 @@ export const Home = () => {
       ) : (
         <>
           <Header setPageLoading={setPageLoading} />
-          <main className="flex flex-col sm:flex-row relative sm:justify-between lg:px-2 sm:py-4 md:pr-2 bg-[#f0f2f5] dark:bg-black min-h-screen dark:text-[#e2e4e9] transition-colors duration-500 sm:gap-3">
+          <main className="flex flex-col sm:flex-row relative sm:justify-between lg:px-2 sm:py-4 md:pr-2 bg-[#f0f2f5] dark:bg-black h-fit dark:text-[#e2e4e9] transition-colors duration-500 sm:gap-3">
             <Sidebar variant={currentPage} setCurrentPage={setCurrentPage} />
             {/* --------------------------------------- */}
             <section className="lg:basis-1/2 md:basis-3/4 sm:px-1 sm:mx-auto max-w-[680px] overflow-y-auto">
@@ -85,7 +85,7 @@ export const Home = () => {
             </section>
             {/* --------------------------------------- */}
             <section
-              className={`basis-1/4 h-screen max-w-96 lg:sticky md:sticky absolute top-[4.5rem] overflow-y-auto transition-transform hidden sm:block -translate-y-full md:-translate-y-0`}
+              className={`basis-1/4 h-fit max-w-96 lg:sticky md:sticky absolute top-[4.5rem] overflow-y-auto transition-transform hidden sm:block -translate-y-full md:-translate-y-0`}
             >
               <NotificationCentre />
             </section>
