@@ -12,6 +12,7 @@ const {
   setMaintenanceMode,
   getMaintenanceMode,
 } = require("../controllers/maintenanceController");
+const { calculateSimilarity } = require("../controllers/recommendation");
 
 router.route("/login").post(adminLogin);
 router.route("/logout").post(logout);
@@ -21,5 +22,9 @@ router
   .route("/maintenance")
   .post(authenticateAdmin, setMaintenanceMode)
   .get(getMaintenanceMode);
+
+router
+  .route("/calculate-similarity")
+  .post(authenticateAdmin, calculateSimilarity);
 
 module.exports = router;

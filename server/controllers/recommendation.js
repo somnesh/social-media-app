@@ -207,4 +207,16 @@ const recommendPosts = async (userId, viewedPostIds, skip, limit) => {
   }
 };
 
-module.exports = { calculateAndStoreSimilarity, recommendPosts };
+const calculateSimilarity = async (req, res) => {
+  calculateAndStoreSimilarity();
+
+  res
+    .status(200)
+    .json({ success: true, msg: "Similarity data inserted successfully." });
+};
+
+module.exports = {
+  calculateAndStoreSimilarity,
+  recommendPosts,
+  calculateSimilarity,
+};
