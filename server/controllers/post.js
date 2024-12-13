@@ -279,6 +279,8 @@ const deletePost = async (req, res) => {
       { session }
     );
 
+    await SavedPost.deleteMany({ post_id: postId }, { session });
+
     // add a flag to parent field of the posts where the parent post is this post
     await Post.updateMany(
       { parent: post._id },
@@ -899,6 +901,24 @@ const savePost = async (req, res) => {
   res.status(StatusCodes.CREATED).json({ success: true, savedPost });
 };
 
+const deleteSavedPost = async (req, res) => {
+  const {
+    params: { id: postId },
+    user: { userId },
+  } = req;
+
+  const savedPost = await SavedPost.findOneAndDelete({
+    post_id: postId,
+    user_id: userId,
+  });
+
+  if (!savedPost) {
+    throw new NotFoundError("No saved post found with the given details");
+  }
+
+  res.status(StatusCodes.OK).json({ success: true, savedPost });
+};
+
 const getSavedPosts = async (req, res) => {
   const userId = req.user;
 
@@ -937,6 +957,7 @@ const getSavedPosts = async (req, res) => {
   const savedPostsFinal = savedPosts.map((post) => ({
     ...post.post_id.toObject(),
     isLiked: likedPostIds.includes(post.post_id._id.toString()),
+    savedPost: true,
   }));
 
   res.status(StatusCodes.OK).json(savedPostsFinal);
@@ -982,4 +1003,5 @@ module.exports = {
   getCommentReplies,
   likeComment,
   getSavedPosts,
+  deleteSavedPost,
 };

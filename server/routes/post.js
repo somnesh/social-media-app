@@ -20,6 +20,7 @@ const {
   updateComment,
   likeComment,
   getSavedPosts,
+  deleteSavedPost,
 } = require("../controllers/post");
 const { vote, getPoll, createPoll } = require("../controllers/Poll");
 
@@ -45,7 +46,7 @@ router.route("/comment/:id/reply").post(replyComment); // ":id" -> here "id" is 
 router.route("/share/:id").post(sharePost);
 
 // save post
-router.route("/save/:id").post(savePost);
+router.route("/save/:id").post(savePost).delete(deleteSavedPost);
 router.route("/fetch/save").get(getSavedPosts);
 
 // poll
