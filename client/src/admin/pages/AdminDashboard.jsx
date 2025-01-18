@@ -7,6 +7,8 @@ import UserManagement from "./Users";
 import SettingsPage from "./Settings";
 import Reports from "./Reports";
 import { WholePageLoader } from "@/components/loaders/WholePageLoader";
+import ContentModeration from "./ContentModeration";
+import QueryDatabasePage from "./QueryDatabasePage";
 
 export default function AdminDashboard() {
   const { page } = useParams();
@@ -44,6 +46,8 @@ export default function AdminDashboard() {
             <main className="flex-1 overflow-x-hidden overflow-y-auto bg-gray-100 dark:bg-black p-6 space-y-6">
               {currentPage === "dashboard" && <DashboardComp />}
               {currentPage === "users" && <UserManagement />}
+              {currentPage === "content" && <ContentModeration />}
+              {currentPage === "query" && <QueryDatabasePage />}
               {currentPage === "settings" && <SettingsPage />}
               {currentPage === "reports" && <Reports />}
             </main>

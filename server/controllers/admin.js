@@ -7,7 +7,19 @@ const {
   BadRequestError,
   UnauthenticatedError,
   AccessDeniedError,
+  NotFoundError,
 } = require("../errors");
+const { default: mongoose } = require("mongoose");
+const { getQueryFromGemini } = require("../services/GenerateDBQuery");
+const sendEmail = require("../utils/sendEmail");
+const cloudinary = require("cloudinary").v2;
+
+const collectionList = {
+  Savedpost: "SavedPost",
+  Postview: "PostView",
+  Maintenanceconfig: "MaintenanceConfig",
+  Likecomment: "LikeComment",
+};
 
 const adminLogin = async (req, res) => {
   const { email, password } = req.body;
@@ -232,7 +244,7 @@ const userManagement = async (req, res) => {
       .sort(sortOptions)
       .skip(skip)
       .limit(parseInt(limit))
-      .select("name email role refreshToken"); // Select only relevant fields
+      .select("name email role refreshToken isSuspended suspensionReason"); // Select only relevant fields
 
     const totalUsers = await User.countDocuments(); // Total user count
 
@@ -241,7 +253,7 @@ const userManagement = async (req, res) => {
       const { refreshToken, ...userWithoutToken } = user._doc; // Destructure to exclude refreshToken
       return {
         ...userWithoutToken,
-        status: refreshToken ? "active" : "inactive", // Determine status based on refreshToken
+        status: refreshToken ? "Active" : "Inactive", // Determine status based on refreshToken
       };
     });
 
@@ -256,6 +268,249 @@ const userManagement = async (req, res) => {
   }
 };
 
-const deleteUser = async (req, res) => {};
+const deleteUser = async (req, res) => {
+  res.send("delete user");
+};
 
-module.exports = { adminLogin, getDashboard, userManagement, logout };
+const getContentModerationData = async (req, res) => {
+  const {
+    page = 1,
+    limit = 10,
+    sortField = "createdAt",
+    sortOrder = "desc",
+  } = req.query;
+  const skip = (page - 1) * limit;
+
+  const sortOptions = {
+    [sortField]: sortOrder === "asc" ? 1 : -1,
+  };
+
+  // Aggregation pipeline
+  const posts = await Post.aggregate([
+    {
+      $match: {
+        _id: { $ne: new mongoose.Types.ObjectId("111111111111111111111111") },
+      },
+    },
+    {
+      $lookup: {
+        from: "reports", // The name of the Report collection
+        localField: "_id",
+        foreignField: "reported_content_id",
+        as: "reports",
+      },
+    },
+    {
+      $addFields: {
+        reportCount: {
+          $size: {
+            $filter: {
+              input: "$reports",
+              as: "report",
+              cond: { $eq: ["$$report.content_type", "post"] },
+            },
+          },
+        },
+      },
+    },
+    {
+      $lookup: {
+        from: "users",
+        localField: "user_id",
+        foreignField: "_id",
+        as: "userDetails",
+      },
+    },
+    {
+      $unwind: {
+        path: "$userDetails",
+        preserveNullAndEmptyArrays: true, // In case user details are not found
+      },
+    },
+    {
+      $project: {
+        _id: 1,
+        image_url: 1,
+        content: 1,
+        media_type: 1,
+        createdAt: 1,
+        reportCount: 1,
+        user: {
+          _id: "$userDetails._id",
+          name: "$userDetails.name",
+          avatar: "$userDetails.avatar",
+          username: "$userDetails.username",
+        },
+      },
+    },
+    { $sort: sortOptions },
+    { $skip: skip },
+    { $limit: parseInt(limit) },
+  ]);
+
+  // Total post count excluding the specified ID
+  const totalPosts = await Post.countDocuments({
+    _id: { $ne: new mongoose.Types.ObjectId("111111111111111111111111") },
+  });
+
+  res.status(200).json({
+    posts: posts,
+    totalPages: Math.ceil(totalPosts / limit),
+    currentPage: parseInt(page),
+  });
+};
+
+const deletePostMedia = async (req, res) => {
+  const { postId } = req.params;
+  const user = req.user;
+
+  if (user.role !== "admin") {
+    throw new AccessDeniedError(
+      "You don't have the access to use this feature"
+    );
+  }
+
+  const session = await mongoose.startSession();
+  session.startTransaction();
+
+  const post = await Post.findById(postId, {}, { session });
+
+  if (post.media_type !== "text" && post.image_url) {
+    const publicId = post.image_url.split("/").slice(-2)[1].split(".")[0];
+
+    await cloudinary.uploader.destroy(publicId, {
+      resource_type: post.media_type,
+    });
+  }
+
+  await Post.updateOne(
+    { _id: postId },
+    { $set: { image_url: null, media_type: "text" } },
+    { session }
+  );
+
+  await session.commitTransaction();
+  session.endSession();
+  res.status(StatusCodes.OK).json({ success: true, msg: "Media deleted" });
+};
+
+const getCollectionList = async (req, res) => {
+  // Access the MongoDB connection directly from Mongoose
+  const db = mongoose.connection.db;
+
+  // Fetch the list of collections
+  const collections = await db.listCollections().toArray();
+
+  // Extract collection names
+  const collectionNames = collections.map((collection) => collection.name);
+
+  // Send the list of collection names as the response
+  res.status(200).json({ collections: collectionNames });
+};
+
+const generateQueryResponseFromGemini = async (req, res) => {
+  // const userQuery = "Show me the user with user id 67358705186fff15c538bf1d";
+  // const collection = "users";
+
+  const { userQuery, collection } = req.query;
+  console.log(userQuery, collection);
+
+  const result = await getQueryFromGemini(collection, userQuery);
+  console.log("result: ", result);
+  // const Model = mongoose.model("YourModelName");
+  console.log(collectionList[collection]);
+  // const getModel = ;
+  const Model = mongoose.model(collectionList[collection] || collection);
+  const test = await Model.find(result).select("-password -refreshToken");
+
+  res.status(StatusCodes.OK).json(test);
+};
+
+const suspendUser = async (req, res) => {
+  const { id: userId } = req.params;
+  const { reason } = req.body;
+
+  const response = await User.findOneAndUpdate(
+    { _id: userId },
+    { isSuspended: true, suspensionReason: reason, refreshToken: null },
+    { new: true }
+  );
+
+  if (!response) {
+    throw new NotFoundError("User not found");
+  }
+
+  const message = `
+<p>Dear ${response.name.split(" ")[0]},</p>
+
+<p>We regret to inform you that your account on Connectify has been temporarily suspended . This decision was made due to a violation of our Community Guidelines.</p>
+
+<p><b>Reason for Suspension:</b> ${reason}</p>
+
+<p>During this period, you will not be able to access your account or any of its associated features.</p>
+
+<p>If you believe this suspension was applied in error or if you wish to appeal the decision, please reach out to us by replying to this email or contacting our support team at <a href="cu360rent@gmail.com">cu360rent@gmail.com</a>. Include any relevant information or evidence to support your appeal.</p>
+
+<p>We value your presence in our community and encourage you to familiarize yourself with our Community Guidelines to ensure a positive experience for all members.</p>
+
+<p>Thank you for your understanding.</p><br>
+
+<p>Best regards,</p>
+<p>Connectify Support Team</p>
+    
+  `;
+
+  await sendEmail({
+    to: response.email,
+    subject: "Account Suspension Notification",
+    html: message,
+  });
+
+  res.status(StatusCodes.OK).json({ success: true, msg: "User suspended" });
+};
+
+const revokeSuspension = async (req, res) => {
+  const { id: userId } = req.params;
+
+  const response = await User.findOneAndUpdate(
+    { _id: userId },
+    { isSuspended: false, suspensionReason: null },
+    { new: true }
+  );
+
+  if (!response) {
+    throw new NotFoundError("User not found");
+  }
+  const message = `
+<p>Dear ${response.name.split(" ")[0]},</p>
+
+<p>We’re happy to inform you that the suspension on your account has been revoked. You can now access your account and resume using Connectify.</p>
+
+<p>Thank you for your cooperation. If you have any questions, feel free to contact us at <a href="cu360rent@gmail.com">cu360rent@gmail.com</a></p>
+
+<p>Best regards,</p>
+<p>Connectify Support Team</p>
+    
+  `;
+
+  await sendEmail({
+    to: response.email,
+    subject: "Account Suspension Revoked",
+    html: message,
+  });
+
+  res.status(StatusCodes.OK).json({ success: true, msg: "Suspension revoked" });
+};
+
+module.exports = {
+  adminLogin,
+  getDashboard,
+  userManagement,
+  logout,
+  getContentModerationData,
+  deletePostMedia,
+  getCollectionList,
+  generateQueryResponseFromGemini,
+  suspendUser,
+  revokeSuspension,
+};

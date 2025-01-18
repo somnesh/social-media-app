@@ -8,6 +8,7 @@ import {
   Settings,
   AlertCircle,
   X,
+  FileTextIcon,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
@@ -62,16 +63,30 @@ function AdminSidebar({ open, onClose, currentPage, setCurrentPage }) {
             </Link>
           </li>
           <li>
-            <Link to="/admin/settings">
+            <Link to="/admin/content">
               <span
                 className={`flex items-center p-2 text-gray-700 dark:text-white rounded ${
-                  currentPage === "settings"
+                  currentPage === "content"
                     ? `bg-[#D8E6FD] dark:bg-[#333943]`
                     : "hover:bg-gray-100 dark:hover:bg-slate-800"
-                }`}
+                } `}
               >
-                <Settings className="w-5 h-5 mr-3" />
-                Settings
+                <FileTextIcon className="w-5 h-5 mr-3" />
+                Content Moderation
+              </span>
+            </Link>
+          </li>
+          <li>
+            <Link to="/admin/query">
+              <span
+                className={`flex items-center p-2 text-gray-700 dark:text-white rounded ${
+                  currentPage === "query"
+                    ? `bg-[#D8E6FD] dark:bg-[#333943]`
+                    : "hover:bg-gray-100 dark:hover:bg-slate-800"
+                } `}
+              >
+                <img src="/icons/gemini.svg" alt="" />
+                <span className="pl-2">Query Database</span>
               </span>
             </Link>
           </li>
@@ -86,6 +101,20 @@ function AdminSidebar({ open, onClose, currentPage, setCurrentPage }) {
               >
                 <AlertCircle className="w-5 h-5 mr-3" />
                 Reports
+              </span>
+            </Link>
+          </li>
+          <li>
+            <Link to="/admin/settings">
+              <span
+                className={`flex items-center p-2 text-gray-700 dark:text-white rounded ${
+                  currentPage === "settings"
+                    ? `bg-[#D8E6FD] dark:bg-[#333943]`
+                    : "hover:bg-gray-100 dark:hover:bg-slate-800"
+                }`}
+              >
+                <Settings className="w-5 h-5 mr-3" />
+                Settings
               </span>
             </Link>
           </li>

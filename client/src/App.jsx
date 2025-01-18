@@ -23,6 +23,7 @@ import { Analytics } from "@vercel/analytics/react";
 import AdminLogin from "./admin/pages/AdminLogin";
 import AdminDashboard from "./admin/pages/AdminDashboard";
 import Maintenance from "./admin/pages/Maintenance";
+import { Suspension } from "./pages/Suspension";
 
 const router = createBrowserRouter([
   {
@@ -44,6 +45,10 @@ const router = createBrowserRouter([
   {
     path: "/signup",
     element: <SignupPage />,
+  },
+  {
+    path: "/suspension",
+    element: <Suspension />,
   },
   {
     path: "/email-verification",

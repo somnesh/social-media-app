@@ -2,7 +2,7 @@ import { useEffect } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
-import axios from "axios"; // Import axios
+import axios from "axios";
 import { Button } from "@/components/ui/button";
 import {
   Form,
@@ -14,8 +14,9 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
+import { CircleCheck, CircleX } from "lucide-react";
+import { useToastHandler } from "@/contexts/ToastContext";
 
 const API_URL = import.meta.env.VITE_API_URL;
 
@@ -34,11 +35,11 @@ const settingsSchema = z.object({
 });
 
 export default function SettingsPage() {
+  const toastHandler = useToastHandler();
+
   const form = useForm({
     resolver: zodResolver(settingsSchema),
     defaultValues: {
-      siteName: "My Social Media App",
-      siteDescription: "A platform for connecting people",
       maintenanceMode: false,
       maxUploadSize: 5,
     },
@@ -64,14 +65,35 @@ export default function SettingsPage() {
   // Toggle maintenance mode
   async function handleMaintenanceToggle(value) {
     try {
+      console.log(form.getValues("maintenanceMode"));
+
       await axios.post(
         `${API_URL}/admin/maintenance`,
         { value },
         { withCredentials: true }
       );
       console.log("Maintenance mode updated:", value);
+      toastHandler(
+        <div className="flex gap-2 items-center">
+          <CircleCheck className="bg-green-600 rounded-full text-white dark:text-[#242526]" />
+          <span>{`Maintenance mode turned ${value ? "on" : "off"}`}</span>
+        </div>,
+        false
+      );
     } catch (error) {
+      form.setValue("maintenanceMode", false);
       console.error("Error updating maintenance mode:", error);
+      let msg = "";
+      if (error.response) {
+        msg = error.response.data.msg;
+      }
+      toastHandler(
+        <div className="flex gap-2 items-center">
+          <CircleX className="bg-[#ef4444] rounded-full text-white dark:text-[#7f1d1d]" />
+          <span>{msg || "Something went wrong"}</span>
+        </div>,
+        true
+      );
     }
   }
 
@@ -86,46 +108,12 @@ export default function SettingsPage() {
       <h1 className="text-3xl font-semibold">Settings</h1>
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-          {/* Site Name */}
-          <FormField
-            control={form.control}
-            name="siteName"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Site Name</FormLabel>
-                <FormControl>
-                  <Input {...field} />
-                </FormControl>
-                <FormDescription>
-                  This is the name of your social media platform.
-                </FormDescription>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          {/* Site Description */}
-          <FormField
-            control={form.control}
-            name="siteDescription"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Site Description</FormLabel>
-                <FormControl>
-                  <Textarea {...field} />
-                </FormControl>
-                <FormDescription>
-                  Briefly describe your social media platform.
-                </FormDescription>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
           {/* Maintenance Mode */}
           <FormField
             control={form.control}
             name="maintenanceMode"
             render={({ field }) => (
-              <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
+              <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4 bg-white dark:bg-inherit">
                 <div className="space-y-0.5">
                   <FormLabel className="text-base">Maintenance Mode</FormLabel>
                   <FormDescription>
@@ -144,29 +132,6 @@ export default function SettingsPage() {
               </FormItem>
             )}
           />
-          {/* Max Upload Size */}
-          <FormField
-            control={form.control}
-            name="maxUploadSize"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Max Upload Size (MB)</FormLabel>
-                <FormControl>
-                  <Input
-                    type="number"
-                    {...field}
-                    onChange={(e) => field.onChange(Number(e.target.value))}
-                  />
-                </FormControl>
-                <FormDescription>
-                  Maximum file size for user uploads in megabytes.
-                </FormDescription>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          {/* Submit Button */}
-          <Button type="submit">Save Settings</Button>
         </form>
       </Form>
     </div>

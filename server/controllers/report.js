@@ -1,5 +1,6 @@
 const { StatusCodes } = require("http-status-codes");
 const Report = require("../models/Report");
+const { AccessDeniedError, NotFoundError } = require("../errors");
 
 const createReport = async (req, res) => {
   const { id: reported_content_id } = req.params;
@@ -49,15 +50,69 @@ const getAllReports = async (req, res) => {
 };
 
 const markReportAsUnderReview = async (req, res) => {
-  res.send("under review");
+  const user = req.user;
+  const { id: reportId } = req.params;
+
+  if (user.role !== "admin") {
+    throw new AccessDeniedError("You don't have access to perform this action");
+  }
+
+  const response = await Report.findOneAndUpdate(
+    { _id: reportId },
+    { status: "Under Review" },
+    { new: true }
+  );
+
+  if (!response) {
+    throw new NotFoundError("Report not found.");
+  }
+
+  res
+    .status(StatusCodes.OK)
+    .json({ success: true, msg: "Report marked as Under Review" });
 };
 
 const markReportAsResolved = async (req, res) => {
-  res.send("resolved");
+  const user = req.user;
+  const { id: reportId } = req.params;
+
+  if (user.role !== "admin") {
+    throw new AccessDeniedError("You don't have access to perform this action");
+  }
+
+  const response = await Report.findOneAndUpdate(
+    { _id: reportId },
+    { status: "Resolved" },
+    { new: true }
+  );
+
+  if (!response) {
+    throw new NotFoundError("Report not found.");
+  }
+
+  res
+    .status(StatusCodes.OK)
+    .json({ success: true, msg: "Report marked as Resolved" });
 };
 
 const deleteReport = async (req, res) => {
-  res.send("delete");
+  const user = req.user;
+  const { id: reportId } = req.params;
+
+  if (user.role !== "admin") {
+    throw new AccessDeniedError("You don't have access to perform this action");
+  }
+
+  const response = await Report.findOneAndDelete(
+    { _id: reportId },
+    { new: true }
+  );
+
+  if (!response) {
+    throw new NotFoundError("Report not found.");
+  }
+
+  res.status(StatusCodes.OK).json({ success: true, msg: "Report dismissed" });
 };
 
 module.exports = {

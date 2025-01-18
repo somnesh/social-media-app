@@ -126,6 +126,8 @@ const loginUser = async (req, res) => {
         avatar: user.avatar,
         avatarBg: user.avatarBg,
         username: user.username,
+        isSuspended: user.isSuspended,
+        suspensionReason: user.suspensionReason,
       },
       accessToken,
       refreshToken,

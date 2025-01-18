@@ -145,20 +145,6 @@ const UserDetailsDialog = ({ isOpen, onClose, user: initialUser, onSave }) => {
             />
           </div>
           <div className="grid grid-cols-4 items-center gap-4">
-            <Label htmlFor="password" className="text-right">
-              Password
-            </Label>
-            <Input
-              id="password"
-              name="password"
-              type="password"
-              value={user.password}
-              onChange={handleInputChange}
-              className="col-span-3"
-              disabled={!isEditing}
-            />
-          </div>
-          <div className="grid grid-cols-4 items-center gap-4">
             <Label htmlFor="profile_bio" className="text-right">
               Profile Bio
             </Label>
