@@ -68,7 +68,7 @@ export function Overview({ rawData = [] }) {
                 type="monotone"
                 dataKey="total"
                 stroke="#3b82f6"
-                strokeWidth={2}
+                strokeWidth={1.6}
                 fill="#3b82f6"
                 fillOpacity={0.2}
               />

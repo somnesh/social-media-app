@@ -243,7 +243,13 @@ const deletePost = async (req, res) => {
   session.startTransaction();
 
   try {
-    const post = await Post.findOneAndDelete({ _id: postId, user_id: userId });
+    let post;
+    if (req.user.role !== "admin") {
+      post = await Post.findOneAndDelete({ _id: postId, user_id: userId });
+    } else {
+      post = await Post.findOneAndDelete({ _id: postId });
+    }
+
     if (!post) {
       throw new NotFoundError(
         `The user ${req.user.name} has no post with id: ${postId}`
@@ -289,7 +295,7 @@ const deletePost = async (req, res) => {
     );
 
     // delete media from cloudinary if any
-    if (post.media_type && post.image_url) {
+    if (post.media_type !== "text" && post.image_url) {
       const publicId = post.image_url.split("/").slice(-2)[1].split(".")[0];
 
       await cloudinary.uploader.destroy(publicId, {
