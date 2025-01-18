@@ -1,6 +1,6 @@
-# Social Media App (similar to Twitter)
+# Social Media App
 
-A social media app inspired by Twitter. It is a full-stack web application that uses various web technologies for its implementation.
+A social media app inspired by all the other social media app. It is a full-stack web application that uses various web technologies for its implementation.
 
 ## Table of Contents
 
@@ -42,7 +42,7 @@ A social media app inspired by Twitter. It is a full-stack web application that 
 2. `Express.js`
 3. `React`
 4. `MongoDB Atlas` account
-5. **IDE:** `Visual Studio Code` (Recommend) or any other as per your choice.
+5. **IDE:** `Visual Studio Code` (Recommended) or any other as per your choice.
 6. (Optional) `Postman` For API testing
 
 ## Installation
