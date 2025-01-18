@@ -57,6 +57,7 @@ const PostSchema = new mongoose.Schema(
     },
     media_type: {
       type: String,
+      default: "text",
     },
   },
   { timestamps: true }
