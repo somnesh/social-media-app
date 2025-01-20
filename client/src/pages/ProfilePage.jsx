@@ -263,10 +263,7 @@ export function ProfilePage() {
                             "cursor-pointer hover:contrast-[.8]"
                           }`}
                         >
-                          <AvatarImage
-                            className={"aspect-auto"}
-                            src={profilePicture}
-                          />
+                          <AvatarImage src={profilePicture} />
                           <AvatarFallback className={`text-2xl font-medium`}>
                             {`${details.user[0].name[0]}`}
                           </AvatarFallback>

@@ -6,6 +6,8 @@ import {
   Moon,
   Sun,
   MessageSquareWarning,
+  CircleCheck,
+  CircleX,
 } from "lucide-react";
 
 import {
@@ -38,14 +40,19 @@ import { useEffect, useState } from "react";
 import { Textarea } from "./ui/textarea";
 import { Button } from "./ui/button";
 import { DialogFooter } from "./ui/dialog";
+import { useToastHandler } from "../contexts/ToastContext";
 
 export function ProfileMenu({ setPageLoading }) {
   const { theme, darkTheme, lightTheme } = useTheme();
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [open, setOpen] = useState(false);
+  const [feedback, setFeedback] = useState("");
+
+  const toastHandler = useToastHandler();
 
   const navigate = useNavigate();
+  const API_URL = import.meta.env.VITE_API_URL;
 
   useEffect(() => {
     if (!localStorage.name) {
@@ -60,7 +67,6 @@ export function ProfileMenu({ setPageLoading }) {
       lightTheme(e);
     }
   };
-  const API_URL = import.meta.env.VITE_API_URL;
   const handleLogout = async () => {
     try {
       setPageLoading(true);
@@ -74,6 +80,43 @@ export function ProfileMenu({ setPageLoading }) {
       setPageLoading(false);
     } catch (error) {
       console.error("Error during logout: ", error);
+    }
+  };
+
+  const handleFeedback = async () => {
+    try {
+      setIsSubmitting(true);
+
+      await axios.post(
+        `${API_URL}/feedback`,
+        { feedback },
+        { withCredentials: true }
+      );
+
+      toastHandler(
+        <div className="flex gap-2 items-center">
+          <CircleCheck className="bg-green-600 rounded-full text-white dark:text-[#242526]" />
+          <span>Feedback submitted successfully</span>
+        </div>,
+        false
+      );
+    } catch (error) {
+      console.error(error);
+      let msg = "";
+      if (error.response) {
+        msg = error.response.data.msg;
+      }
+
+      toastHandler(
+        <div className="flex gap-2 items-center">
+          <CircleX className="bg-red-600 rounded-full text-white dark:text-[#7f1d1d]" />
+          <span>{msg || "Something went wrong"}</span>
+        </div>,
+        true
+      );
+    } finally {
+      setIsSubmitting(false);
+      setOpen(false);
     }
   };
 
@@ -185,7 +228,12 @@ export function ProfileMenu({ setPageLoading }) {
           <Dialog open={open} onOpenChange={setOpen}>
             <DialogTrigger></DialogTrigger>
             <DialogContent className={"gap-0"}>
-              <form className="space-y-4">
+              <form
+                className="space-y-4"
+                onSubmit={(e) => {
+                  e.preventDefault();
+                }}
+              >
                 <DialogHeader>
                   <DialogTitle>Leave Feedback</DialogTitle>
                   <DialogDescription>
@@ -196,10 +244,16 @@ export function ProfileMenu({ setPageLoading }) {
                 <Textarea
                   className="min-h-[100px] resize-none bg-background"
                   placeholder="Your feedback"
+                  value={feedback}
+                  onChange={(e) => setFeedback(e.target.value)}
                   required
                 />
                 <DialogFooter className="gap-2 sm:gap-0">
-                  <Button type="submit" disabled={isSubmitting}>
+                  <Button
+                    type="submit"
+                    onClick={handleFeedback}
+                    disabled={isSubmitting}
+                  >
                     {isSubmitting ? "Submitting..." : "Submit Feedback"}
                   </Button>
                 </DialogFooter>

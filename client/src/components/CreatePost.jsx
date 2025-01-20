@@ -119,6 +119,10 @@ export function CreatePost({
 
   const createPost = async () => {
     const postFormData = new FormData();
+    if (postContent.length === 0) {
+      setIsLoading(false);
+      return;
+    }
     closePopup();
 
     postFormData.append("content", postContent);
@@ -186,6 +190,7 @@ export function CreatePost({
   };
 
   const togglePopupUploadImage = () => {
+    setUploadedImage(null);
     setUploadVideoPopUp(false);
     setOpenPollPopUp(false);
     setUploadImagePopUp(!uploadImagePopUp);
@@ -387,6 +392,7 @@ export function CreatePost({
                 onChange={(e) => {
                   setPostContent(e.target.value);
                 }}
+                required
               ></textarea>
             )}
             {uploadImagePopUp && (

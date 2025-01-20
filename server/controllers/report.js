@@ -29,7 +29,7 @@ const getAllReports = async (req, res) => {
   } = req.query;
 
   const sortOptions = {};
-  sortOptions[sortField] = sortOrder === "desc" ? -1 : 1;
+  sortOptions[sortField] = sortOrder === "asc" ? -1 : 1;
 
   const reports = await Report.find({})
     .populate({

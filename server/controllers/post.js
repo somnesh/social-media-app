@@ -562,7 +562,7 @@ const getComments = async (req, res) => {
       isLiked: likedCommentIds.includes(comment._id.toString()),
     };
   });
-  formattedComments[0].contentType = "comment";
+  formattedComments[0].content_type = "comment";
   res.status(StatusCodes.OK).json(formattedComments);
 };
 

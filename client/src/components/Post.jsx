@@ -112,6 +112,8 @@ export function Post({ details, setPosts, externalLinkFlag, className }) {
   const [postCaption, setPostCaption] = useState(details.content);
   const [commentContent, setCommentContent] = useState("");
 
+  const [shareVisibility, setShareVisibility] = useState("public");
+
   const [isPoll, setIsPoll] = useState(details.poll_id ? true : false);
 
   const [shareLoading, setShareLoading] = useState(false);
@@ -372,7 +374,7 @@ export function Post({ details, setPosts, externalLinkFlag, className }) {
           }`,
           {
             content: content,
-            visibility: visibility,
+            visibility: shareVisibility,
             receiverId: details.user_id._id,
           },
           {
@@ -411,6 +413,7 @@ export function Post({ details, setPosts, externalLinkFlag, className }) {
         );
       } finally {
         setShareLoading(false);
+        setShareVisibility("public");
       }
     } else {
       navigate("/login");
@@ -732,7 +735,7 @@ export function Post({ details, setPosts, externalLinkFlag, className }) {
             <>
               <div className="pb-2 px-4">{postCaption}</div>
               {details.parent && (
-                <div className="border mx-2 border-[#e4e6eb] dark:border-[#3a3b3c] py-2 px-3 rounded-lg">
+                <div className="border mx-2 border-[#e4e6eb] dark:border-[#3a3b3c] py-2 px-3 rounded-lg hover:bg-[#e5e5e6] dark:hover:bg-[#404142] transition ease-in-out">
                   {details.parent?._id !== "111111111111111111111111" ? (
                     <Link
                       to={`${APP_URL || ""}/post/${encryptId(
@@ -1013,7 +1016,11 @@ export function Post({ details, setPosts, externalLinkFlag, className }) {
                     Say something about the post or just share now.
                   </DialogDescription>
                 </DialogHeader>
-                <form>
+                <form
+                  onSubmit={(e) => {
+                    e.preventDefault();
+                  }}
+                >
                   <div className="flex justify-between items-center">
                     <div className="flex gap-2 py-2 items-center">
                       <Avatar>
@@ -1028,7 +1035,7 @@ export function Post({ details, setPosts, externalLinkFlag, className }) {
                       <Tooltip>
                         <Select
                           onValueChange={(value) => {
-                            setVisibility(value);
+                            setShareVisibility(value);
                           }}
                           name="visibility"
                           defaultValue="public"

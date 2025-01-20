@@ -36,7 +36,7 @@ export function Header({ setPageLoading }) {
     setIsLoading(false);
   }, [navigate]);
   return (
-    <header className="flex justify-end sm:justify-normal py-1 pl-3 pr-2 bg-white dark:bg-[#242526] items-center sm:sticky top-0 transition-colors duration-500 shadow-md z-40">
+    <header className="flex justify-end sm:justify-normal py-1 pl-3 pr-2 bg-white md:dark:bg-[#242526] dark:bg-black items-center sm:sticky top-0 transition-colors duration-500 shadow-md z-40">
       <section className="basis-1/4 absolute left-0 sm:relative z-[11] sm:z-auto">
         <SearchBar />
       </section>

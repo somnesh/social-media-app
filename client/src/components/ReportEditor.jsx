@@ -26,9 +26,10 @@ export function ReportEditor({
     try {
       await axios.post(
         `${API_URL}/report/${details._id}`,
-        { content_type: details.contentType, report_content: reportContent },
+        { content_type: details.content_type, report_content: reportContent },
         { withCredentials: true }
       );
+
       toastHandler(
         <div className="flex gap-2 items-center">
           <CircleCheck className="bg-green-600 rounded-full text-white dark:text-[#242526]" />

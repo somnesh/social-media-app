@@ -203,12 +203,14 @@ const generateFeed = async (req, res) => {
           );
           postObj.poll_id = {
             ...poll.toObject(),
+            content_type: "poll",
             userVote: voter ? voter.selectedOptionIndex : null,
           };
         }
 
         return {
           ...postObj,
+          content_type: "post",
           isLiked: likedPostIds.includes(postObj._id.toString()),
         };
       })
@@ -223,12 +225,14 @@ const generateFeed = async (req, res) => {
           );
           post.poll_id = {
             ...poll.toObject(),
+            content_type: "poll",
             userVote: voter ? voter.selectedOptionIndex : null,
           };
         }
 
         return {
           ...post,
+          content_type: "post",
           isLiked: likedPostIds.includes(post._id.toString()),
         };
       })
