@@ -70,8 +70,8 @@ export function SignupPage() {
       setError("Please select a gender.");
       return false;
     }
-    if (!form.phone_no.match(/^\d{10,15}$/)) {
-      setError("Phone number must contain 10 to 15 digits.");
+    if (!form.phone_no.match(/^\d{10}$/)) {
+      setError("Phone number must contain 10 digits.");
       return false;
     }
     if (!form.email.match(/^\S+@\S+\.\S+$/)) {
@@ -125,7 +125,7 @@ export function SignupPage() {
         ) : (
           <img
             className="absolute inset-0 h-full w-full object-cover rounded-lg"
-            src={bgImage}
+            src={bgImage || "/public/defaultBG.jpg"}
             alt="random image"
           />
         )}

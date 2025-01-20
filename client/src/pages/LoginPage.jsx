@@ -257,7 +257,7 @@ export function LoginPage() {
         ) : (
           <img
             className="absolute inset-0 h-full w-full object-cover rounded-lg"
-            src={bgImage}
+            src={bgImage || "/public/defaultBG.jpg"}
             alt="random image"
           />
         )}
