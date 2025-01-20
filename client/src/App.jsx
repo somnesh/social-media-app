@@ -24,6 +24,7 @@ import AdminLogin from "./admin/pages/AdminLogin";
 import AdminDashboard from "./admin/pages/AdminDashboard";
 import Maintenance from "./admin/pages/Maintenance";
 import { Suspension } from "./pages/Suspension";
+import UserFeedback from "./admin/pages/UserFeedback";
 
 const router = createBrowserRouter([
   {
@@ -45,6 +46,10 @@ const router = createBrowserRouter([
   {
     path: "/signup",
     element: <SignupPage />,
+  },
+  {
+    path: "/userFeedback",
+    element: <UserFeedback />,
   },
   {
     path: "/suspension",

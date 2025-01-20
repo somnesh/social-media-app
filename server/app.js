@@ -47,6 +47,7 @@ const feedRoute = require("./routes/feed");
 const unprotectedPostRoute = require("./routes/UnprotectedPostRoutes");
 const reportRoute = require("./routes/report");
 const cloudinaryRoutes = require("./routes/cloudinary");
+const feedbackRoute = require("./routes/feedback");
 
 //protected routes
 app.use("/api/v1/admin", adminRoute);
@@ -57,6 +58,7 @@ app.use("/api/v1/post", authenticateUser, postRoute);
 app.use("/api/v1/user", userRoute); // the auth middleware used inside the routes file for specific routes
 app.use("/api/v1/feed", authenticateUser, feedRoute);
 app.use("/api/v1/report", authenticateUser, reportRoute);
+app.use("/api/v1/feedback", authenticateUser, feedbackRoute);
 
 // unprotected routes
 app.use("/api/v1/post", unprotectedPostRoute);

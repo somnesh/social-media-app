@@ -9,6 +9,7 @@ import Reports from "./Reports";
 import { WholePageLoader } from "@/components/loaders/WholePageLoader";
 import ContentModeration from "./ContentModeration";
 import QueryDatabasePage from "./QueryDatabasePage";
+import UserFeedback from "./UserFeedback";
 
 export default function AdminDashboard() {
   const { page } = useParams();
@@ -50,6 +51,7 @@ export default function AdminDashboard() {
               {currentPage === "query" && <QueryDatabasePage />}
               {currentPage === "settings" && <SettingsPage />}
               {currentPage === "reports" && <Reports />}
+              {currentPage === "userFeedback" && <UserFeedback />}
             </main>
           </div>
         </div>
