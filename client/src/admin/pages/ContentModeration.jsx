@@ -57,6 +57,8 @@ export default function ContentModeration() {
 
   const fetchData = async (page) => {
     const data = await getContent({ page, limit: 10 });
+    // console.log(data);
+
     setContent(data.posts);
     setTotalPages(data.totalPages);
     setCurrentPage(data.currentPage);
@@ -155,7 +157,7 @@ export default function ContentModeration() {
         const deleteMedia = async (postId) => {
           try {
             setLoading(true);
-            console.log(postId);
+            // console.log(postId);
 
             const response = await axios.delete(
               `${API_URL}/admin/delete-media/${postId}`,

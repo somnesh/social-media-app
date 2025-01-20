@@ -19,7 +19,7 @@ export default function DashboardComp() {
         const response = await axios.get(`${API_URL}/admin/dashboard`, {
           withCredentials: true,
         });
-        console.log(response);
+        // console.log(response);
         setData(response.data);
       } catch (error) {
         console.error(error);

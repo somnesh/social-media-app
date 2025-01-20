@@ -35,8 +35,8 @@ export default function QueryDatabasePage() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log("Prompt:", prompt);
-    console.log("Collection:", collection);
+    // console.log("Prompt:", prompt);
+    // console.log("Collection:", collection);
 
     if (!prompt || !collection) {
       return;
@@ -53,7 +53,7 @@ export default function QueryDatabasePage() {
       );
 
       setResponseData(result.data);
-      console.log(result.data);
+      // console.log(result.data);
     } catch (error) {
       console.error(error);
       let msg = "";

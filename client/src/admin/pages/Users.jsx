@@ -109,14 +109,14 @@ export default function Users() {
             setIsLoading(true);
             if (reason === "") return;
 
-            console.log("Suspension data:", { reason });
+            // console.log("Suspension data:", { reason });
 
             const response = await axios.patch(
               `${API_URL}/admin/suspend-user/${userId}`,
               { reason },
               { withCredentials: true }
             );
-            console.log(response.data);
+            // console.log(response.data);
 
             setUsers((prevContent) =>
               prevContent.map((item) =>
@@ -160,7 +160,7 @@ export default function Users() {
               {},
               { withCredentials: true }
             );
-            console.log(response.data);
+            // console.log(response.data);
 
             setUsers((prevContent) =>
               prevContent.map((item) =>
@@ -361,8 +361,7 @@ export default function Users() {
 
   const handleSaveUser = (updatedUser) => {
     setUser(updatedUser);
-    // Here you would typically send the updated user data to your backend
-    console.log("User updated:", updatedUser);
+    // console.log("User updated:", updatedUser);
     setIsDialogOpen(false);
   };
 
@@ -381,7 +380,7 @@ export default function Users() {
             totalPages={totalPages}
             onPageChange={(newPage) => setCurrentPage(newPage)}
           />
-          {console.log(user)}
+          {/* {console.log(user)} */}
           {user.length !== 0 && (
             <UserDetailsDialog
               isOpen={isDialogOpen}

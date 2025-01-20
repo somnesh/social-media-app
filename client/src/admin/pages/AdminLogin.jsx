@@ -31,7 +31,7 @@ export default function AdminLogin() {
         },
         { withCredentials: true }
       );
-      console.log(result.data);
+      // console.log(result.data);
       localStorage.setItem("name", result.data.user.name);
       localStorage.setItem("id", result.data.user.id);
       localStorage.setItem("avatar", result.data.user.avatar);

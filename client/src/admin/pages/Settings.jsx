@@ -51,10 +51,10 @@ export default function SettingsPage() {
       try {
         const response = await axios.get(`${API_URL}/admin/maintenance`);
         form.setValue("maintenanceMode", response.data.maintenance);
-        console.log(
-          "Initial maintenance status fetched:",
-          response.data.maintenance
-        );
+        // console.log(
+        //   "Initial maintenance status fetched:",
+        //   response.data.maintenance
+        // );
       } catch (error) {
         console.error("Error fetching maintenance status:", error);
       }
@@ -65,14 +65,14 @@ export default function SettingsPage() {
   // Toggle maintenance mode
   async function handleMaintenanceToggle(value) {
     try {
-      console.log(form.getValues("maintenanceMode"));
+      // console.log(form.getValues("maintenanceMode"));
 
       await axios.post(
         `${API_URL}/admin/maintenance`,
         { value },
         { withCredentials: true }
       );
-      console.log("Maintenance mode updated:", value);
+      // console.log("Maintenance mode updated:", value);
       toastHandler(
         <div className="flex gap-2 items-center">
           <CircleCheck className="bg-green-600 rounded-full text-white dark:text-[#242526]" />
@@ -99,8 +99,7 @@ export default function SettingsPage() {
 
   // Form submit handler
   function onSubmit(data) {
-    console.log(data);
-    // Replace with API call to save settings
+    // console.log(data);
   }
 
   return (
