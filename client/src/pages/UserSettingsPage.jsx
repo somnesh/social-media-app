@@ -181,7 +181,11 @@ export default function UserSettingsPage() {
                       <CardContent className="space-y-4">
                         <div className="space-y-2">
                           <Label htmlFor="name">Name</Label>
-                          <Input id="name" placeholder="Your name" />
+                          <Input
+                            id="name"
+                            placeholder="Your name"
+                            disabled={true}
+                          />
                         </div>
                         <div className="space-y-2">
                           <Label htmlFor="email">Email</Label>
@@ -189,6 +193,7 @@ export default function UserSettingsPage() {
                             id="email"
                             type="email"
                             placeholder="Your email"
+                            disabled={true}
                           />
                         </div>
                         <div className="space-y-2">
@@ -196,9 +201,10 @@ export default function UserSettingsPage() {
                           <Textarea
                             id="bio"
                             placeholder="Tell us about yourself"
+                            disabled={true}
                           />
                         </div>
-                        <Button>Save Changes</Button>
+                        <Button disabled={true}>Save Changes</Button>
                       </CardContent>
                     </Card>
                   </TabsContent>
@@ -215,7 +221,7 @@ export default function UserSettingsPage() {
                           <Label htmlFor="profile-visibility">
                             Profile Visibility
                           </Label>
-                          <Select>
+                          <Select disabled={true}>
                             <SelectTrigger className="w-full">
                               <SelectValue placeholder="Select visibility" />
                             </SelectTrigger>
@@ -229,13 +235,13 @@ export default function UserSettingsPage() {
                           </Select>
                         </div>
                         <div className="flex items-center space-x-2">
-                          <Switch id="allow-tagging" />
+                          <Switch id="allow-tagging" disabled={true} />
                           <Label htmlFor="allow-tagging">
                             Allow others to tag you in posts
                           </Label>
                         </div>
                         <div className="flex items-center space-x-2">
-                          <Switch id="show-online-status" />
+                          <Switch id="show-online-status" disabled={true} />
                           <Label htmlFor="show-online-status">
                             Show online status
                           </Label>
@@ -367,17 +373,17 @@ export default function UserSettingsPage() {
                         <div className="space-y-2">
                           <Label>Email Notifications</Label>
                           <div className="flex items-center space-x-2">
-                            <Switch id="email-comments" />
+                            <Switch id="email-comments" disabled={true} />
                             <Label htmlFor="email-comments">
                               Comments on your posts
                             </Label>
                           </div>
                           <div className="flex items-center space-x-2">
-                            <Switch id="email-tags" />
+                            <Switch id="email-tags" disabled={true} />
                             <Label htmlFor="email-tags">Tags in photos</Label>
                           </div>
                           <div className="flex items-center space-x-2">
-                            <Switch id="email-messages" />
+                            <Switch id="email-messages" disabled={true} />
                             <Label htmlFor="email-messages">
                               Direct messages
                             </Label>
@@ -386,11 +392,11 @@ export default function UserSettingsPage() {
                         <div className="space-y-2">
                           <Label>Push Notifications</Label>
                           <div className="flex items-center space-x-2">
-                            <Switch id="push-all" />
+                            <Switch id="push-all" disabled={true} />
                             <Label htmlFor="push-all">All notifications</Label>
                           </div>
                           <div className="flex items-center space-x-2">
-                            <Switch id="push-mentions" />
+                            <Switch id="push-mentions" disabled={true} />
                             <Label htmlFor="push-mentions">Mentions only</Label>
                           </div>
                         </div>
@@ -408,7 +414,7 @@ export default function UserSettingsPage() {
                       <CardContent className="space-y-4">
                         <div className="space-y-2">
                           <Label>Color Contrast</Label>
-                          <RadioGroup defaultValue="normal">
+                          <RadioGroup defaultValue="normal" disabled={true}>
                             <div className="flex items-center space-x-2">
                               <RadioGroupItem
                                 value="normal"
@@ -424,7 +430,7 @@ export default function UserSettingsPage() {
                         </div>
                         <div className="space-y-2">
                           <Label>Font Size</Label>
-                          <Select>
+                          <Select disabled={true}>
                             <SelectTrigger>
                               <SelectValue placeholder="Select font size" />
                             </SelectTrigger>
@@ -436,7 +442,7 @@ export default function UserSettingsPage() {
                           </Select>
                         </div>
                         <div className="flex items-center space-x-2">
-                          <Switch id="reduce-motion" />
+                          <Switch id="reduce-motion" disabled={true} />
                           <Label htmlFor="reduce-motion">Reduce motion</Label>
                         </div>
                       </CardContent>
@@ -453,7 +459,7 @@ export default function UserSettingsPage() {
                       <CardContent className="space-y-4">
                         <div className="space-y-2">
                           <Label htmlFor="language">Preferred Language</Label>
-                          <Select>
+                          <Select disabled={true}>
                             <SelectTrigger>
                               <SelectValue placeholder="Select language" />
                             </SelectTrigger>
@@ -466,7 +472,9 @@ export default function UserSettingsPage() {
                             </SelectContent>
                           </Select>
                         </div>
-                        <Button>Save Language Preference</Button>
+                        <Button disabled={true}>
+                          Save Language Preference
+                        </Button>
                       </CardContent>
                     </Card>
                   </TabsContent>
