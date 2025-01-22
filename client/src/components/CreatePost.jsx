@@ -119,7 +119,7 @@ export function CreatePost({
 
   const createPost = async () => {
     const postFormData = new FormData();
-    if (postContent.length === 0) {
+    if (postContent.length === 0 && !uploadedImage && !uploadedVideo) {
       setIsLoading(false);
       return;
     }
