@@ -13,7 +13,12 @@ app.use(cookieParser());
 app.use(express.static("./public"));
 app.use(express.json());
 // cors middleware
-app.use(cors({ credentials: true, origin: process.env.CLIENT_URL }));
+app.use(
+  cors({
+    credentials: true,
+    origin: [process.env.CLIENT_URL, "http://localhost:5173"],
+  })
+);
 
 // Socket.IO server
 const server = http.createServer(app);
