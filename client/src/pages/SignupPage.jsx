@@ -31,13 +31,17 @@ export function SignupPage() {
     const fetchImage = async () => {
       try {
         setIsLoading(true);
-        const response = await fetch(UNSPLASH_API);
-        const data = await response.json();
+        const response = await axios.get(`${API_URL}/bg-image`, {
+          responseType: "blob",
+        });
+
+        const blob = response.data;
+        const url = URL.createObjectURL(blob);
         const img = new Image();
-        img.src = data.urls.full; // Set the image source to the fetched URL
+        img.src = url;
 
         img.onload = () => {
-          setBgImage(data.urls.full); // Update the background once the image has loaded
+          setBgImage(url); // Update the background once the image has loaded
           setIsLoading(false);
         };
 

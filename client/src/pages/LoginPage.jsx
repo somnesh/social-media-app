@@ -18,7 +18,6 @@ export function LoginPage() {
   const { setIsAuthenticated, isAuthenticated } = useAuth();
 
   const API_URL = import.meta.env.VITE_API_URL;
-  const UNSPLASH_API = import.meta.env.VITE_UNSPLASH_API;
 
   const refreshAuthToken = async () => {
     // console.log("login page");
@@ -41,13 +40,17 @@ export function LoginPage() {
   const fetchImage = async () => {
     try {
       setIsLoading(true);
-      const response = await fetch(UNSPLASH_API);
-      const data = await response.json();
+      const response = await axios.get(`${API_URL}/bg-image`, {
+        responseType: "blob",
+      });
+
+      const blob = response.data;
+      const url = URL.createObjectURL(blob);
       const img = new Image();
-      img.src = data.urls.regular; // Set the image source to the fetched URL
+      img.src = url;
 
       img.onload = () => {
-        setBgImage(data.urls.regular); // Update the background once the image has loaded
+        setBgImage(url); // Update the background once the image has loaded
         setIsLoading(false);
       };
 
