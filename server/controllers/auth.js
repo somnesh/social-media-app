@@ -3,6 +3,9 @@ const { StatusCodes } = require("http-status-codes");
 const { BadRequestError, UnauthenticatedError } = require("../errors");
 const sendVerificationEmail = require("../utils/sendVerificationEmail");
 const jwt = require("jsonwebtoken");
+// const redisClient = require("./utils/redisClient");
+const { default: axios } = require("axios");
+const redisClient = require("../utils/redisClient");
 
 const isUsernameUnique = async (username) => {
   const isUnique = await User.findOne({ username });
@@ -261,6 +264,32 @@ const resetPassword = async (req, res) => {
     .json({ success: true, msg: "Password reset successful" });
 };
 
+const getBackgroundImage = async (req, res) => {
+  if (await redisClient.exists("backgroundImage")) {
+    const cachedImage = await redisClient.getBuffer("backgroundImage");
+
+    console.log("Background image retrieved from Redis cache");
+
+    return res.status(200).contentType("image/jpeg").send(cachedImage);
+  }
+
+  const response = await axios.get(process.env.UNSPLASH_API);
+
+  const imageUrl = response.data.urls.regular;
+
+  // get the image blob and cache it in redis
+  const imageResponse = await axios.get(imageUrl, {
+    responseType: "arraybuffer",
+  });
+
+  const imageBuffer = Buffer.from(imageResponse.data);
+
+  await redisClient.set("backgroundImage", imageBuffer, "EX", 60 * 60 * 24); // expire in 24 hours
+  console.log("Background image cached in Redis");
+
+  res.status(200).contentType("image/jpeg").send(imageBuffer);
+};
+
 module.exports = {
   registerUser,
   loginUser,
@@ -269,4 +298,5 @@ module.exports = {
   logout,
   resetPassword,
   changePassword,
+  getBackgroundImage,
 };
