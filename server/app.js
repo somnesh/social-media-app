@@ -53,6 +53,7 @@ const unprotectedPostRoute = require("./routes/UnprotectedPostRoutes");
 const reportRoute = require("./routes/report");
 const cloudinaryRoutes = require("./routes/cloudinary");
 const feedbackRoute = require("./routes/feedback");
+const { getBackgroundImage } = require("./controllers/auth");
 
 //protected routes
 app.use("/api/v1/admin", adminRoute);
@@ -68,6 +69,7 @@ app.use("/api/v1/feedback", authenticateUser, feedbackRoute);
 // unprotected routes
 app.use("/api/v1/post", unprotectedPostRoute);
 app.use("/api/v1/cloudinary", cloudinaryRoutes);
+app.get("/api/v1/bg-image", getBackgroundImage);
 
 // error handler middleware
 app.use(notFoundMiddleware);
