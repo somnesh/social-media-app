@@ -15,7 +15,8 @@ export function LoginPage() {
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
-  const { setIsAuthenticated, isAuthenticated } = useAuth();
+  const { setIsAuthenticated, login } = useAuth();
+  const [imageLoaded, setImageLoaded] = useState(false);
 
   const API_URL = import.meta.env.VITE_API_URL;
 
@@ -52,6 +53,7 @@ export function LoginPage() {
       img.onload = () => {
         setBgImage(url); // Update the background once the image has loaded
         setIsLoading(false);
+        setTimeout(() => setImageLoaded(true), 50);
       };
 
       img.onerror = () => {
@@ -112,11 +114,13 @@ export function LoginPage() {
         return;
       }
 
-      localStorage.setItem("name", result.data.user.name);
-      localStorage.setItem("id", result.data.user.id);
-      localStorage.setItem("avatar", result.data.user.avatar);
-      localStorage.setItem("avatarBg", result.data.user.avatarBg);
-      localStorage.setItem("username", result.data.user.username);
+      login(
+        result.data.user.name,
+        result.data.user.id,
+        result.data.user.username,
+        result.data.user.avatar,
+        result.data.user.avatarBg
+      );
 
       setIsAuthenticated(true);
 
@@ -136,130 +140,134 @@ export function LoginPage() {
   };
 
   return (
-    <div className="flex min-h-screen flex-col-reverse lg:flex-row p-6">
-      <div className="flex flex-1 flex-col justify-center px-6 py-12 lg:px-8 lg:max-w-[50%]">
-        <div className="sm:mx-auto sm:w-full sm:max-w-sm">
-          <h2 className="mt-10 text-center text-3xl font-bold leading-9 tracking-tight text-gray-900 dark:text-stone-100">
-            Welcome Back
-          </h2>
-        </div>
+    <div className="flex min-h-screen flex-col-reverse lg:flex-row p-2">
+      <div className="flex flex-1 items-center justify-center z-10">
+        <div className="py-20 px-10 bg-[#ffffffb8] rounded-lg shadow-lg h-full lg:max-w-lg lg:max-h-max w-full">
+          <div className="sm:mx-auto sm:w-full sm:max-w-sm">
+            <h2 className="mt-10 text-center text-3xl font-bold leading-9 tracking-tight text-gray-900 ">
+              Welcome Back
+            </h2>
+          </div>
 
-        <div className="mt-10 sm:mx-auto sm:w-full sm:max-w-sm">
-          <form method="POST">
-            <div>
-              <label
-                htmlFor="email"
-                className="block text-sm font-medium leading-6 text-gray-900 dark:text-stone-100"
-              >
-                Email
-              </label>
+          <div className="mt-10 sm:mx-auto sm:w-full sm:max-w-sm">
+            <form method="POST">
               <div>
-                <input
-                  id="email"
-                  name="email"
-                  type="email"
-                  autoComplete="email"
-                  placeholder="Email address"
-                  title="Enter your email"
-                  required
-                  className="block w-full rounded-md border-0 p-2 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6 dark:bg-[#f0f0f0] text-sm"
-                  onChange={(e) => {
-                    setEmail(e.target.value);
-                    e.target.classList.remove("ring-red-600");
-                  }}
-                />
-              </div>
-            </div>
-
-            <div className="mt-6">
-              <div className="flex items-center justify-between">
                 <label
-                  htmlFor="password"
-                  className="block text-sm font-medium leading-6 text-gray-900 dark:text-stone-50"
+                  htmlFor="email"
+                  className="block text-sm font-medium leading-6 text-gray-900"
                 >
-                  Password
+                  Email
                 </label>
+                <div>
+                  <input
+                    id="email"
+                    name="email"
+                    type="email"
+                    autoComplete="email"
+                    placeholder="Email address"
+                    title="Enter your email"
+                    required
+                    className="block w-full rounded-md border-0 p-2 bg-white text-gray-900 shadow-xs ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6 text-sm"
+                    onChange={(e) => {
+                      setEmail(e.target.value);
+                      e.target.classList.remove("ring-red-600");
+                    }}
+                  />
+                </div>
               </div>
-              <div className="relative">
-                <input
-                  id="password"
-                  name="password"
-                  type={showPassword ? "text" : "password"}
-                  autoComplete="current-password"
-                  placeholder="Enter your password"
-                  title="Enter your password"
-                  required
-                  className="block w-full rounded-md border-0 p-2 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6 text-sm"
-                  onChange={(e) => {
-                    setPassword(e.target.value);
-                    e.target.classList.remove("ring-red-600");
-                  }}
-                />
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="icon"
-                  className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
-                  onClick={() => setShowPassword(!showPassword)}
+
+              <div className="mt-6">
+                <div className="flex items-center justify-between">
+                  <label
+                    htmlFor="password"
+                    className="block text-sm font-medium leading-6 text-gray-900 "
+                  >
+                    Password
+                  </label>
+                </div>
+                <div className="relative">
+                  <input
+                    id="password"
+                    name="password"
+                    type={showPassword ? "text" : "password"}
+                    autoComplete="current-password"
+                    placeholder="Enter your password"
+                    title="Enter your password"
+                    required
+                    className="block w-full rounded-md border-0 p-2 bg-white text-gray-900 shadow-xs ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6 text-sm"
+                    onChange={(e) => {
+                      setPassword(e.target.value);
+                      e.target.classList.remove("ring-red-600");
+                    }}
+                  />
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="icon"
+                    className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent cursor-pointer"
+                    onClick={() => setShowPassword(!showPassword)}
+                  >
+                    {showPassword ? (
+                      <EyeOff className="h-4 w-4 text-gray-500" />
+                    ) : (
+                      <Eye className="h-4 w-4 text-gray-500" />
+                    )}
+                    <span className="sr-only">
+                      {showPassword ? "Hide password" : "Show password"}
+                    </span>
+                  </Button>
+                </div>
+                <span
+                  id="msg"
+                  className="text-red-600 text-sm font-medium hidden"
                 >
-                  {showPassword ? (
-                    <EyeOff className="h-4 w-4 text-gray-500" />
-                  ) : (
-                    <Eye className="h-4 w-4 text-gray-500" />
-                  )}
-                  <span className="sr-only">
-                    {showPassword ? "Hide password" : "Show password"}
-                  </span>
-                </Button>
+                  Incorrect email or password
+                </span>
               </div>
-              <span
-                id="msg"
-                className="text-red-600 text-sm font-medium hidden"
-              >
-                Incorrect email or password
-              </span>
-            </div>
 
-            <div className="text-sm text-right mt-1">
+              <div className="text-sm text-right mt-1">
+                <Link
+                  to={"/forgot-password"}
+                  className="font-semibold text-indigo-500 hover:text-indigo-400"
+                >
+                  Forgot Password?
+                </Link>
+              </div>
+
+              <div className="mt-6">
+                <button
+                  type="submit"
+                  className="flex w-full justify-center items-center gap-1 rounded-md cursor-pointer bg-indigo-600 px-3 py-2 text-sm font-semibold leading-6 text-white shadow-xs hover:bg-indigo-700 focus-visible:outline-solid focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 focus:bg-indigo-800"
+                  onClick={handleLogin}
+                >
+                  Login
+                  {isLoadingLogin && (
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  )}
+                </button>
+              </div>
+            </form>
+
+            <p className="mt-10 text-center text-sm text-gray-500">
+              Don't you have an account?{" "}
               <Link
-                to={"/forgot-password"}
-                className="font-semibold text-indigo-500 hover:text-indigo-400"
+                to={"/signup"}
+                className="font-semibold leading-6 text-indigo-500 hover:text-indigo-400"
               >
-                Forgot Password?
+                Sign up
               </Link>
-            </div>
-
-            <div className="mt-6">
-              <button
-                type="submit"
-                className="flex w-full justify-center items-center gap-1 rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-indigo-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 focus:bg-indigo-800"
-                onClick={handleLogin}
-              >
-                Login
-                {isLoadingLogin && (
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                )}
-              </button>
-            </div>
-          </form>
-
-          <p className="mt-10 text-center text-sm text-gray-500">
-            Don't you have an account?{" "}
-            <Link
-              to={"/signup"}
-              className="font-semibold leading-6 text-indigo-500 hover:text-indigo-400"
-            >
-              Sign up
-            </Link>
-          </p>
+            </p>
+          </div>
         </div>
       </div>
-      <div className="relative flex-1 lg:max-w-[50%]">
+      <div className="fixed inset-0">
         {isLoading ? (
           <LoginPageImageLoader />
         ) : (
           <img
-            className="absolute inset-0 h-full w-full object-cover rounded-lg"
+            className={`inset-0 h-full w-full object-cover fixed blur-xs z-0 transition-opacity duration-1000 ease-in-out ${
+              imageLoaded ? "opacity-100" : "opacity-0"
+            }`}
             src={bgImage || "/public/defaultBG.jpg"}
             alt="random image"
           />

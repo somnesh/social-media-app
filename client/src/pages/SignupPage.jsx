@@ -13,10 +13,10 @@ export function SignupPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [form, setForm] = useState({
     name: "",
-    date_of_birth: "",
-    gender: "male",
+    // date_of_birth: "",
+    // gender: "male",
     username: "",
-    phone_no: "",
+    // phone_no: "",
     email: "",
     password: "",
   });
@@ -24,7 +24,6 @@ export function SignupPage() {
   const [error, setError] = useState("");
   const navigate = useNavigate();
 
-  const UNSPLASH_API = import.meta.env.VITE_UNSPLASH_API;
   const API_URL = import.meta.env.VITE_API_URL;
 
   useEffect(() => {
@@ -62,30 +61,36 @@ export function SignupPage() {
       setError("Name can only contain letters and spaces.");
       return false;
     }
-    if (!form.date_of_birth) {
-      setError("Date of birth is required.");
-      return false;
-    }
+
+    // if (!form.date_of_birth) {
+    //   setError("Date of birth is required.");
+    //   return false;
+    // }
+
     if (!form.username.match(/^[a-zA-Z0-9_]+$/)) {
       setError("Username can only contain letters, numbers, and underscores.");
       return false;
     }
-    if (!form.gender) {
-      setError("Please select a gender.");
-      return false;
-    }
-    if (!form.phone_no.match(/^\d{10}$/)) {
-      setError("Phone number must contain 10 digits.");
-      return false;
-    }
+
+    // if (!form.gender) {
+    //   setError("Please select a gender.");
+    //   return false;
+    // }
+    // if (!form.phone_no.match(/^\d{10}$/)) {
+    //   setError("Phone number must contain 10 digits.");
+    //   return false;
+    // }
+
     if (!form.email.match(/^\S+@\S+\.\S+$/)) {
       setError("Please enter a valid email address.");
       return false;
     }
+
     if (form.password.length < 4) {
       setError("Password must be at least 4 characters long.");
       return false;
     }
+
     setError(null);
     return true;
   };
@@ -163,11 +168,11 @@ export function SignupPage() {
                 type="text"
                 placeholder="Enter your name"
                 required
-                className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6 p-2 text-sm"
+                className="block w-full rounded-md border-0 py-1.5 shadow-xs ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6 p-2 text-sm"
               />
             </div>
 
-            <div>
+            {/* <div>
               <label
                 htmlFor="date_of_birth"
                 className="block text-sm font-medium leading-6 text-gray-900 dark:text-stone-50"
@@ -187,9 +192,9 @@ export function SignupPage() {
                 placeholder="Enter your date of birth"
                 type="date"
                 required
-                className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6 p-2 text-sm"
+                className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-xs ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6 p-2 text-sm"
               />
-            </div>
+            </div> */}
 
             <div>
               <label
@@ -216,10 +221,10 @@ export function SignupPage() {
                 type="text"
                 placeholder="Enter a username"
                 required
-                className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6 p-2 text-sm"
+                className="block w-full rounded-md border-0 py-1.5 shadow-xs ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6 p-2 text-sm"
               />
             </div>
-            <div>
+            {/* <div>
               <label
                 htmlFor="gender"
                 className="block text-sm font-medium leading-6 text-gray-900 dark:text-stone-50"
@@ -237,14 +242,14 @@ export function SignupPage() {
                 id="gender"
                 name="gender"
                 required
-                className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6 p-2 text-sm"
+                className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-xs ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6 p-2 text-sm"
               >
                 <option value="male">Male</option>
                 <option value="female">Female</option>
               </select>
-            </div>
+            </div> */}
 
-            <div>
+            {/* <div>
               <label
                 htmlFor="phone_no"
                 className="block text-sm font-medium leading-6 text-gray-900 dark:text-stone-50"
@@ -264,9 +269,9 @@ export function SignupPage() {
                 type="tel"
                 placeholder="Enter phone number"
                 required
-                className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6 p-2 text-sm"
+                className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-xs ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6 p-2 text-sm"
               />
-            </div>
+            </div> */}
 
             <div>
               <label
@@ -289,7 +294,7 @@ export function SignupPage() {
                 autoComplete="email"
                 placeholder="Enter your email"
                 required
-                className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6 p-2 text-sm"
+                className="block w-full rounded-md border-0 py-1.5 shadow-xs ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6 p-2 text-sm"
               />
             </div>
 
@@ -315,13 +320,13 @@ export function SignupPage() {
                   autoComplete="new-password"
                   placeholder="Create a password"
                   required
-                  className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6 p-2 text-sm"
+                  className="block w-full rounded-md border-0 py-1.5 shadow-xs ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6 p-2 text-sm"
                 />
                 <Button
                   type="button"
                   variant="ghost"
                   size="icon"
-                  className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
+                  className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent cursor-pointer"
                   onClick={() => setShowPassword(!showPassword)}
                 >
                   {showPassword ? (
@@ -345,7 +350,7 @@ export function SignupPage() {
               <button
                 onClick={handleSignUp}
                 type="submit"
-                className="flex w-full justify-center items-center gap-2 rounded-md bg-indigo-600 px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-indigo-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 focus:bg-indigo-800"
+                className="flex w-full justify-center cursor-pointer items-center gap-2 rounded-md bg-indigo-600 px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-xs hover:bg-indigo-700 focus-visible:outline-solid focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 focus:bg-indigo-800"
                 disabled={isLoadingSubmit}
               >
                 Sign up
