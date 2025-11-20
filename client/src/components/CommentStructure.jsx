@@ -368,7 +368,7 @@ export function CommentStructure({
                 <>
                   <div className="flex flex-col gap-1">
                     <AlertDialog>
-                      <AlertDialogTrigger className="outline-none">
+                      <AlertDialogTrigger className="outline-hidden">
                         <div className="flex hover:bg-[#f3f4f6] dark:hover:bg-[#414141] cursor-pointer py-1.5 p-2 rounded-sm items-center m-auto">
                           <Trash2 className="mr-2 h-5 w-5" />
                           <span>Delete</span>
@@ -489,7 +489,7 @@ export function CommentStructure({
               name="comment"
               id="comment"
               placeholder="Write a comment"
-              className="w-full bg-transparent outline-none dark:text-gray-50"
+              className="w-full bg-transparent outline-hidden dark:text-gray-50"
             />
 
             <div
