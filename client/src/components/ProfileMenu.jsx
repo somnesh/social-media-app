@@ -41,6 +41,8 @@ import { Textarea } from "./ui/textarea";
 import { Button } from "./ui/button";
 import { DialogFooter } from "./ui/dialog";
 import { useToastHandler } from "../contexts/ToastContext";
+// import { useSingleUserStatus } from "./hooks/useUserStatus";
+import { useAuth } from "../contexts/AuthContext";
 
 export function ProfileMenu({ setPageLoading }) {
   const { theme, darkTheme, lightTheme } = useTheme();
@@ -48,6 +50,8 @@ export function ProfileMenu({ setPageLoading }) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [open, setOpen] = useState(false);
   const [feedback, setFeedback] = useState("");
+
+  const { logout } = useAuth();
 
   const toastHandler = useToastHandler();
 
@@ -69,15 +73,13 @@ export function ProfileMenu({ setPageLoading }) {
   };
   const handleLogout = async () => {
     try {
-      setPageLoading(true);
+      // setPageLoading(true);
       await axios.post(`${API_URL}/auth/logout`, {}, { withCredentials: true });
-      localStorage.removeItem("avatar");
-      localStorage.removeItem("avatarBg");
-      localStorage.removeItem("id");
-      localStorage.removeItem("name");
-      localStorage.removeItem("username");
+
+      logout();
+
       navigate("/login");
-      setPageLoading(false);
+      // setPageLoading(false);
     } catch (error) {
       console.error("Error during logout: ", error);
     }
@@ -130,12 +132,14 @@ export function ProfileMenu({ setPageLoading }) {
                 <span className="dark:text-white bg-inherit hover:bg-inherit font-medium hidden sm:block">
                   {localStorage.name.split(" ")[0]}
                 </span>
-                <Avatar>
-                  <AvatarImage src={localStorage.avatar} />
-                  <AvatarFallback className={localStorage.avatarBg}>
-                    {localStorage.name[0]}
-                  </AvatarFallback>
-                </Avatar>
+                <div className="relative">
+                  <Avatar>
+                    <AvatarImage src={localStorage.avatar} />
+                    <AvatarFallback className={localStorage.avatarBg}>
+                      {localStorage.name[0]}
+                    </AvatarFallback>
+                  </Avatar>
+                </div>
               </div>
             </DropdownMenuTrigger>
 
@@ -169,7 +173,7 @@ export function ProfileMenu({ setPageLoading }) {
                         <>
                           <DropdownMenuItem
                             disabled={true}
-                            className="cursor-pointer dark:text-white dark:bg-blue-400 data-[disabled]:opacity-100 mb-1"
+                            className="cursor-pointer dark:text-white dark:bg-blue-400 data-disabled:opacity-100 mb-1"
                           >
                             <Moon className="mr-2 h-4 w-4" />
                             <span>Dark Mode</span>
@@ -195,7 +199,7 @@ export function ProfileMenu({ setPageLoading }) {
 
                           <DropdownMenuItem
                             disabled={true}
-                            className="cursor-pointer text-white dark:focus:bg-[#414141] dark:text-white bg-blue-400 data-[disabled]:opacity-100"
+                            className="cursor-pointer text-white dark:focus:bg-[#414141] dark:text-white bg-blue-400 data-disabled:opacity-100"
                           >
                             <Sun className="mr-2 h-4 w-4" />
                             <span>Light Mode</span>
