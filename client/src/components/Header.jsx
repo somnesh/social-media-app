@@ -2,17 +2,18 @@ import { Link, useNavigate } from "react-router-dom";
 import { ProfileMenu } from "./ProfileMenu";
 import { SearchBar } from "./SearchBar";
 import { Button } from "./ui/button";
-import { useEffect, useState } from "react";
+import { memo, useEffect, useState } from "react";
 import axios from "axios";
 import { useAuth } from "../contexts/AuthContext";
 import { SkeletonLoader } from "./loaders/SkeletonLoader";
 
-export function Header({ setPageLoading }) {
+export const Header = memo(({ setPageLoading }) => {
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
   const { setIsAuthenticated, isAuthenticated } = useAuth();
 
   const API_URL = import.meta.env.VITE_API_URL;
+
   useEffect(() => {
     setIsLoading(true);
     const refreshAuthToken = async () => {
@@ -36,8 +37,8 @@ export function Header({ setPageLoading }) {
     setIsLoading(false);
   }, [navigate]);
   return (
-    <header className="flex justify-end sm:justify-normal py-1 pl-3 pr-2 bg-white md:dark:bg-[#242526] dark:bg-black items-center sm:sticky top-0 transition-colors duration-500 shadow-md z-40">
-      <section className="basis-1/4 absolute left-0 sm:relative z-[11] sm:z-auto">
+    <header className="flex justify-end sm:justify-normal py-1 pl-3 pr-2 bg-white dark:bg-black items-center top-0 transition-colors duration-500 shadow-xs border-b border-gray-200 dark:border-gray-700 z-40">
+      <section className="basis-1/4 absolute left-0 sm:relative z-11 sm:z-auto">
         <SearchBar />
       </section>
       <section className="basis-1/2 flex justify-center">
@@ -54,7 +55,7 @@ export function Header({ setPageLoading }) {
             className="dark:bg-[#fafafa] rounded-full"
           />
         ) : isAuthenticated ? (
-          <ProfileMenu setPageLoading={setPageLoading} />
+          <ProfileMenu setPageLoading={setPageLoading} status={status} />
         ) : (
           <div className="flex gap-2 py-1">
             <Button
@@ -74,4 +75,4 @@ export function Header({ setPageLoading }) {
       </section>
     </header>
   );
-}
+});
