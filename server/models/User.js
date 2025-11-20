@@ -29,12 +29,10 @@ const UserSchema = new mongoose.Schema(
     },
     date_of_birth: {
       type: String,
-      required: [true, "Please provide date of birth"],
     },
     gender: {
       type: String,
       enum: ["male", "female"],
-      required: [true, "please provide gender"],
     },
     username: {
       type: String,
@@ -48,7 +46,6 @@ const UserSchema = new mongoose.Schema(
     },
     phone_no: {
       type: Number,
-      required: [true, "please provide a phone number"],
       unique: true,
       match: [
         /(\+\d{1,3}\s?)?((\(\d{3}\)\s?)|(\d{3})(\s|-?))(\d{3}(\s|-?))(\d{4})(\s?(([E|e]xt[:|.|]?)|x|X)(\s?\d+))?/,
