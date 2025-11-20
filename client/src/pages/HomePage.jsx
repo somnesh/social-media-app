@@ -10,6 +10,7 @@ import { NotificationCentre } from "../components/NotificationCentre";
 import { SavedPosts } from "../components/SavedPosts";
 import { FollowerList } from "../components/FollowerList";
 import { FollowingList } from "../components/FollowingList";
+import ChatPage from "./Chat";
 
 export const Home = () => {
   const { isAuthenticated, setIsAuthenticated } = useAuth();
@@ -71,24 +72,25 @@ export const Home = () => {
       ) : (
         <>
           <Header setPageLoading={setPageLoading} />
-          <main className="flex flex-col sm:flex-row relative sm:justify-between lg:px-2 sm:py-4 md:pr-2 bg-[#f0f2f5] dark:bg-black h-fit dark:text-[#e2e4e9] transition-colors duration-500 sm:gap-3">
+          <main className="flex flex-col relative sm:justify-between lg:px-2 sm:py-4 md:pr-2 bg-white dark:bg-black h-fit dark:text-[#e2e4e9] transition-colors duration-500 sm:gap-3">
             <Sidebar variant={currentPage} setCurrentPage={setCurrentPage} />
             {/* --------------------------------------- */}
-            <section className="lg:basis-1/2 md:basis-3/4 sm:px-1 sm:mx-auto max-w-[680px] overflow-y-auto">
+            <section className="lg:basis-1/2 md:basis-3/4 sm:px-1 sm:mx-auto max-w-[680px] overflow-y-auto w-full">
               {currentPage === "home" && <Feed />}
               {currentPage === "followers" && <FollowerList />}
               {currentPage === "following" && <FollowingList />}
+              {currentPage === "chat" && <ChatPage />}
               {currentPage === "saved" && <SavedPosts />}
               {currentPage === "notification" && (
                 <NotificationCentre mobileFlag={true} />
               )}
             </section>
             {/* --------------------------------------- */}
-            <section
-              className={`basis-1/4 h-fit max-w-96 lg:sticky md:sticky absolute top-[4.5rem] overflow-y-auto transition-transform hidden sm:block -translate-y-full md:-translate-y-0`}
+            {/* <section
+              className={`basis-1/4 h-fit max-w-96 lg:sticky md:sticky absolute top-18 overflow-y-auto transition-transform hidden sm:block -translate-y-full md:translate-y-0`}
             >
               <NotificationCentre />
-            </section>
+            </section> */}
           </main>
         </>
       )}
