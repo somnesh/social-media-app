@@ -13,7 +13,7 @@ export function NotificationContent({ message }) {
       const pastDate = new Date(message.createdAt);
       const diffInSeconds = Math.floor((now - pastDate) / 1000);
 
-      if (diffInSeconds < 60) {
+      if (diffInSeconds < 60 || isNaN(diffInSeconds)) {
         setTimeAgo("Just now");
       } else if (diffInSeconds < 3600) {
         const minutes = Math.floor(diffInSeconds / 60);
