@@ -26,12 +26,14 @@ const registerUser = async (req, res) => {
     throw new BadRequestError("Username already exists");
   }
 
-  phone_no = Number(phone_no);
-  const phoneNoAlreadyExists = await User.findOne({ phone_no });
-  if (phoneNoAlreadyExists) {
-    throw new BadRequestError("Phone number already exists");
+  if (phone_no) {
+    phone_no = Number(phone_no);
+    const phoneNoAlreadyExists = await User.findOne({ phone_no });
+    if (phoneNoAlreadyExists) {
+      throw new BadRequestError("Phone number already exists");
+    }
+    req.body.phone_no = phone_no;
   }
-  req.body.phone_no = phone_no;
 
   const emailAlreadyExists = await User.findOne({ email });
   if (emailAlreadyExists) {
