@@ -17,6 +17,7 @@ import CoverPhotoUpload from "../components/CoverPhotoUpload";
 import EditProfile from "../components/EditProfile";
 import ProfilePageLoader from "../components/loaders/ProfilePageLoader";
 import { WholePageLoader } from "../components/loaders/WholePageLoader";
+import { useSingleUserStatus } from "../components/hooks/useUserStatus";
 
 export function ProfilePage() {
   const [isLoading, setIsLoading] = useState(true);
@@ -38,6 +39,8 @@ export function ProfilePage() {
   const API_URL = import.meta.env.VITE_API_URL;
   const navigate = useNavigate();
   const { username } = useParams();
+  const { status } = useSingleUserStatus(localStorage.getItem("id"));
+  console.log("User status: ", status);
 
   const { isAuthenticated } = useAuth();
 
@@ -204,7 +207,7 @@ export function ProfilePage() {
                       coverPhoto && "cursor-pointer hover:contrast-[.8]"
                     }`}
                   />
-                  <div className="absolute bottom-0 left-0 right-0 h-24 bg-gradient-to-t from-background via-background/30 to-transparent" />
+                  <div className="absolute bottom-0 left-0 right-0 h-24 bg-linear-to-t from-background via-background/30 to-transparent" />
                   {isAuthenticated &&
                     localStorage.id === details.user[0]._id && (
                       <div className="absolute bottom-4 right-4 flex items-center gap-2">
@@ -268,6 +271,11 @@ export function ProfilePage() {
                             {`${details.user[0].name[0]}`}
                           </AvatarFallback>
                         </Avatar>
+                        {status === "online" && (
+                          <span className="absolute flex size-5 right-2.5 bottom-2.5">
+                            <span className="relative inline-flex size-5 rounded-full bg-[#01754f] border-3 border-white dark:border-black"></span>
+                          </span>
+                        )}
                       </div>
                       {isAuthenticated &&
                         localStorage.id === details.user[0]._id && (
@@ -405,7 +413,7 @@ export function ProfilePage() {
 
                   <div className="mt-6 flex flex-col md:flex-row gap-6">
                     {/* About section - left column */}
-                    <Card className="md:w-1/3 mx-4 sm:mx-0 h-fit sticky top-0 p-4 bg-background/80 backdrop-blur-sm rounded-xl">
+                    <Card className="md:w-1/3 mx-4 sm:mx-0 h-fit sticky top-0 p-4 bg-background/80 backdrop-blur-xs rounded-xl">
                       <h2 className="text-xl font-semibold mb-4 text-inherit">
                         About
                       </h2>
@@ -461,6 +469,7 @@ export function ProfilePage() {
                                     details={post}
                                     setPosts={setPosts}
                                     className={"border dark:bg-[#1a1a1a]"}
+                                    profilePageUserStatus={status}
                                   />
                                 ))}{" "}
                               </>

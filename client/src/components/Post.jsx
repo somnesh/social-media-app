@@ -83,8 +83,16 @@ import encryptId from "../utils/encryptId";
 import VideoPlayer from "./VideoPlayer";
 import Poll from "./Poll";
 import { Skeleton } from "./ui/skeleton";
+import { useSingleUserStatus } from "./hooks/useUserStatus";
 
-export function Post({ details, setPosts, externalLinkFlag, className }) {
+export function Post({
+  details,
+  setPosts,
+  externalLinkFlag,
+  className,
+  profilePageUserStatus,
+}) {
+  const [status, setStatus] = useState(profilePageUserStatus || "offline");
   const [isLoading, setIsLoading] = useState(false);
   const [commentBoxPopup, setCommentBoxPopup] = useState(false);
   const [comments, setComments] = useState([]);
@@ -121,6 +129,13 @@ export function Post({ details, setPosts, externalLinkFlag, className }) {
   const [imageLoading, setImageLoading] = useState(true);
 
   const limit = 4; // comment load limit
+
+  useEffect(() => {
+    if (!profilePageUserStatus) {
+      const { status } = useSingleUserStatus(details.user_id._id);
+      setStatus(status);
+    }
+  }, [profilePageUserStatus]);
 
   const navigate = useNavigate();
   const toastHandler = useToastHandler();
@@ -564,23 +579,30 @@ export function Post({ details, setPosts, externalLinkFlag, className }) {
         </div>
       )}
       <div
-        className={`bg-white dark:bg-[#242526] pb-2 ${className} ${
+        className={`bg-white dark:bg-black pb-2 ${className} ${
           details.recommended ? "sm:rounded-b-lg" : "sm:rounded-lg"
-        } sm:mb-2 mb-1 relative transition-all drop-shadow-sm`}
+        } sm:mb-2 mb-1 relative transition-all drop-shadow-xs shadow-sm border`}
       >
         {/* Post header */}
-        <div className="flex items-center gap-3 pt-4 px-4">
-          <Link
-            to={`${APP_URL || ""}/user/${details.user_id.username}`}
-            className="hover:contrast-[.7]"
-          >
-            <Avatar>
-              <AvatarImage src={details.user_id.avatar} />
-              <AvatarFallback className={details.user_id.avatarBg}>
-                {details.user_id.name[0]}
-              </AvatarFallback>
-            </Avatar>
-          </Link>
+        <div className="flex items-center gap-3 pt-4 px-4 relative">
+          <div className="relative ">
+            <Link
+              to={`${APP_URL || ""}/user/${details.user_id.username}`}
+              className="hover:contrast-[.7]"
+            >
+              <Avatar>
+                <AvatarImage src={details.user_id.avatar} />
+                <AvatarFallback className={details.user_id.avatarBg}>
+                  {details.user_id.name[0]}
+                </AvatarFallback>
+              </Avatar>
+            </Link>
+            {status === "online" && (
+              <span className="absolute flex size-3.5 left-7 bottom-0">
+                <span className="relative inline-flex size-3.5 rounded-full bg-[#01754f] border-3 border-white dark:border-black"></span>
+              </span>
+            )}
+          </div>
           <div className="">
             <Link
               to={`${APP_URL || ""}/user/${details.user_id.username}`}
@@ -661,7 +683,7 @@ export function Post({ details, setPosts, externalLinkFlag, className }) {
                     )}
 
                     <AlertDialog>
-                      <AlertDialogTrigger className="outline-none">
+                      <AlertDialogTrigger className="outline-hidden">
                         <div className="flex hover:bg-[#f3f4f6] dark:hover:bg-[#414141] cursor-pointer py-1.5 p-2 rounded-sm items-center">
                           <Trash2 className="mr-2 h-5 w-5" />
                           <span>Delete</span>
@@ -784,7 +806,7 @@ export function Post({ details, setPosts, externalLinkFlag, className }) {
                         details.parent.media_type === "video" ? (
                           <VideoPlayer videoUrl={details.parent.image_url} />
                         ) : (
-                          <div className="max-h-[50rem] flex justify-center w-auto overflow-hidden relative">
+                          <div className="max-h-200 flex justify-center w-auto overflow-hidden relative">
                             {imageLoading && (
                               <div className="absolute inset-0 flex items-center justify-center rounded-md">
                                 <Skeleton
@@ -828,7 +850,7 @@ export function Post({ details, setPosts, externalLinkFlag, className }) {
                   <>
                     <Dialog>
                       <DialogTrigger asChild>
-                        <div className="max-h-[50rem] flex justify-center w-auto overflow-hidden relative cursor-pointer">
+                        <div className="max-h-200 flex justify-center w-auto overflow-hidden relative cursor-pointer">
                           {imageLoading && (
                             <div className="absolute inset-0 flex items-center justify-center">
                               <Skeleton className="h-full w-full bg-gray-300 dark:bg-[#59595e] rounded-none" />
@@ -1070,7 +1092,7 @@ export function Post({ details, setPosts, externalLinkFlag, className }) {
                   <div className="my-4">
                     <textarea
                       autoFocus
-                      className="min-w-full min-h-32 p-2 rounded-md border bg-[#F0F2F5] dark:bg-[#333536] resize-none outline-none"
+                      className="min-w-full min-h-32 p-2 rounded-md border bg-[#F0F2F5] dark:bg-[#333536] resize-none outline-hidden"
                       name="content"
                       id=""
                       placeholder="Start writing here ..."
@@ -1148,7 +1170,7 @@ export function Post({ details, setPosts, externalLinkFlag, className }) {
                 name="comment"
                 id="comment"
                 placeholder="Write a comment"
-                className="w-full bg-transparent outline-none dark:text-gray-50"
+                className="w-full bg-transparent outline-hidden dark:text-gray-50"
                 value={commentContent}
                 onChange={(e) => setCommentContent(e.target.value)}
               />
