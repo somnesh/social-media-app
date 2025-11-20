@@ -128,7 +128,7 @@ export function Feed() {
               setUploadProgress={setUploadProgress}
             />
           )}
-          <div className="create-new-post bg-white dark:bg-[#242526] px-4 py-2 sm:rounded-lg mb-2">
+          <div className="create-new-post bg-white dark:bg-black px-4 py-2 sm:rounded-lg mb-2 shadow-sm border">
             <div className="flex items-center py-2 gap-3">
               <Link
                 to={`${APP_URL || ""}/user/${localStorage.username}`}
@@ -149,7 +149,7 @@ export function Feed() {
               </div>
             </div>
 
-            <div className="flex items-center text-center pt-2 mt-2 border-t-[#e4e6eb] border-t-[1px] dark:border-t-[#3a3b3c]">
+            <div className="flex items-center text-center pt-2 mt-2 border-t-[#e4e6eb] border-t dark:border-t-[#3a3b3c]">
               <div
                 onClick={() => {
                   setImageFlag(true);
