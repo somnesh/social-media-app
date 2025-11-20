@@ -79,13 +79,13 @@ export function SearchBar() {
         onClick={handleClick}
         className={`flex bg-[#f0f2f5] dark:bg-[#3a3b3c] px-2 py-2 text-[#b0b3b8] w-full ${
           isVisible ? "rounded-t-md border-b border-black" : "rounded-full"
-        } z-[1]`}
+        } z-1`}
       >
         <div>
           <Search />
         </div>
         <input
-          className={`outline-none px-2 bg-[#f0f2f5] dark:bg-[#3a3b3c] dark:text-white text-black ${
+          className={`outline-hidden px-2 bg-[#f0f2f5] dark:bg-[#3a3b3c] dark:text-white text-black ${
             !isVisible && "hidden sm:block"
           }`}
           type="text"
@@ -97,7 +97,7 @@ export function SearchBar() {
         />
       </div>
       {isVisible && (
-        <div className="absolute top-10 bg-[#ffffff] dark:bg-[#3a3b3c] px-2 py-2 rounded-b-md text-[#b0b3b8] w-full shadow-md">
+        <div className="absolute top-10 bg-[#ffffff] dark:bg-[#3a3b3c] px-2 py-2 rounded-b-md text-[#b0b3b8] w-full shadow-md z-10">
           {query.length === 0 && !isLoading && (
             <span className="font-medium text-sm text-black dark:text-white text-center block py-5">
               Start finding new people
