@@ -92,7 +92,8 @@ export function Post({
   className,
   profilePageUserStatus,
 }) {
-  const [status, setStatus] = useState(profilePageUserStatus || "offline");
+  const { status: userStatus } = useSingleUserStatus(details.user_id._id);
+  const [status, setStatus] = useState(profilePageUserStatus || userStatus);
   const [isLoading, setIsLoading] = useState(false);
   const [commentBoxPopup, setCommentBoxPopup] = useState(false);
   const [comments, setComments] = useState([]);
@@ -129,13 +130,6 @@ export function Post({
   const [imageLoading, setImageLoading] = useState(true);
 
   const limit = 4; // comment load limit
-
-  useEffect(() => {
-    if (!profilePageUserStatus) {
-      const { status } = useSingleUserStatus(details.user_id._id);
-      setStatus(status);
-    }
-  }, [profilePageUserStatus]);
 
   const navigate = useNavigate();
   const toastHandler = useToastHandler();
