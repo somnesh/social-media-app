@@ -315,13 +315,15 @@ export function CreatePost({
   };
 
   return (
-    <div className="fixed inset-0 flex justify-center bg-opacity-30 backdrop-blur-[1px] backdrop-brightness-[.3] items-center z-50">
-      <div className="bg-white dark:bg-[#242526] px-4 rounded-md md:min-w-[30rem] shadow-2xl pt-1">
-        <div className="flex relative border-b items-center">
-          <h2 className="text-xl py-2 grow text-center">Create Post</h2>
+    <div className="fixed inset-0 flex justify-center bg-opacity-30 backdrop-blur-[1px] backdrop-brightness-[.3] items-center z-50 animate-in fade-in duration-200">
+      <div className="bg-white dark:bg-black px-4 rounded-md md:min-w-120 shadow-2xl pt-1 animate-in zoom-in-95 duration-300">
+        <div className="flex relative mb-2 py-1 border-b dark:border-b-[#3a3b3c] items-center">
+          <h2 className="text-xl font-semibold py-2 grow text-center">
+            Create Post
+          </h2>
           <div
             onClick={closePopup}
-            className="py-1 px-1 absolute right-0 hover:bg-[#F0F2F5] dark:hover:bg-[#414141] rounded-full cursor-pointer"
+            className="py-1 px-1 absolute right-0 hover:bg-[#F0F2F5] dark:hover:bg-[#414141] rounded-full cursor-pointer transition-colors duration-200"
           >
             <X />
           </div>
@@ -384,7 +386,7 @@ export function CreatePost({
             {!openPollPopUp && (
               <textarea
                 autoFocus
-                className="min-w-full min-h-32 p-2 rounded-md border bg-[#F0F2F5] dark:bg-[#333536] resize-none outline-none"
+                className="min-w-full min-h-32 p-2 rounded-md border bg-[#F0F2F5] dark:bg-[#333536] resize-none outline-hidden"
                 name="content"
                 id=""
                 placeholder="Start writing here ..."
@@ -399,7 +401,7 @@ export function CreatePost({
               <div
                 id="uploadPopUp"
                 onClick={uploadImage}
-                className="relative min-h-52 w-full border-2 border-dashed border-indigo-700 rounded-lg dark:bg-[#212121] flex items-center justify-center cursor-pointer dark:hover:bg-[#181818]"
+                className="relative min-h-52 w-full border-2 border-dashed border-indigo-700 rounded-lg dark:bg-[#212121] flex items-center justify-center cursor-pointer dark:hover:bg-[#181818] animate-in fade-in slide-in-from-top-2 duration-300"
               >
                 <input
                   ref={imageRef}
@@ -438,7 +440,7 @@ export function CreatePost({
               <div
                 id="uploadPopUp"
                 onClick={uploadVideo}
-                className="relative min-h-52 w-full border-2 border-dashed border-indigo-700 rounded-lg dark:bg-[#212121] flex items-center justify-center cursor-pointer dark:hover:bg-[#181818]"
+                className="relative min-h-52 w-full border-2 border-dashed border-indigo-700 rounded-lg dark:bg-[#212121] flex items-center justify-center cursor-pointer dark:hover:bg-[#181818] animate-in fade-in slide-in-from-top-2 duration-300"
               >
                 <input
                   ref={videoRef}
@@ -473,7 +475,7 @@ export function CreatePost({
               </div>
             )}
             {openPollPopUp && (
-              <div className="w-full max-w-2xl mx-auto">
+              <div className="w-full max-w-2xl mx-auto animate-in fade-in slide-in-from-top-2 duration-300">
                 <div className="space-y-4">
                   <div className="space-y-2">
                     <div>
