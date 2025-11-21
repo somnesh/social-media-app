@@ -394,6 +394,14 @@ const searchUser = async (req, res) => {
   }
 };
 
+const logUserDeviceInfo = async (req, res) => {
+  const { model, time } = req.body;
+  console.log(
+    `*****Received device info - Model: ${model}, Time: ${time} *****`
+  );
+  res.status(200).send("Device info logged successfully");
+};
+
 module.exports = {
   getAllUsers, // For admin
   getUserDetails,
@@ -409,4 +417,5 @@ module.exports = {
   uploadCoverPhoto,
   forgotPassword,
   verifyResetPassword,
+  logUserDeviceInfo,
 };

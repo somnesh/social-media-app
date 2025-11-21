@@ -18,6 +18,7 @@ const {
   searchUser,
   uploadCoverPhoto,
   forgotPassword,
+  logUserDeviceInfo,
 } = require("../controllers/user");
 const { getNotifications } = require("../controllers/notification");
 const { uploadFile } = require("../middleware/uploadFile");
@@ -51,5 +52,6 @@ router.route("/fetch/followingList").get(auth, getFollowingList);
 router.route("/global/search").get(searchUser);
 
 router.route("/reset-password/:email").post(forgotPassword);
+router.route("/logDeviceInfo").post(logUserDeviceInfo);
 
 module.exports = router;

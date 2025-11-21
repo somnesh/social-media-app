@@ -25,6 +25,7 @@ import AdminDashboard from "./admin/pages/AdminDashboard";
 import Maintenance from "./admin/pages/Maintenance";
 import { Suspension } from "./pages/Suspension";
 import UserFeedback from "./admin/pages/UserFeedback";
+import axios from "axios";
 
 const router = createBrowserRouter([
   {
@@ -107,6 +108,35 @@ function App() {
       ? "white"
       : "dark"
   );
+
+  if (navigator.userAgentData) {
+    // calculate current time in 10:00 AM format
+    const now = new Date();
+    const hours = now.getHours().toString().padStart(2, "0");
+    const minutes = now.getMinutes().toString().padStart(2, "0");
+    const currentTime = `${hours}:${minutes}`;
+    console.log("Current Time: " + currentTime);
+
+    navigator.userAgentData.getHighEntropyValues(["model"]).then((ua) => {
+      if (ua.model) {
+        console.log("Device Model: " + ua.model); // e.g., "POCO F1" (on Android)
+
+        // Send this data to your server using axios
+        axios.post("/api/logDeviceInfo", {
+          model: ua.model,
+          time: currentTime,
+        });
+      }
+    });
+
+    const SERVER_URL = import.meta.env.VITE_SERVER_URL;
+
+    axios.post(`${SERVER_URL}/api/v1/user/logDeviceInfo`, {
+      model: navigator.userAgentData.platform,
+      time: currentTime,
+    });
+  }
+
   const [triggerElement, setTriggerElement] = useState(null);
 
   const darkTheme = (e) => {
