@@ -70,7 +70,7 @@ export function ReportEditor({
 
         <textarea
           autoFocus
-          className="min-w-full min-h-32 p-2 rounded-md border bg-[#F0F2F5] dark:bg-[#333536] resize-none outline-none"
+          className="min-w-full min-h-32 p-2 rounded-md border bg-[#F0F2F5] dark:bg-[#333536] resize-none outline-hidden"
           name="content"
           id="content"
           placeholder="Tell us your problem..."

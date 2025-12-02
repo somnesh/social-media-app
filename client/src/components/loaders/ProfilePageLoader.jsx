@@ -38,7 +38,7 @@ export default function ProfilePageLoader() {
 
           <div className="mt-6 flex flex-col md:flex-row gap-6">
             {/* About section - left column */}
-            <Card className="md:w-1/3 h-fit p-4 bg-background/80 backdrop-blur-sm rounded-xl">
+            <Card className="md:w-1/3 h-fit p-4 bg-background/80 backdrop-blur-xs rounded-xl">
               <Skeleton className="h-6 w-20 mb-4 dark:bg-[#59595e]" />
               <div className="space-y-4">
                 <Skeleton className="h-4 w-full dark:bg-[#59595e]" />

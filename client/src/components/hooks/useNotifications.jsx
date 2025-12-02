@@ -28,9 +28,9 @@ const useNotifications = () => {
     };
     fetchInitialNotifications();
     // Register the user once the socket connects
-    const userId = localStorage.id;
-    const userName = localStorage.name;
-    socket.emit("register_user", { userId, userName });
+    // const userId = localStorage.id;
+    // const userName = localStorage.name;
+    // socket.emit("register_user", { userId, userName });
 
     // Listen for notifications
     socket.on("receiveNotification", (notification) => {

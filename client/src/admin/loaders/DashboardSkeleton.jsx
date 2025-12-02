@@ -16,7 +16,7 @@ export function DashboardSkeleton() {
       <div className="grid gap-6 md:grid-cols-2">
         <div className="border rounded-lg p-4">
           <Skeleton className="h-6 w-[150px] mb-4 bg-gray-300 dark:bg-muted" />
-          <Skeleton className="h-[26rem] bg-gray-300 dark:bg-muted" />
+          <Skeleton className="h-104 bg-gray-300 dark:bg-muted" />
         </div>
         <div className="border rounded-lg p-4">
           <Skeleton className="h-6 w-[150px] mb-6 bg-gray-300 dark:bg-muted" />

@@ -163,7 +163,7 @@ export default function UserSettingsPage() {
                   </SheetContent>
                 </Sheet>
               </div>
-              <div className="flex-grow">
+              <div className="grow">
                 <h1 className="text-3xl font-bold mb-6">Settings</h1>
                 <Tabs
                   value={activeTab}

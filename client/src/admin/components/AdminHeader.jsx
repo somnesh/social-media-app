@@ -99,7 +99,7 @@ export function AdminHeader({ onMenuButtonClick, setPageLoading }) {
                     <>
                       <DropdownMenuItem
                         disabled={true}
-                        className="cursor-pointer dark:text-white dark:bg-blue-400 data-[disabled]:opacity-100 mb-1"
+                        className="cursor-pointer dark:text-white dark:bg-blue-400 data-disabled:opacity-100 mb-1"
                       >
                         <Moon className="mr-2 h-4 w-4" />
                         <span>Dark Mode</span>
@@ -125,7 +125,7 @@ export function AdminHeader({ onMenuButtonClick, setPageLoading }) {
 
                       <DropdownMenuItem
                         disabled={true}
-                        className="cursor-pointer text-white dark:focus:bg-[#414141] dark:text-white bg-blue-400 data-[disabled]:opacity-100"
+                        className="cursor-pointer text-white dark:focus:bg-[#414141] dark:text-white bg-blue-400 data-disabled:opacity-100"
                       >
                         <Sun className="mr-2 h-4 w-4" />
                         <span>Light Mode</span>

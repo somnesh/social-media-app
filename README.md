@@ -112,6 +112,7 @@ Before you do anything in the server setup, you must set up the `.env` file. In 
 15. `CLIENT_URL`
 16. `RESET_PASSWORD_TOKEN_SECRET`
 17. `RESET_PASSWORD_TOKEN_SECRET_EXPIRATION`
+18. `UNSPLASH_API`
 
 The `MONGO_URI` is your `MongoDB atlas` database connection string.
 The `JWT_SECRET` contains an Encryption key, you need to create an Encryption key 256bit. You can use this website for the key generation: https://acte.ltd/utils/randomkeygen.
@@ -119,23 +120,24 @@ The `JWT_SECRET` contains an Encryption key, you need to create an Encryption ke
 On the client side, the `.env` file should contain the following,
 
 1. `VITE_API_URL`
-2. `VITE_UNSPLASH_API`
-3. `VITE_APP_URL`
-4. `VITE_SERVER_URL`
-5. `VITE_URL_ENCRYPTION_SECRET`
-6. `VITE_CLOUDINARY_CLOUD_NAME`
-7. `VITE_CLOUDINARY_CLOUD_API`
+2. `VITE_APP_URL`
+3. `VITE_SERVER_URL`
+4. `VITE_URL_ENCRYPTION_SECRET`
+5. `VITE_CLOUDINARY_CLOUD_NAME`
+6. `VITE_CLOUDINARY_CLOUD_API`
 
 After setting all this up, again make sure to change the directory in your terminal,
 
 ```bash
 cd server
 ```
+
 After changing the directory, run the following command,
 
 ```bash
 npm install
 ```
+
 This will install all the necessary packages. Then you can start the server by running the following command,
 
 ```bash

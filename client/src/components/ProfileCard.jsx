@@ -106,7 +106,7 @@ export function ProfileCard({ details, followingBack }) {
   return (
     <>
       {details && (
-        <div className="flex basis-1/2 flex-col gap-5 bg-white dark:bg-[#242526] px-4 py-3 transition-all drop-shadow-sm rounded-md">
+        <div className="flex basis-1/2 flex-col gap-5 bg-white dark:bg-[#242526] px-4 py-3 transition-all drop-shadow-xs rounded-md">
           <div className="flex gap-3 items-center">
             <Link
               to={`${APP_URL || ""}/user/${details.username}`}
