@@ -106,7 +106,7 @@ export function ProfileCard({ details, followingBack }) {
   return (
     <>
       {details && (
-        <div className="flex basis-1/2 flex-col gap-5 bg-white dark:bg-[#242526] px-4 py-3 transition-all drop-shadow-xs rounded-md border">
+        <div className="flex basis-1/2 flex-col gap-5 bg-white dark:bg-black px-4 py-3 transition-all drop-shadow-xs rounded-md border">
           <div className="flex gap-3 items-center">
             <Link
               to={`${APP_URL || ""}/user/${details.username}`}
@@ -124,9 +124,9 @@ export function ProfileCard({ details, followingBack }) {
                 to={`${APP_URL || ""}/user/${details.username}`}
                 className="hover:underline"
               >
-                <span className="font-medium ">{details?.name}</span>
+                <span className="font-medium text-sm">{details?.name}</span>
               </Link>
-              <span className="text-sm ">@{details?.username}</span>
+              <span className="text-xs ">@{details?.username}</span>
             </div>
           </div>
           <div className="flex gap-2 justify-end">
