@@ -334,11 +334,13 @@ export function CreatePost({
             <div className="flex gap-2 py-2 items-center">
               <Avatar>
                 <AvatarImage src={localStorage.avatar} />
-                <AvatarFallback className={localStorage.avatarBg}>
+                <AvatarFallback className={`localStorage.avatarBg`}>
                   {localStorage.name[0]}
                 </AvatarFallback>
               </Avatar>
-              <span>{localStorage.name}</span>
+              <span className="font-semibold text-[15px]">
+                {localStorage.name}
+              </span>
             </div>
             <TooltipProvider delayDuration="100" disabled={true}>
               <Tooltip>
@@ -350,7 +352,7 @@ export function CreatePost({
                   defaultValue="public"
                 >
                   <TooltipTrigger>
-                    <SelectTrigger className="w-[180px] dark:bg-[#3a3c3d]">
+                    <SelectTrigger className="w-[180px] dark:bg-[#3a3c3d] cursor-pointer">
                       <SelectValue />
                     </SelectTrigger>
                   </TooltipTrigger>
@@ -386,7 +388,7 @@ export function CreatePost({
             {!openPollPopUp && (
               <textarea
                 autoFocus
-                className="min-w-full min-h-32 p-2 rounded-md border bg-[#F0F2F5] dark:bg-[#333536] resize-none outline-hidden"
+                className="min-w-full min-h-32 p-2 rounded-md border bg-[#F0F2F5] dark:bg-[#333536] resize-none outline-hidden text-sm"
                 name="content"
                 id=""
                 placeholder="Start writing here ..."
@@ -542,7 +544,7 @@ export function CreatePost({
           </div>
           <div className="flex justify-between my-4 items-center">
             <div className="w-full flex justify-between items-center border border-[#ced0d4] dark:border-[#3e4042] pl-3 pr-2 py-1 mr-2 rounded-md">
-              <span className="">Add to your post</span>
+              <span className="text-sm">Add to your post</span>
               <div>
                 <TooltipProvider delayDuration="100" disabled={true}>
                   <Tooltip>
@@ -551,9 +553,9 @@ export function CreatePost({
                         togglePopupUploadImage();
                       }}
                       type="button"
-                      className="p-2 rounded-full hover:bg-[#d3d5d8] dark:hover:bg-[#414141]"
+                      className="p-2 rounded-full hover:bg-[#d3d5d8] dark:hover:bg-[#414141] cursor-pointer"
                     >
-                      <Image />
+                      <Image size={20} />
                     </TooltipTrigger>
                     <TooltipContent>
                       <p>Image</p>
@@ -565,9 +567,9 @@ export function CreatePost({
                         togglePopupUploadVideo();
                       }}
                       type="button"
-                      className="p-2 rounded-full hover:bg-[#d3d5d8] dark:hover:bg-[#414141]"
+                      className="p-2 rounded-full hover:bg-[#d3d5d8] dark:hover:bg-[#414141] cursor-pointer"
                     >
-                      <FileVideo />
+                      <FileVideo size={20} />
                     </TooltipTrigger>
                     <TooltipContent>
                       <p>Video</p>
@@ -577,9 +579,9 @@ export function CreatePost({
                     <TooltipTrigger
                       onClick={() => togglePopupPoll()}
                       type="button"
-                      className="p-2 rounded-full hover:bg-[#d3d5d8] dark:hover:bg-[#414141]"
+                      className="p-2 rounded-full hover:bg-[#d3d5d8] dark:hover:bg-[#414141] cursor-pointer"
                     >
-                      <ListTodo />
+                      <ListTodo size={20} />
                     </TooltipTrigger>
                     <TooltipContent>
                       <p>Poll</p>
