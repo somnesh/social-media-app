@@ -25,7 +25,7 @@ export default function Sidebar({ selectedChat, onChatSelect, onBackClick }) {
   return (
     <div className="flex flex-col h-full bg-card">
       {/* Header */}
-      <div className="p-4 border-b border-border space-y-4">
+      <div className="px-4 pb-4 border-b border-border space-y-4">
         <div className="flex items-center justify-between">
           <h1 className="text-2xl font-bold">Messages</h1>
           <button className="p-2 hover:bg-muted rounded-lg transition-colors cursor-pointer">
