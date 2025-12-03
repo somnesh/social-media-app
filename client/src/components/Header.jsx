@@ -38,7 +38,7 @@ export const Header = memo(
       setIsLoading(false);
     }, [navigate]);
     return (
-      <header className="flex justify-center sm:justify-normal py-1 pl-3 pr-2 bg-white dark:bg-black items-center transition-colors duration-500 shadow-xs border-b border-gray-200 dark:border-gray-700 z-20 sm:sticky sm:top-0 fixed bottom-0 w-full">
+      <header className="flex justify-center sm:justify-normal py-1 pl-3 pr-2 bg-white dark:bg-black items-center transition-colors duration-500 shadow-xs border-t sm:border-b border-gray-200 dark:border-gray-700 z-20 sm:sticky sm:top-0 fixed bottom-0 w-full">
         {/* <section className="basis-1/4 absolute left-0 sm:relative z-11 sm:z-auto">
         <SearchBar />
       </section> */}
