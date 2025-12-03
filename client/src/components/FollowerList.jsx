@@ -52,8 +52,8 @@ export function FollowerList() {
       {isLoading ? (
         <ProfileCardLoader />
       ) : (
-        <div className="flex flex-col sm:w-full px-2 sm:px-0">
-          <div className="sm:mb-4 my-4">
+        <div className="flex flex-col sm:w-full px-4">
+          <div className="mb-4">
             <span className="text-2xl font-bold">Followers ({totalCount})</span>
           </div>
           <div className="flex items-center flex-col gap-3">
