@@ -575,7 +575,7 @@ export function Post({
       <div
         className={`bg-white dark:bg-black pb-2 ${className} ${
           details.recommended ? "sm:rounded-b-lg" : "sm:rounded-lg"
-        } sm:mb-2 mb-1 relative transition-all drop-shadow-xs shadow-sm border`}
+        } sm:mb-2 mb-1 relative transition-all drop-shadow-xs shadow-sm sm:border border-b`}
       >
         {/* Post header */}
         <div className="flex items-center gap-3 pt-4 px-4 relative">
@@ -604,14 +604,14 @@ export function Post({
             >
               {details.user_id.name}
             </Link>
-            <div className="flex gap-1 items-center text-sm">
+            <div className="flex gap-1 items-center text-xs">
               <span>
                 {visibility === "public" ? (
-                  <Globe size={16} strokeWidth={1.25} />
+                  <Globe size={15} strokeWidth={1.25} />
                 ) : visibility === "friends" ? (
-                  <Users size={16} strokeWidth={1.25} />
+                  <Users size={15} strokeWidth={1.25} />
                 ) : (
-                  <Lock size={16} strokeWidth={1.25} />
+                  <Lock size={15} strokeWidth={1.25} />
                 )}
               </span>
               <span> · {postDuration}</span>
@@ -620,7 +620,7 @@ export function Post({
           <Popover open={openPostMenu} onOpenChange={setOpenPostMenu}>
             <PopoverTrigger asChild>
               <div className="py-1 px-1 top-2 right-2 absolute hover:bg-[#F0F2F5] dark:hover:bg-[#414141] rounded-full cursor-pointer transition">
-                <Ellipsis />
+                <Ellipsis size={20} />
               </div>
             </PopoverTrigger>
             <PopoverContent className="w-48 dark:bg-[#242526] border dark:border-[#3a3b3c] p-1 text-sm select-none">
@@ -878,14 +878,14 @@ export function Post({
         </div>
 
         {/* Post counters */}
-        <div className="flex justify-between mb-1 px-3 text-sm">
+        <div className="flex justify-between mb-1 px-5 pb-1 text-sm">
           <div className="flex items-center gap-1">
             {likes !== 0 ? (
               <>
                 <Dialog>
                   <DialogTrigger
                     onClick={handleLikePopup}
-                    className="flex gap-1 hover:underline"
+                    className="flex gap-1 hover:underline cursor-pointer"
                   >
                     <span className="rounded-full bg-[#f91880] w-fit p-1 h-fit ">
                       <Heart size={13} fill="white" stroke="white" />
@@ -947,27 +947,27 @@ export function Post({
         {/* Post footer */}
         <div className="flex py-1 mx-4  border-y dark:dark:border-y-[#3a3b3c]">
           <div
-            className={`flex active:scale-95 basis-1/3 justify-center transition gap-1 p-2 hover:bg-[#f9188110] hover:text-[#f91880] cursor-pointer rounded-md ${
+            className={`flex active:scale-95 basis-1/3 justify-center items-center transition gap-1 p-2 hover:bg-[#f9188110] hover:text-[#f91880] cursor-pointer rounded-md ${
               isLiked ? "text-[#f91880] font-semibold" : ""
             }`}
             onClick={handleLike}
           >
-            <Heart className={isLiked ? "fill-[#f91880]" : ""} />
-            <span>React</span>
+            <Heart size={20} className={isLiked ? "fill-[#f91880]" : ""} />
+            <span className="text-sm">React</span>
           </div>
           <div
             onClick={handleCommentBoxPopup}
-            className="flex active:scale-95 basis-1/3 justify-center gap-1 p-2 hover:bg-[#1d9cf010] cursor-pointer rounded-md transition hover:text-[#1d9bf0]"
+            className="flex active:scale-95 basis-1/3 justify-center items-center gap-1 p-2 hover:bg-[#1d9cf010] cursor-pointer rounded-md transition hover:text-[#1d9bf0]"
           >
-            <MessageCircle />
-            <span>Comment</span>
+            <MessageCircle size={20} />
+            <span className="text-sm">Comment</span>
           </div>
 
           <Dialog open={openMain} onOpenChange={setOpenMain}>
             <DialogTrigger asChild>
-              <div className="flex active:scale-95 basis-1/3 justify-center gap-1 p-2 hover:bg-[#00ba7c10] cursor-pointer rounded-md transition  hover:text-[#00ba7c]">
-                <Repeat2 />
-                <span>Share</span>
+              <div className="flex active:scale-95 basis-1/3 justify-center items-center gap-1 p-2 hover:bg-[#00ba7c10] cursor-pointer rounded-md transition  hover:text-[#00ba7c]">
+                <Repeat2 size={20} />
+                <span className="text-sm">Share</span>
               </div>
             </DialogTrigger>
             <DialogContent className="sm:max-w-md dark:bg-[#242526] dark:border-[#3a3b3c]">
