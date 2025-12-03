@@ -1,33 +1,20 @@
-import {
-  Bell,
-  Bookmark,
-  Home,
-  MessageCircle,
-  MessagesSquare,
-  UserCheck,
-  Users,
-} from "lucide-react";
-import { useState } from "react";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
+import { Bell, Home, MessagesSquare, UserCheck, Users } from "lucide-react";
 
 export function Sidebar({ variant, setCurrentPage }) {
   const selectColor = "#0866ff";
-  const [isSidebarVisible, setIsSidebarVisible] = useState(false);
+
   return (
     <section
-      className={`flex justify-around sm:justify-center sticky z-10 sm:z-1 top-0 p-2 sm:p-2 sm:gap-4 bg-transparent sm:border-none border-b basis-1/4 sm:h-fit sm:top-1 overflow-y-auto sm:rounded-md gap-1 animate-in fade-in slide-in-from-top-2 duration-300 transition-all `}
+      className={`flex justify-around sm:justify-center sticky z-10 sm:z-1 top-0 py-2 sm:p-2 sm:gap-4 sm:border-none basis-1/4 sm:h-fit sm:top-1 overflow-y-auto sm:rounded-md gap-1 animate-in fade-in slide-in-from-top-2 duration-300 transition-all `}
     >
-      <div className="flex gap-1 p-3 border bg-[#ffffffdb] dark:bg-[#000000ba] backdrop-blur-[3px] shadow-sm dark:inset-shadow-sm dark:inset-shadow-blue-950 inset-shadow-white rounded-full transition-all duration-300 sticky top-4">
+      {/* <div className="flex gap-1 p-3 border bg-[#ffffffdb] dark:bg-[#000000ba] backdrop-blur-[3px] shadow-sm dark:inset-shadow-sm dark:inset-shadow-blue-950 inset-shadow-white rounded-full transition-all duration-300 sticky top-4"> */}
+      <div className="flex gap-2 transition-all duration-300">
         <div className={`flex`}>
           <div
             onClick={() => {
               if (variant !== "home") setCurrentPage("home");
             }}
-            className={`flex items-center gap-2 py-3 px-4 cursor-pointer rounded-full transition duration-300 ${
+            className={`flex items-center gap-2 py-3 px-4 sm:px-10 cursor-pointer rounded-full transition duration-300 ${
               variant !== "home"
                 ? "hover:bg-[#e3e5e9] dark:hover:bg-[#414141]"
                 : "dark:bg-blue-950 inset-shadow-sm inset-shadow-indigo-300 dark:inset-shadow-indigo-800 bg-blue-200"
@@ -45,7 +32,7 @@ export function Sidebar({ variant, setCurrentPage }) {
             ) : (
               <Home />
             )}
-            <span
+            {/* <span
               className={`${
                 variant === "home"
                   ? `font-bold text-[${selectColor}] sm:block`
@@ -53,7 +40,7 @@ export function Sidebar({ variant, setCurrentPage }) {
               } hidden`}
             >
               Home
-            </span>
+            </span> */}
           </div>
         </div>
         <div className={`flex`}>
@@ -61,7 +48,7 @@ export function Sidebar({ variant, setCurrentPage }) {
             onClick={() => {
               if (variant !== "followers") setCurrentPage("followers");
             }}
-            className={`flex items-center gap-2 py-3 px-4 cursor-pointer rounded-full transition duration-300 ${
+            className={`flex items-center gap-2 py-3 px-4 sm:px-10 cursor-pointer rounded-full transition duration-300 ${
               variant !== "followers"
                 ? "hover:bg-[#e3e5e9] dark:hover:bg-[#414141]"
                 : "dark:bg-blue-950 inset-shadow-sm inset-shadow-indigo-300 dark:inset-shadow-indigo-800 bg-blue-200"
@@ -72,7 +59,7 @@ export function Sidebar({ variant, setCurrentPage }) {
             ) : (
               <Users />
             )}
-            <span
+            {/* <span
               className={`${
                 variant === "followers"
                   ? `font-bold text-[${selectColor}] sm:block`
@@ -80,7 +67,7 @@ export function Sidebar({ variant, setCurrentPage }) {
               } hidden`}
             >
               Followers
-            </span>
+            </span> */}
           </div>
         </div>
         <div className={`flex`}>
@@ -88,7 +75,7 @@ export function Sidebar({ variant, setCurrentPage }) {
             onClick={() => {
               if (variant !== "following") setCurrentPage("following");
             }}
-            className={`flex items-center gap-2 py-3 px-4 cursor-pointer rounded-full transition duration-300 ${
+            className={`flex items-center gap-2 py-3 px-4 sm:px-10 cursor-pointer rounded-full transition duration-300 ${
               variant !== "following"
                 ? "hover:bg-[#e3e5e9] dark:hover:bg-[#414141]"
                 : "dark:bg-blue-950 inset-shadow-sm inset-shadow-indigo-300 dark:inset-shadow-indigo-800 bg-blue-200"
@@ -99,7 +86,7 @@ export function Sidebar({ variant, setCurrentPage }) {
             ) : (
               <UserCheck />
             )}
-            <span
+            {/* <span
               className={`${
                 variant === "following"
                   ? `font-bold text-[${selectColor}] sm:block`
@@ -107,7 +94,7 @@ export function Sidebar({ variant, setCurrentPage }) {
               } hidden`}
             >
               Following
-            </span>
+            </span> */}
           </div>
         </div>
         <div className={`flex`}>
@@ -115,7 +102,7 @@ export function Sidebar({ variant, setCurrentPage }) {
             onClick={() => {
               if (variant !== "chat") setCurrentPage("chat");
             }}
-            className={`flex items-center gap-2 py-3 px-4 cursor-pointer rounded-full transition duration-300 ${
+            className={`flex items-center gap-2 py-3 px-4 sm:px-10 cursor-pointer rounded-full transition duration-300 ${
               variant !== "chat"
                 ? "hover:bg-[#e3e5e9] dark:hover:bg-[#414141]"
                 : "dark:bg-blue-950 inset-shadow-sm inset-shadow-indigo-300 dark:inset-shadow-indigo-800 bg-blue-200"
@@ -132,7 +119,7 @@ export function Sidebar({ variant, setCurrentPage }) {
               </div>
             )}
 
-            <span
+            {/* <span
               className={`${
                 variant === "chat"
                   ? `font-bold text-[${selectColor}] sm:block`
@@ -140,7 +127,7 @@ export function Sidebar({ variant, setCurrentPage }) {
               } hidden`}
             >
               Chat
-            </span>
+            </span> */}
           </div>
         </div>
         <div className="flex">
@@ -148,7 +135,7 @@ export function Sidebar({ variant, setCurrentPage }) {
             onClick={() => {
               if (variant !== "notification") setCurrentPage("notification");
             }}
-            className={`flex items-center gap-2 py-3 px-4 cursor-pointer rounded-full transition duration-300 ${
+            className={`flex items-center gap-2 py-3 px-4 sm:px-10 cursor-pointer rounded-full transition duration-300 ${
               variant !== "notification"
                 ? "hover:bg-[#e3e5e9] dark:hover:bg-[#414141]"
                 : "dark:bg-blue-950 inset-shadow-sm inset-shadow-indigo-300 dark:inset-shadow-indigo-800 bg-blue-200"
@@ -164,7 +151,7 @@ export function Sidebar({ variant, setCurrentPage }) {
                 </span>
               </div>
             )}
-            <span
+            {/* <span
               className={`${
                 variant === "notification"
                   ? `font-bold text-[${selectColor}] sm:block`
@@ -172,10 +159,10 @@ export function Sidebar({ variant, setCurrentPage }) {
               } hidden`}
             >
               Notification
-            </span>
+            </span> */}
           </div>
         </div>
-        <div className={`flex`}>
+        {/* <div className={`flex`}>
           <div
             onClick={() => {
               if (variant !== "saved") setCurrentPage("saved");
@@ -201,7 +188,34 @@ export function Sidebar({ variant, setCurrentPage }) {
               Saved
             </span>
           </div>
-        </div>
+        </div> */}
+        {/* <div className={`flex`}>
+          <div
+            onClick={() => {
+              if (variant !== "menu") setCurrentPage("menu");
+            }}
+            className={`flex items-center gap-2 py-3 px-4 cursor-pointer rounded-full transition duration-300 ${
+              variant !== "menu"
+                ? "hover:bg-[#e3e5e9] dark:hover:bg-[#414141]"
+                : "dark:bg-blue-950 inset-shadow-sm inset-shadow-indigo-300 dark:inset-shadow-indigo-800 bg-blue-200"
+            }`}
+          >
+            {variant === "menu" ? (
+              <Menu fill={selectColor} stroke={selectColor} />
+            ) : (
+              <Menu />
+            )}
+            <span
+              className={`${
+                variant === "menu"
+                  ? `font-bold text-[${selectColor}] sm:block`
+                  : ""
+              } hidden`}
+            >
+              Menu
+            </span>
+          </div>
+        </div> */}
       </div>
     </section>
   );
