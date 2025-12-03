@@ -12,12 +12,12 @@ export function NotificationCentre({ mobileFlag }) {
       ) : (
         <>
           {mobileFlag && (
-            <div className="my-4 ml-2">
+            <div className="ml-4 mb-5 mt-1">
               <span className="text-2xl font-bold">Notifications</span>
             </div>
           )}
 
-          <div className="sm:max-h-screen h-auto overflow-y-auto">
+          <div className="sm:max-h-screen h-auto overflow-y-auto px-4 text-sm flex flex-col gap-2">
             {notifications.length !== 0 ? (
               notifications.map((notification, index) => (
                 <NotificationContent
@@ -26,7 +26,7 @@ export function NotificationCentre({ mobileFlag }) {
                 />
               ))
             ) : (
-              <span className="block p-3 font-medium w-full text-center">
+              <span className="block p-3 font-medium w-full text-center text-sm">
                 Nothing here right now.
               </span>
             )}
