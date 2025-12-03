@@ -294,7 +294,7 @@ export function CommentStructure({
       <div
         onMouseEnter={handleMouseOver}
         onMouseLeave={handleMouseLeave}
-        className="flex gap-2 m-2"
+        className="flex gap-2 my-2 mx-5"
       >
         <Link
           to={`${APP_URL || ""}/user/${details.user.username}`}
