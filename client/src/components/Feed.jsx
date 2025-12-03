@@ -128,7 +128,7 @@ export function Feed() {
               setUploadProgress={setUploadProgress}
             />
           )}
-          <div className="create-new-post bg-white dark:bg-black px-4 py-2 sm:rounded-lg mb-2 shadow-sm border">
+          <div className="create-new-post bg-white dark:bg-black px-4 py-2 sm:rounded-lg mb-2 shadow-sm border-b sm:border">
             <div className="flex items-center py-2 gap-3">
               <Link
                 to={`${APP_URL || ""}/user/${localStorage.username}`}
@@ -157,7 +157,7 @@ export function Feed() {
                 }}
                 className="flex basis-1/3 items-center justify-center p-2 gap-1 cursor-pointer hover:bg-[#F0F2F5] active:bg-[#e3e5e9] dark:hover:bg-[#414141] dark:active:bg-[#535353] rounded-md"
               >
-                <ImagePlus />
+                <ImagePlus size={20} />
                 <span>Image</span>
               </div>
               <div
@@ -167,14 +167,14 @@ export function Feed() {
                 }}
                 className="flex basis-1/3 items-center justify-center p-2 gap-1 cursor-pointer hover:bg-[#F0F2F5] active:bg-[#e3e5e9] dark:hover:bg-[#414141] dark:active:bg-[#535353] rounded-md"
               >
-                <ListTodo />
+                <ListTodo size={20} />
                 <span>Poll</span>
               </div>
               <div
                 onClick={handleCreatePostClick}
                 className="flex basis-1/3 items-center justify-center p-2 gap-1 cursor-pointer hover:bg-[#F0F2F5] active:bg-[#e3e5e9] dark:hover:bg-[#414141] dark:active:bg-[#535353] rounded-md"
               >
-                <CirclePlus />
+                <CirclePlus size={20} />
                 <span>More</span>
               </div>
             </div>
