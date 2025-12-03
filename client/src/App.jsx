@@ -26,6 +26,11 @@ import Maintenance from "./admin/pages/Maintenance";
 import { Suspension } from "./pages/Suspension";
 import UserFeedback from "./admin/pages/UserFeedback";
 import axios from "axios";
+import Privacy from "./pages/legal/Privacy";
+import TermsAndConditions from "./pages/legal/terms";
+import CommunityGuidelines from "./pages/legal/community";
+import CookiePolicy from "./pages/legal/cookies";
+import DataDeletionPolicy from "./pages/legal/deletion";
 
 const router = createBrowserRouter([
   {
@@ -83,6 +88,26 @@ const router = createBrowserRouter([
   {
     path: "/settings",
     element: <UserSettingsPage />,
+  },
+  {
+    path: "/privacy-policy",
+    element: <Privacy />,
+  },
+  {
+    path: "/terms",
+    element: <TermsAndConditions />,
+  },
+  {
+    path: "/community-guidelines",
+    element: <CommunityGuidelines />,
+  },
+  {
+    path: "/cookie-policy",
+    element: <CookiePolicy />,
+  },
+  {
+    path: "/data-deletion-policy",
+    element: <DataDeletionPolicy />,
   },
   {
     path: "/500",
