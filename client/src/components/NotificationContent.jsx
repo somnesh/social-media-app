@@ -43,7 +43,7 @@ export function NotificationContent({ message }) {
       className="flex items-center gap-4 hover:bg-[#f2f2f2] dark:hover:bg-[#414141] dark:active:bg-[#383838] p-2 mr-1 rounded-md cursor-pointer"
     >
       <div className="">
-        <Avatar className={"h-14 w-14"}>
+        <Avatar className={"h-10 w-10"}>
           <AvatarImage src={message.sender.avatar || ""} />
           <AvatarFallback className={message.sender.avatarBg}>
             {message.sender.name[0]}
