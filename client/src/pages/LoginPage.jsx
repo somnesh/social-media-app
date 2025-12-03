@@ -142,9 +142,9 @@ export function LoginPage() {
   return (
     <div className="flex min-h-screen flex-col-reverse lg:flex-row p-2">
       <div className="flex flex-1 items-center justify-center z-10">
-        <div className="py-20 px-10 bg-[#ffffffb8] rounded-lg shadow-lg h-full lg:max-w-lg lg:max-h-max w-full">
+        <div className="py-20 px-10 bg-[#ffffffe3] rounded-lg shadow-lg h-full lg:max-w-lg lg:max-h-max w-full text-black border border-white/30">
           <div className="sm:mx-auto sm:w-full sm:max-w-sm">
-            <h2 className="mt-10 text-center text-3xl font-bold leading-9 tracking-tight text-gray-900 ">
+            <h2 className="mt-10 text-center text-3xl font-bold leading-9 tracking-tight text-inherit">
               Welcome Back
             </h2>
           </div>
@@ -154,7 +154,7 @@ export function LoginPage() {
               <div>
                 <label
                   htmlFor="email"
-                  className="block text-sm font-medium leading-6 text-gray-900"
+                  className="block text-sm font-medium leading-6 text-inherit"
                 >
                   Email
                 </label>
@@ -164,7 +164,7 @@ export function LoginPage() {
                     name="email"
                     type="email"
                     autoComplete="email"
-                    placeholder="Email address"
+                    placeholder="Email or Username"
                     title="Enter your email"
                     required
                     className="block w-full rounded-md border-0 p-2 bg-white text-gray-900 shadow-xs ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6 text-sm"
@@ -180,7 +180,7 @@ export function LoginPage() {
                 <div className="flex items-center justify-between">
                   <label
                     htmlFor="password"
-                    className="block text-sm font-medium leading-6 text-gray-900 "
+                    className="block text-sm font-medium leading-6 text-inherit"
                   >
                     Password
                   </label>
@@ -228,7 +228,7 @@ export function LoginPage() {
               <div className="text-sm text-right mt-1">
                 <Link
                   to={"/forgot-password"}
-                  className="font-semibold text-indigo-500 hover:text-indigo-400"
+                  className="font-semibold text-indigo-700 hover:text-indigo-600"
                 >
                   Forgot Password?
                 </Link>
@@ -252,7 +252,7 @@ export function LoginPage() {
               Don't you have an account?{" "}
               <Link
                 to={"/signup"}
-                className="font-semibold leading-6 text-indigo-500 hover:text-indigo-400"
+                className="font-semibold leading-6 text-indigo-700 hover:text-indigo-600"
               >
                 Sign up
               </Link>
